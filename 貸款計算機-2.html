@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>貸款計算機</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --gold: #c9a84c;
+    --gold-light: #e8d5a0;
+    --accent: #8b4513;
+    --muted: #8a7a6a;
+    --green: #2d6a4f;
+    --red: #8b1a1a;
+    --border: #d4c5a9;
+    --card: #faf7f2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Serif TC', serif;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 20% 10%, rgba(201,168,76,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(139,69,19,0.06) 0%, transparent 50%);
+  }
+
+  header {
+    text-align: center;
+    padding: 48px 24px 32px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 3px;
+    background: var(--gold);
+  }
+  header h1 {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+  }
+  header p {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    font-weight: 300;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px 60px; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 36px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .tab {
+    flex: 1; padding: 14px 20px;
+    background: var(--card);
+    border: none; cursor: pointer;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.95rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .tab:not(:last-child) { border-right: 1px solid var(--border); }
+  .tab.active {
+    background: var(--ink);
+    color: var(--gold-light);
+    font-weight: 600;
+  }
+  .tab:hover:not(.active) { background: #ede8df; color: var(--ink); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* GRID */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  @media(max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px;
+    position: relative;
+  }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--gold);
+    border-radius: 6px 0 0 6px;
+  }
+  .card h3 {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    font-weight: 400;
+  }
+
+  /* INPUTS */
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.06em;
+  }
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%;
+    padding: 11px 48px 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--ink);
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+  .input-wrap input::-webkit-inner-spin-button,
+  .input-wrap input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .input-wrap input:focus { outline: none; border-color: var(--gold); }
+  .input-wrap .unit {
+    position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem; color: var(--muted);
+    font-family: 'Noto Serif TC', serif;
+    pointer-events: none;
+  }
+
+  /* SLIDER */
+  .slider-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+  .slider-row input[type=range] {
+    flex: 1; -webkit-appearance: none;
+    height: 3px; border-radius: 2px;
+    background: var(--border); outline: none;
+  }
+  .slider-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%; background: var(--gold);
+    cursor: pointer;
+  }
+
+  /* RESULTS */
+  .result-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 11px 0;
+    border-bottom: 1px dashed var(--border);
+    animation: fadeIn 0.3s ease;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-label { font-size: 0.85rem; color: var(--muted); }
+  .result-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem; font-weight: 500;
+    color: var(--ink);
+  }
+  .result-value.highlight { color: var(--green); font-size: 1.15rem; }
+  .result-value.warn { color: var(--accent); }
+
+  /* COMPARISON TABLE (panel 2) */
+  .compare-table {
+    width: 100%; border-collapse: collapse;
+    margin-top: 8px; font-size: 0.88rem;
+  }
+  .compare-table th {
+    background: var(--ink); color: var(--gold-light);
+    padding: 10px 14px; text-align: center;
+    font-weight: 600; letter-spacing: 0.06em;
+    font-size: 0.8rem;
+  }
+  .compare-table td {
+    padding: 10px 14px; text-align: right;
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+  }
+  .compare-table td:first-child { text-align: left; font-family: 'Noto Serif TC', serif; color: var(--muted); font-size: 0.82rem; }
+  .compare-table tr:nth-child(even) td { background: #faf7f2; }
+  .compare-table .better { color: var(--green); font-weight: 500; }
+  .compare-table .int-winner { color: #c0392b; font-weight: 700; }
+  .int-badge {
+    display: inline-block; margin-left: 6px;
+    background: #c0392b; color: #fff;
+    font-size: 0.68rem; font-weight: 700;
+    padding: 2px 6px; border-radius: 10px;
+    letter-spacing: 0.04em; vertical-align: middle;
+  }
+  .pres-winner { color: #2d6a4f; font-weight: 700; }
+  .pres-badge {
+    display: inline-block; margin-left: 6px;
+    background: #2d6a4f; color: #fff;
+    font-size: 0.68rem; font-weight: 700;
+    padding: 2px 6px; border-radius: 10px;
+    letter-spacing: 0.04em; vertical-align: middle;
+  }
+  .int-badge { background: #c0392b; }
+  .winner-hint {
+    margin-top: 10px; padding: 10px 14px;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.84rem; font-weight: 600;
+  }
+  .winner-hint.red { background: rgba(192,57,43,0.07); border-left: 3px solid #c0392b; color: #c0392b; }
+  .winner-hint.grn { background: rgba(45,106,79,0.07); border-left: 3px solid #2d6a4f; color: #2d6a4f; }
+
+  /* NOTE */
+  .note {
+    margin-top: 28px; padding: 16px 20px;
+    background: rgba(201,168,76,0.08);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 4px 4px 0;
+    font-size: 0.82rem; color: var(--muted);
+    line-height: 1.7;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .ornament { color: var(--gold); margin: 0 8px; font-size: 0.7em; }
+  .method-toggle { display:flex; gap:0; border:1px solid var(--border); border-radius:3px; overflow:hidden; flex-shrink:0; }
+  .method-btn { padding:11px 16px; border:none; cursor:pointer; font-family:'Noto Serif TC',serif; font-size:0.82rem; background:var(--card); color:var(--muted); transition:all 0.2s; white-space:nowrap; }
+  .method-btn:first-child { border-right:1px solid var(--border); }
+  .method-btn.active { background:var(--ink); color:var(--gold-light); font-weight:600; }
+  .amort-controls { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; margin-bottom:24px; }
+  .amort-controls .field { margin-bottom:0; flex:1; min-width:140px; }
+  .amort-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px; }
+  @media(max-width:600px) { .amort-summary { grid-template-columns:1fr 1fr; } }
+  .summary-box { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:14px 16px; text-align:center; }
+  .summary-box .s-label { font-size:0.75rem; color:var(--muted); letter-spacing:0.05em; }
+  .summary-box .s-value { font-family:'DM Mono',monospace; font-size:1.05rem; font-weight:500; color:var(--ink); margin-top:4px; }
+  .summary-box.accent .s-value { color:var(--accent); }
+  .summary-box.green .s-value { color:var(--green); }
+  .amort-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:6px; }
+  .amort-table { width:100%; border-collapse:collapse; font-size:0.82rem; min-width:560px; }
+  .amort-table thead tr { background:var(--ink); }
+  .amort-table th { color:var(--gold-light); padding:10px 12px; text-align:right; font-weight:600; letter-spacing:0.06em; font-size:0.75rem; white-space:nowrap; }
+  .amort-table th:first-child { text-align:center; }
+  .amort-table td { padding:8px 12px; text-align:right; border-bottom:1px solid var(--border); font-family:'DM Mono',monospace; color:var(--ink); }
+  .amort-table td:first-child { text-align:center; color:var(--muted); font-family:'Noto Serif TC',serif; }
+  .amort-table tr:nth-child(even) td { background:#faf7f2; }
+  .amort-table .td-int { color:var(--accent); }
+  .amort-table .td-prin { color:var(--green); }
+  .amort-table tfoot td { font-weight:600; background:#ede8df !important; border-top:2px solid var(--border); font-family:'DM Mono',monospace; }
+  .amort-table tfoot td:first-child { font-family:'Noto Serif TC',serif; color:var(--ink); }
+  .bar-wrap { display:flex; height:6px; border-radius:3px; overflow:hidden; background:var(--border); margin-top:2px; }
+  .bar-p { background:var(--green); height:100%; }
+  .bar-i { background:var(--accent); height:100%; opacity:0.7; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>貸款計算機</h1>
+  <p>輸入已知條件 <span class="ornament">◆</span> 自動計算還款方案</p>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(0)">情況一 ｜ 已知每月還款額 → 求期數</button>
+    <button class="tab" onclick="switchTab(1)">情況二 ｜ 已知還款年限 → 求每月還款額</button>
+    <button class="tab" onclick="switchTab(2)">本息攤還表</button>
+  </div>
+
+  <!-- Panel 1 -->
+  <div class="panel active" id="p0">
+    <div class="grid">
+      <div class="card">
+        <h3>輸入條件</h3>
+        <div class="field">
+          <label>貸款金額</label>
+          <div class="input-wrap">
+            <input type="number" id="p1_amount" value="1000000" oninput="calc1()">
+            <span class="unit">元</span>
+          </div>
+          <div class="slider-row">
+            <input type="range" id="p1_amount_s" min="100000" max="10000000" step="100000" value="1000000"
+              oninput="sync('p1_amount','p1_amount_s');calc1()">
+          </div>
+        </div>
+        <div class="field">
+          <label>年利率</label>
+          <div class="input-wrap">
+            <input type="number" id="p1_rate" value="3.00" step="0.01" oninput="calc1()">
+            <span class="unit">%</span>
+          </div>
+          <div class="slider-row">
+            <input type="range" id="p1_rate_s" min="0.5" max="20" step="0.1" value="3"
+              oninput="sync('p1_rate','p1_rate_s');calc1()">
+          </div>
+        </div>
+        <div class="field">
+          <label>每月還款額（等額本息）</label>
+          <div class="input-wrap">
+            <input type="number" id="p1_pmt" value="30000" oninput="calc1()">
+            <span class="unit">元</span>
+          </div>
+          <div class="slider-row">
+            <input type="range" id="p1_pmt_s" min="1000" max="200000" step="1000" value="30000"
+              oninput="sync('p1_pmt','p1_pmt_s');calc1()">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>計算結果</h3>
+        <div class="result-row">
+          <span class="result-label">所需還款期數</span>
+          <span class="result-value highlight" id="r1_n">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">換算年數</span>
+          <span class="result-value" id="r1_y">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">總還款金額</span>
+          <span class="result-value" id="r1_total">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">總利息支出</span>
+          <span class="result-value warn" id="r1_int">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">利息佔貸款比例</span>
+          <span class="result-value" id="r1_pct">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">月供佔建議上限（月收入×35%）</span>
+          <span class="result-value" id="r1_income">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      ✦ 公式：<strong>NPER(年利率/12, -月還款額, 貸款金額)</strong>，適用等額本息。<br>
+      ✦ 月供建議不超過月收入的 30～40%，以 35% 為參考上限。<br>
+      ✦ 結果無條件進位至整數月，最後一期實際還款額可能略有不同。
+    </div>
+  </div>
+
+  <!-- Panel 2 -->
+  <div class="panel" id="p1">
+    <div class="card" style="margin-bottom: 28px;">
+      <h3>輸入條件</h3>
+      <div class="grid" style="gap:20px;">
+        <div class="field">
+          <label>貸款金額</label>
+          <div class="input-wrap">
+            <input type="number" id="p2_amount" value="1000000" oninput="calc2()">
+            <span class="unit">元</span>
+          </div>
+          <div class="slider-row">
+            <input type="range" id="p2_amount_s" min="100000" max="10000000" step="100000" value="1000000"
+              oninput="sync('p2_amount','p2_amount_s');calc2()">
+          </div>
+        </div>
+        <div class="field">
+          <label>年利率</label>
+          <div class="input-wrap">
+            <input type="number" id="p2_rate" value="3.00" step="0.01" oninput="calc2()">
+            <span class="unit">%</span>
+          </div>
+          <div class="slider-row">
+            <input type="range" id="p2_rate_s" min="0.5" max="20" step="0.1" value="3"
+              oninput="sync('p2_rate','p2_rate_s');calc2()">
+          </div>
+        </div>
+        <div class="field">
+          <label>還款年限</label>
+          <div class="input-wrap">
+            <input type="number" id="p2_years" value="5" min="1" max="40" oninput="calc2()">
+            <span class="unit">年</span>
+          </div>
+          <div class="slider-row">
+            <input type="range" id="p2_years_s" min="1" max="40" step="1" value="5"
+              oninput="sync('p2_years','p2_years_s');calc2()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>兩種還款方式比較</h3>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">項目</th>
+            <th>等額本息</th>
+            <th>等額本金</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>總期數</td><td id="c_n1">—</td><td id="c_n2">—</td></tr>
+          <tr><td>每月還款額（首期）</td><td id="c_pmt1">—</td><td id="c_pmt2_first">—</td></tr>
+          <tr><td>每月還款額（末期）</td><td id="c_pmt1e">—</td><td id="c_pmt2_last">—</td></tr>
+          <tr><td>總還款金額</td><td id="c_total1">—</td><td id="c_total2">—</td></tr>
+          <tr><td>總利息支出</td><td id="c_int1">—</td><td id="c_int2">—</td></tr>
+          <tr><td>利息佔貸款比例</td><td id="c_pct1">—</td><td id="c_pct2">—</td></tr>
+        </tbody>
+      </table>
+      <div class="winner-hint red" id="int-winner-hint" style="display:none"></div>
+      <div class="winner-hint grn" id="pres-winner-hint" style="display:none"></div>
+    </div>
+    <div class="note">
+      ✦ <strong>等額本息</strong>：每月固定，資金規劃容易。<br>
+      ✦ <strong>等額本金</strong>：每月本金固定，利息隨餘額遞減，首期負擔較重。<br>
+      ✦ <span style="color:#c0392b;font-weight:600">紅色粗體</span>標示總利息較少的方案；<span style="color:#2d6a4f;font-weight:600">綠色粗體</span>標示每月資金壓力較小（首期還款較低）的方案。
+    </div>
+  </div>
+</div>
+
+  <!-- Panel 3: 攤還表 -->
+  <div class="panel" id="p2">
+    <div class="amort-controls">
+      <div class="field">
+        <label>貸款金額</label>
+        <div class="input-wrap">
+          <input type="number" id="a_amount" value="1000000" oninput="calcAmort()">
+          <span class="unit">元</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>年利率</label>
+        <div class="input-wrap">
+          <input type="number" id="a_rate" value="3.00" step="0.01" oninput="calcAmort()">
+          <span class="unit">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>還款期數</label>
+        <div class="input-wrap">
+          <input type="number" id="a_n" value="12" min="1" max="360" oninput="calcAmort()">
+          <span class="unit">期（月）</span>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:0.82rem;color:var(--muted);display:block;margin-bottom:6px;letter-spacing:0.06em;">還款方式</label>
+        <div class="method-toggle">
+          <button class="method-btn active" id="mb1" onclick="setMethod('pi')">等額本息</button>
+          <button class="method-btn" id="mb2" onclick="setMethod('pp')">等額本金</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="amort-summary">
+      <div class="summary-box green"><div class="s-label">每月還款額</div><div class="s-value" id="a_pmt">—</div></div>
+      <div class="summary-box"><div class="s-label">總還款金額</div><div class="s-value" id="a_total">—</div></div>
+      <div class="summary-box accent"><div class="s-label">總利息支出</div><div class="s-value" id="a_int">—</div></div>
+    </div>
+
+    <div class="amort-wrap">
+      <table class="amort-table">
+        <thead>
+          <tr>
+            <th>期數</th>
+            <th>期初餘額</th>
+            <th>本金</th>
+            <th>利息</th>
+            <th>本利和</th>
+            <th>期末餘額</th>
+            <th style="min-width:90px">本金／利息</th>
+          </tr>
+        </thead>
+        <tbody id="amort-body"></tbody>
+        <tfoot id="amort-foot"></tfoot>
+      </table>
+    </div>
+    <div class="note" style="margin-top:20px;">
+      ✦ <strong style="color:var(--green)">綠色</strong>為本金，<strong style="color:var(--accent)">橘色</strong>為利息。<br>
+      ✦ 等額本息：每月本利和固定；等額本金：每月本金固定，還款金額逐期遞減。
+    </div>
+  </div>
+</div>
+
+<script>
+function fmt(n, dec=0) {
+  if (!isFinite(n) || isNaN(n)) return '—';
+  return n.toLocaleString('zh-TW', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function pct(n) { return isFinite(n) ? (n*100).toFixed(2)+'%' : '—'; }
+function sync(inputId, sliderId) { document.getElementById(inputId).value = document.getElementById(sliderId).value; }
+
+function calc1() {
+  const PV = +document.getElementById('p1_amount').value;
+  const r = +document.getElementById('p1_rate').value / 100 / 12;
+  const pmt = +document.getElementById('p1_pmt').value;
+  document.getElementById('p1_amount_s').value = PV;
+  document.getElementById('p1_rate_s').value = +document.getElementById('p1_rate').value;
+  document.getElementById('p1_pmt_s').value = pmt;
+  if (pmt <= PV * r) {
+    document.getElementById('r1_n').textContent = '月供不足以覆蓋利息';
+    ['r1_y','r1_total','r1_int','r1_pct','r1_income'].forEach(id => document.getElementById(id).textContent = '—');
+    return;
+  }
+  const n = Math.ceil(Math.log(pmt / (pmt - PV * r)) / Math.log(1 + r));
+  const total = pmt * n;
+  const interest = total - PV;
+  document.getElementById('r1_n').textContent = fmt(n) + ' 期';
+  document.getElementById('r1_y').textContent = (n/12).toFixed(1) + ' 年';
+  document.getElementById('r1_total').textContent = fmt(total) + ' 元';
+  document.getElementById('r1_int').textContent = fmt(interest) + ' 元';
+  document.getElementById('r1_pct').textContent = pct(interest/PV);
+  document.getElementById('r1_income').textContent = '月收入需 ≥ ' + fmt(pmt / 0.35) + ' 元';
+}
+
+function calc2() {
+  const PV = +document.getElementById('p2_amount').value;
+  const annualRate = +document.getElementById('p2_rate').value / 100;
+  const years = +document.getElementById('p2_years').value;
+  document.getElementById('p2_amount_s').value = PV;
+  document.getElementById('p2_rate_s').value = annualRate * 100;
+  document.getElementById('p2_years_s').value = years;
+  const n = years * 12, r = annualRate / 12;
+  const pmt1 = r === 0 ? PV/n : PV * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+  const total1 = pmt1 * n, int1 = total1 - PV;
+  const principal = PV / n, pmt2_first = principal + PV * r, pmt2_last = principal + principal * r;
+  const int2 = r * PV * (n + 1) / 2, total2 = PV + int2;
+  document.getElementById('c_n1').textContent = fmt(n) + ' 期';
+  document.getElementById('c_n2').textContent = fmt(n) + ' 期';
+  document.getElementById('c_pmt1').textContent = fmt(pmt1, 2) + ' 元';
+  document.getElementById('c_pmt1e').textContent = fmt(pmt1, 2) + ' 元';
+  document.getElementById('c_pmt2_first').textContent = fmt(pmt2_first, 2) + ' 元';
+  document.getElementById('c_pmt2_last').textContent = fmt(pmt2_last, 2) + ' 元';
+
+  // 資金壓力：比較首期還款額
+  const p1el = document.getElementById('c_pmt1'), p2el = document.getElementById('c_pmt2_first');
+  const presHint = document.getElementById('pres-winner-hint');
+  if (pmt1 < pmt2_first) {
+    p1el.innerHTML = fmt(pmt1,2) + ' 元 <span class="pres-badge">資金壓力較小</span>';
+    p1el.className = 'pres-winner'; p2el.className = '';
+    presHint.textContent = '▶ 等額本息首期還款較低（' + fmt(pmt1,0) + ' 元），每月資金壓力較小，差距 ' + fmt(pmt2_first-pmt1,0) + ' 元';
+    presHint.style.display = 'block';
+  } else if (pmt2_first < pmt1) {
+    p2el.innerHTML = fmt(pmt2_first,2) + ' 元 <span class="pres-badge">資金壓力較小</span>';
+    p2el.className = 'pres-winner'; p1el.className = '';
+    presHint.textContent = '▶ 等額本金首期還款較低（' + fmt(pmt2_first,0) + ' 元），每月資金壓力較小，差距 ' + fmt(pmt1-pmt2_first,0) + ' 元';
+    presHint.style.display = 'block';
+  } else {
+    p1el.className = ''; p2el.className = '';
+    presHint.style.display = 'none';
+  }
+  const t1el = document.getElementById('c_total1'), t2el = document.getElementById('c_total2');
+  t1el.textContent = fmt(total1) + ' 元'; t2el.textContent = fmt(total2) + ' 元';
+  t1el.className = total1 <= total2 ? 'better' : ''; t2el.className = total2 < total1 ? 'better' : '';
+  const i1el = document.getElementById('c_int1'), i2el = document.getElementById('c_int2');
+  i1el.textContent = fmt(int1) + ' 元'; i2el.textContent = fmt(int2) + ' 元';
+  const hint = document.getElementById('int-winner-hint');
+  if (int1 < int2) {
+    i1el.innerHTML = fmt(int1) + ' 元 <span class="int-badge">利息較少</span>';
+    i1el.className = 'int-winner'; i2el.className = '';
+    hint.textContent = '▶ 等額本息利息較少，節省 ' + fmt(int2-int1,0) + ' 元';
+    hint.style.display = 'block';
+  } else if (int2 < int1) {
+    i2el.innerHTML = fmt(int2) + ' 元 <span class="int-badge">利息較少</span>';
+    i2el.className = 'int-winner'; i1el.className = '';
+    hint.textContent = '▶ 等額本金利息較少，節省 ' + fmt(int1-int2,0) + ' 元';
+    hint.style.display = 'block';
+  } else {
+    i1el.className = ''; i2el.className = '';
+    hint.style.display = 'none';
+  }
+  document.getElementById('c_pct1').textContent = pct(int1/PV);
+  document.getElementById('c_pct2').textContent = pct(int2/PV);
+}
+
+let amortMethod = 'pi';
+function setMethod(m) {
+  amortMethod = m;
+  document.getElementById('mb1').classList.toggle('active', m==='pi');
+  document.getElementById('mb2').classList.toggle('active', m==='pp');
+  calcAmort();
+}
+
+function calcAmort() {
+  const PV = +document.getElementById('a_amount').value;
+  const r = +document.getElementById('a_rate').value / 100 / 12;
+  const n = Math.min(360, Math.max(1, +document.getElementById('a_n').value | 0));
+  if (!PV || !n) return;
+
+  const rows = [];
+  let bal = PV, totPrin = 0, totInt = 0, totPmt = 0;
+
+  if (amortMethod === 'pi') {
+    const pmt = r === 0 ? PV/n : PV * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+    document.getElementById('a_pmt').textContent = fmt(pmt,2) + ' 元（固定）';
+    for (let i = 1; i <= n; i++) {
+      const interest = bal * r;
+      const prin = i < n ? pmt - interest : bal;
+      const payment = i < n ? pmt : bal + interest;
+      const endBal = i < n ? bal - prin : 0;
+      rows.push([i, bal, prin, interest, payment, endBal]);
+      totPrin += prin; totInt += interest; totPmt += payment;
+      bal = endBal;
+    }
+  } else {
+    const prin = PV / n;
+    document.getElementById('a_pmt').textContent = '首期 ' + fmt(prin + PV*r, 2) + ' 元（遞減）';
+    for (let i = 1; i <= n; i++) {
+      const interest = bal * r;
+      const payment = prin + interest;
+      const endBal = bal - prin;
+      rows.push([i, bal, prin, interest, payment, Math.max(0, endBal)]);
+      totPrin += prin; totInt += interest; totPmt += payment;
+      bal = endBal;
+    }
+  }
+
+  document.getElementById('a_total').textContent = fmt(totPmt, 0) + ' 元';
+  document.getElementById('a_int').textContent = fmt(totInt, 0) + ' 元';
+
+  const tbody = document.getElementById('amort-body');
+  tbody.innerHTML = rows.map(([i, beg, prin, interest, pmt, end]) => {
+    const pPct = (prin / (prin + interest) * 100).toFixed(1);
+    const iPct = (100 - pPct).toFixed(1);
+    return `<tr>
+      <td>${i}</td>
+      <td>${fmt(beg,0)}</td>
+      <td class="td-prin">${fmt(prin,0)}</td>
+      <td class="td-int">${fmt(interest,0)}</td>
+      <td>${fmt(pmt,0)}</td>
+      <td>${fmt(end,0)}</td>
+      <td style="padding:8px 12px">
+        <div class="bar-wrap">
+          <div class="bar-p" style="width:${pPct}%"></div>
+          <div class="bar-i" style="width:${iPct}%"></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('amort-foot').innerHTML = `<tr>
+    <td>合計</td><td>—</td>
+    <td class="td-prin">${fmt(totPrin,0)}</td>
+    <td class="td-int">${fmt(totInt,0)}</td>
+    <td>${fmt(totPmt,0)}</td><td>—</td><td></td>
+  </tr>`;
+}
+
+function switchTab(idx) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+}
+
+calc1(); calc2(); calcAmort();
+</script>
+</body>
+</html>
