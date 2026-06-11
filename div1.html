@@ -3,187 +3,812 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>32人遊行平分問題 - 學習單</title>
+  <title>32人遊行平分問題 - 互動式數學解題工具</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&display=swap');
     
     body {
-      font-family: 'Noto Sans TC', sans-serif;
-      background-color: #fff;
-      color: #000;
+      font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
     }
 
-    /* 列印特定設定 */
-    @media print {
-      body {
-        background-color: white;
-        margin: 0;
-        padding: 0;
-        /* 確保不跨頁的關鍵設定 */
-        page-break-inside: avoid; 
+    /* 數學算式基本結構 */
+    .math {
+      font-size: 32px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 輸入框特教高亮與脈衝動畫 */
+    .slot {
+      width: 70px;
+      height: 55px;
+      border: 3px solid #cbd5e1;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #1e293b;
+      transition: all 0.3s ease;
+      background-color: #ffffff;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { 
+        border-color: #3b82f6; 
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4); 
+        background-color: #eff6ff;
       }
-      .no-print {
-        display: none !important;
-      }
-      /* 調整頁面間距以適應一頁 */
-      @page {
-        margin: 1.5cm; 
-      }
-      /* 確保邊框在列印時清晰 */
-      .print-border {
-        border: 2px solid #000 !important;
-      }
-      .print-bg-light {
-        background-color: #f8f9fa !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+      50% { 
+        border-color: #60a5fa; 
+        box-shadow: 0 0 0 6px rgba(96, 165, 250, 0.6); 
+        background-color: #e0f2fe;
       }
     }
 
-    /* 手寫空格樣式 */
-    .write-slot {
-      display: inline-block;
-      width: 50px;
-      height: 30px;
-      border-bottom: 2px solid #000;
-      margin: 0 4px;
-      vertical-align: bottom;
+    /* 當前焦點輸入框 */
+    .active-slot {
+      animation: pulse-border 1.5s infinite;
+      outline: none;
+    }
+
+    /* 答對的綠色輸入框狀態 */
+    .correct-slot {
+      border-color: #10b981 !important;
+      background-color: #ecfdf5 !important;
+      color: #047857 !important;
+      box-shadow: none !important;
+    }
+
+    /* 步驟滑入與淡入動畫 */
+    .step-enter {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
-    .write-slot-large {
-      display: inline-block;
-      width: 60px;
-      height: 40px;
-      border: 2px solid #000;
-      border-radius: 6px;
-      margin: 0 6px;
-      vertical-align: middle;
+    .step-show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    /* 算式框樣式 */
-    .math-slot {
-      display: inline-block;
-      width: 60px;
-      height: 50px;
-      border: 2px solid #000;
-      border-radius: 6px;
-      margin: 0 8px;
-      vertical-align: middle;
+    /* SVG 人物動態懸停 */
+    .svg-person {
+      transition: transform 0.2s ease;
+    }
+    .svg-person:hover {
+      transform: scale(1.15) translateY(-5px);
     }
   </style>
 </head>
-<body class="p-4 md:p-8 max-w-4xl mx-auto bg-white min-h-screen">
+<body class="bg-slate-50 min-h-screen flex flex-col overflow-x-hidden">
 
-  <!-- 網頁版列印按鈕 (列印時會隱藏) -->
-  <div class="no-print mb-4 flex justify-end">
-    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-      </svg>
-      列印學習單
-    </button>
-  </div>
+  <!-- 頂部導覽列與計時、計分系統 -->
+  <header class="bg-white border-b border-slate-200 px-6 py-4 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 shrink-0">
+    <div class="flex items-center gap-3">
+      <span class="bg-blue-600 text-white font-bold text-sm px-3 py-1.5 rounded-full shadow-sm tracking-wide">
+        單元：除法與等分
+      </span>
+      <h1 class="text-xl md:text-2xl font-bold text-slate-800">🎡 32人平分4組遊行問題</h1>
+    </div>
+    
+    <!-- 右側資訊與控制 -->
+    <div class="flex items-center gap-6">
+      <!-- 語音朗讀題目 (特教輔助) -->
+      <button onclick="readAloud()" class="flex items-center gap-2 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold px-4 py-2 rounded-xl border border-purple-200 transition-all text-base shadow-sm">
+        🔊 朗讀題目
+      </button>
 
-  <!-- 學習單標頭 -->
-  <header class="border-b-2 border-black pb-2 mb-4">
-    <div class="flex justify-between items-end mb-2">
-      <div>
-        <h1 class="text-2xl font-bold mb-1">數學挑戰：平分問題</h1>
-        <p class="text-base font-bold">單元：除法與等分</p>
+      <!-- 計時器 -->
+      <div class="flex items-center gap-2 text-slate-700 font-bold bg-amber-50 px-4 py-2 rounded-xl border border-amber-200 shadow-sm text-lg">
+        ⏱️ <span id="timer-display">07:00</span>
       </div>
-      <div class="text-base font-bold flex flex-col gap-1">
-        <div>班級：<span class="inline-block w-20 border-b-2 border-black"></span></div>
-        <div>姓名：<span class="inline-block w-28 border-b-2 border-black"></span></div>
-        <div>座號：<span class="inline-block w-12 border-b-2 border-black"></span></div>
+
+      <!-- 分數 -->
+      <div class="flex items-center gap-2 text-slate-700 font-bold bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200 shadow-sm text-lg">
+        ⭐ 得分：<span id="score-display" class="text-emerald-600 text-xl">0</span> / 3
       </div>
     </div>
   </header>
 
-  <main class="flex flex-col gap-4">
+  <!-- 題型判定（特教提示標記） -->
+  <div class="bg-blue-50 text-blue-800 px-6 py-2 text-sm font-semibold border-b border-blue-100 flex items-center gap-2 shrink-0">
+    📌 <span class="font-bold">題型判定：</span>「等分除」基本概念計算題——利用除法算式求出平分後的每組單位量。
+  </div>
+
+  <!-- 主要分欄內容區 -->
+  <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 overflow-y-auto max-w-7xl mx-auto w-full">
     
-    <!-- 題目區塊 -->
-    <section class="print-border p-4 rounded-xl print-bg-light">
-      <h2 class="text-lg font-bold mb-2 border-b border-black pb-1">✏️ 請讀一讀題目：</h2>
-      <p class="text-2xl font-bold leading-relaxed tracking-wide">
-        有 32 個人參加遊行，平分成 4 組，盡量分完，一組有幾個人？用除法算式記記看。
-      </p>
-    </section>
-
-    <!-- 視覺提示圖 (縮小以節省空間) -->
-    <section class="border-2 border-gray-400 p-3 rounded-xl">
-      <h2 class="text-base font-bold mb-2 text-center">🎨 遊行車隊示意圖 (請將 32 人平分到 4 台車上)</h2>
-      <div class="flex flex-wrap justify-center gap-2">
-        <!-- 產生4台車的框架供學生想像或畫圈 -->
-        <div class="border-2 border-black rounded-lg p-2 w-40 h-24 flex flex-col items-center justify-start relative">
-          <div class="border-2 border-black rounded px-2 py-0.5 font-bold text-xs bg-white -mt-4">第 1 組</div>
-          <!-- 留白讓學生畫圈圈或寫數字 -->
-        </div>
-        <div class="border-2 border-black rounded-lg p-2 w-40 h-24 flex flex-col items-center justify-start relative">
-          <div class="border-2 border-black rounded px-2 py-0.5 font-bold text-xs bg-white -mt-4">第 2 組</div>
-        </div>
-        <div class="border-2 border-black rounded-lg p-2 w-40 h-24 flex flex-col items-center justify-start relative">
-          <div class="border-2 border-black rounded px-2 py-0.5 font-bold text-xs bg-white -mt-4">第 3 組</div>
-        </div>
-        <div class="border-2 border-black rounded-lg p-2 w-40 h-24 flex flex-col items-center justify-start relative">
-          <div class="border-2 border-black rounded px-2 py-0.5 font-bold text-xs bg-white -mt-4">第 4 組</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 步驟與計算區塊 -->
-    <section class="grid grid-cols-3 gap-6 mt-4 items-stretch">
+    <!-- 左半邊：題目卡與 SVG 視覺平分模型 -->
+    <section class="lg:col-span-5 flex flex-col gap-6">
       
-      <!-- 左側：步驟區塊 -->
-      <div class="col-span-2 flex flex-col gap-4">
-        <!-- 步驟 1 -->
-        <div class="flex items-start gap-3">
-          <div class="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-lg shrink-0">1</div>
-          <div class="flex-1">
-            <h3 class="text-lg font-bold mb-2">找出題目中的關鍵數字：</h3>
-            <div class="text-xl font-medium leading-loose ml-2">
-              共有 <span class="write-slot-large"></span> 個人，要平分成 <span class="write-slot-large"></span> 組。
-            </div>
-          </div>
-        </div>
-
-        <!-- 步驟 2 -->
-        <div class="flex items-start gap-3 mt-2">
-          <div class="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-lg shrink-0">2</div>
-          <div class="flex-1">
-            <h3 class="text-lg font-bold mb-2">寫成除法算式算算看：</h3>
-            <div class="flex items-center gap-2 text-3xl font-bold ml-2 mt-2">
-              <span class="math-slot"></span>
-              <span>÷</span>
-              <span class="math-slot"></span>
-              <span>=</span>
-              <span class="math-slot"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 步驟 3 -->
-        <div class="flex items-start gap-3 mt-2">
-          <div class="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-lg shrink-0">3</div>
-          <div class="flex-1">
-            <h3 class="text-lg font-bold mb-2">寫出最後的答案：</h3>
-            <div class="text-xl font-medium leading-loose ml-2">
-              答：一組有 <span class="write-slot-large"></span> 個人。
-            </div>
-          </div>
-        </div>
+      <!-- 題目卡片 -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+        <h2 class="text-slate-500 font-bold text-sm tracking-wider uppercase">題目的問題</h2>
+        <p id="question-text" class="text-2xl md:text-3xl text-slate-800 leading-relaxed font-bold">
+          有 <span class="text-red-500">32</span> 個人參加遊行，平分成 <span class="text-blue-500">4</span> 組，盡量分完，一組有幾個人？用除法算式記記看。
+        </p>
       </div>
 
-      <!-- 右側：直式計算方框 -->
-      <div class="col-span-1 border-2 border-black rounded-xl p-4 flex flex-col min-h-[250px]">
-        <h3 class="text-xl font-bold mb-2 tracking-wide">計算：</h3>
-        <!-- 下方留白空間讓學生撰寫直式 -->
+      <!-- SVG 遊行隊伍平分示意圖 -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex-1 flex flex-col gap-3 min-h-[380px]">
+        <div class="flex justify-between items-center">
+          <h2 class="text-slate-500 font-bold text-sm tracking-wider uppercase">🎨 32人平分 4 組遊行車隊示意圖</h2>
+          <span class="text-xs text-slate-400 font-bold">碰碰看小人物有動態效果喔！</span>
+        </div>
+        
+        <div class="flex-1 w-full bg-slate-50 rounded-xl p-2 flex items-center justify-center">
+          <!-- 互動式 SVG 圖表 -->
+          <svg viewBox="0 0 600 400" class="w-full h-full max-h-[380px]" xmlns="http://www.w3.org/2000/svg">
+            <!-- 背景與裝飾線條 -->
+            <rect width="600" height="400" rx="12" fill="#f8fafc" />
+            <line x1="300" y1="20" x2="300" y2="380" stroke="#e2e8f0" stroke-dasharray="6,4" stroke-width="2" />
+            <line x1="20" y1="200" x2="580" y2="200" stroke="#e2e8f0" stroke-dasharray="6,4" stroke-width="2" />
+
+            <!-- 第 1 組：紅車車 -->
+            <g transform="translate(10, 10)">
+              <rect width="265" height="170" rx="16" fill="#fef2f2" stroke="#fca5a5" stroke-width="3" />
+              <rect x="15" y="10" width="80" height="28" rx="8" fill="#ef4444" />
+              <text x="55" y="29" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">第 1 組 (紅)</text>
+              <g transform="translate(10, 45)" class="svg-group" id="svg-g1"></g>
+            </g>
+
+            <!-- 第 2 組：橙車車 -->
+            <g transform="translate(305, 10)">
+              <rect width="265" height="170" rx="16" fill="#fff7ed" stroke="#fdbb2d" stroke-width="3" />
+              <rect x="15" y="10" width="80" height="28" rx="8" fill="#f97316" />
+              <text x="55" y="29" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">第 2 組 (橙)</text>
+              <g transform="translate(10, 45)" class="svg-group" id="svg-g2"></g>
+            </g>
+
+            <!-- 第 3 組：綠車車 -->
+            <g transform="translate(10, 210)">
+              <rect width="265" height="170" rx="16" fill="#f0fdf4" stroke="#86efac" stroke-width="3" />
+              <rect x="15" y="10" width="80" height="28" rx="8" fill="#22c55e" />
+              <text x="55" y="29" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">第 3 組 (綠)</text>
+              <g transform="translate(10, 45)" class="svg-group" id="svg-g3"></g>
+            </g>
+
+            <!-- 第 4 組：藍車車 -->
+            <g transform="translate(305, 210)">
+              <rect width="265" height="170" rx="16" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="3" />
+              <rect x="15" y="10" width="80" height="28" rx="8" fill="#0ea5e9" />
+              <text x="55" y="29" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">第 4 組 (藍)</text>
+              <g transform="translate(10, 45)" class="svg-group" id="svg-g4"></g>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右半邊：分解式互動填答步驟 -->
+    <section class="lg:col-span-7 flex flex-col gap-6">
+
+      <!-- 錯誤/提示動態彈窗 (非原生 alert) -->
+      <div id="toast-message" class="hidden transform scale-95 opacity-0 transition-all duration-300 bg-red-100 border-2 border-red-400 text-red-800 p-4 rounded-xl text-lg font-bold flex items-center gap-3">
+        ❌ <span id="toast-text">請填滿所有空格！</span>
+      </div>
+
+      <!-- 步驟 1 卡片 -->
+      <div id="step1-card" class="bg-white p-6 rounded-2xl border-2 border-blue-500 shadow-md transition-all">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center">1</span>
+            <h3 class="text-xl font-bold text-slate-800">步驟 1：找出題目中的關鍵數量</h3>
+          </div>
+          <span id="step1-badge" class="text-sm font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600">填答中</span>
+        </div>
+
+        <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-4">
+          <div class="flex flex-wrap items-center gap-3 text-xl font-medium text-slate-700 leading-loose">
+            共有 
+            <input type="text" id="slot1" class="slot" inputmode="decimal" maxlength="2" data-answer="32"> 
+            個人，要平分成 
+            <input type="text" id="slot2" class="slot" inputmode="decimal" maxlength="1" data-answer="4"> 
+            組。
+          </div>
+        </div>
+
+        <button id="step1-btn" onclick="checkStep(1)" class="w-full bg-blue-600 hover:bg-blue-700 active:translate-y-0.5 text-white font-bold py-3 px-6 rounded-xl text-lg shadow-sm transition-all flex items-center justify-center gap-2">
+          確認答案
+        </button>
+      </div>
+
+      <!-- 步驟 2 卡片 (預設鎖定) -->
+      <div id="step2-card" class="bg-slate-100 p-6 rounded-2xl border border-slate-200 opacity-40 transition-all pointer-events-none">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-3">
+            <span id="step2-num" class="w-8 h-8 rounded-full bg-slate-300 text-slate-500 font-bold flex items-center justify-center">2</span>
+            <h3 class="text-xl font-bold text-slate-800">步驟 2：用除法算式記記看</h3>
+          </div>
+          <span id="step2-badge" class="text-sm font-semibold px-2.5 py-1 rounded-full bg-slate-200 text-slate-500">尚未解鎖</span>
+        </div>
+
+        <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-4">
+          <div class="math text-slate-700 flex flex-wrap gap-4 items-center">
+            <span>除法算式：</span>
+            <input type="text" id="slot3" class="slot" inputmode="decimal" maxlength="2" data-answer="32"> 
+            <span>÷</span>
+            <input type="text" id="slot4" class="slot" inputmode="decimal" maxlength="1" data-answer="4"> 
+            <span>=</span>
+            <input type="text" id="slot5" class="slot" inputmode="decimal" maxlength="1" data-answer="8">
+          </div>
+        </div>
+
+        <button id="step2-btn" onclick="checkStep(2)" class="w-full bg-slate-400 text-white font-bold py-3 px-6 rounded-xl text-lg transition-all cursor-not-allowed" disabled>
+          確認答案
+        </button>
+      </div>
+
+      <!-- 步驟 3 卡片 (預設鎖定) -->
+      <div id="step3-card" class="bg-slate-100 p-6 rounded-2xl border border-slate-200 opacity-40 transition-all pointer-events-none">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-3">
+            <span id="step3-num" class="w-8 h-8 rounded-full bg-slate-300 text-slate-500 font-bold flex items-center justify-center">3</span>
+            <h3 class="text-xl font-bold text-slate-800">步驟 3：寫出最後的答案</h3>
+          </div>
+          <span id="step3-badge" class="text-sm font-semibold px-2.5 py-1 rounded-full bg-slate-200 text-slate-500">尚未解鎖</span>
+        </div>
+
+        <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-4">
+          <div class="flex flex-wrap items-center gap-3 text-xl font-medium text-slate-700 leading-loose">
+            答：一組有 
+            <input type="text" id="slot6" class="slot" inputmode="decimal" maxlength="1" data-answer="8"> 
+            個人。
+          </div>
+        </div>
+
+        <button id="step3-btn" onclick="checkStep(3)" class="w-full bg-slate-400 text-white font-bold py-3 px-6 rounded-xl text-lg transition-all cursor-not-allowed" disabled>
+          確認答案
+        </button>
       </div>
 
     </section>
-
   </main>
 
+  <!-- 結算視窗對話盒 (Modal) -->
+  <div id="victory-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-8 max-w-md w-full border border-slate-100 shadow-2xl flex flex-col items-center text-center gap-6 transform scale-95 transition-all duration-300">
+      <div class="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center text-5xl shadow-inner animate-bounce">
+        🏆
+      </div>
+      
+      <div class="flex flex-col gap-2">
+        <h3 class="text-3xl font-extrabold text-slate-800">太棒了！全部完成！</h3>
+        <p class="text-slate-500 font-medium text-lg">你成功用除法解決了平分問題！</p>
+      </div>
+
+      <!-- 成績數據框 -->
+      <div class="grid grid-cols-2 gap-4 w-full bg-slate-50 p-5 rounded-2xl border border-slate-200">
+        <div class="flex flex-col items-center justify-center">
+          <span class="text-sm font-bold text-slate-400">總共用時</span>
+          <span id="modal-time" class="text-2xl font-black text-slate-800">00:00</span>
+        </div>
+        <div class="flex flex-col items-center justify-center">
+          <span class="text-sm font-bold text-slate-400">獲得分數</span>
+          <span id="modal-score" class="text-2xl font-black text-emerald-600">3 / 3</span>
+        </div>
+      </div>
+
+      <!-- 按鈕區 -->
+      <div class="flex gap-4 w-full">
+        <button onclick="resetGame()" class="flex-1 bg-blue-600 hover:bg-blue-700 active:translate-y-0.5 text-white font-bold py-4 px-6 rounded-2xl text-lg shadow-md transition-all">
+          再做一次
+        </button>
+        <button onclick="closeModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 active:translate-y-0.5 text-slate-700 font-bold py-4 px-6 rounded-2xl text-lg shadow-sm transition-all">
+          關閉
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- 題目、狀態與設定 ---
+    let score = 0;
+    let timerSeconds = 420; // 7分鐘計時
+    let timerInterval = null;
+    let currentActiveStep = 1;
+    let activeInputId = "slot1";
+
+    // 建立語音合成
+    const synth = window.speechSynthesis;
+
+    // Web Audio API 聲音合成器（避免外部音訊檔案遺失/封鎖）
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      if (type === 'correct') {
+        // 愉快的連音
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+        osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3); // C6
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+      } else if (type === 'wrong') {
+        // 低沉的警告音
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      } else if (type === 'victory') {
+        // 凱旋和弦
+        const now = audioCtx.currentTime;
+        const freqs = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+        freqs.forEach((freq, index) => {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.type = 'sine';
+          o.frequency.value = freq;
+          o.connect(g);
+          g.connect(audioCtx.destination);
+          g.gain.setValueAtTime(0, now);
+          g.gain.linearRampToValueAtTime(0.1, now + (index * 0.05));
+          g.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+          o.start(now);
+          o.stop(now + 1.5);
+        });
+      }
+    }
+
+    // --- 初始化 SVG 32 個人像 ---
+    function initSVGPeople() {
+      // 在 4 個車隊/組別中，各渲染 8 個遊行人物
+      const colors = ["#ef4444", "#f97316", "#22c55e", "#0ea5e9"];
+      const colWidth = 55;
+      const rowHeight = 45;
+
+      for (let g = 1; g <= 4; g++) {
+        const container = document.getElementById(`svg-g${g}`);
+        container.innerHTML = ""; // 清空
+
+        for (let i = 0; i < 8; i++) {
+          const col = i % 4; // 每行4人
+          const row = Math.floor(i / 4); // 共2行
+          const x = col * colWidth + 25;
+          const y = row * rowHeight + 20;
+
+          // 使用 SVG 刻劃可愛的小人物
+          const personG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          personG.setAttribute("class", "svg-person cursor-pointer");
+          personG.setAttribute("transform", `translate(${x}, ${y})`);
+          
+          // 頭部
+          const head = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          head.setAttribute("cx", "0");
+          head.setAttribute("cy", "-15");
+          head.setAttribute("r", "8");
+          head.setAttribute("fill", colors[g-1]);
+
+          // 笑臉眼睛
+          const eye1 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          eye1.setAttribute("cx", "-3");
+          eye1.setAttribute("cy", "-17");
+          eye1.setAttribute("r", "1");
+          eye1.setAttribute("fill", "#ffffff");
+
+          const eye2 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          eye2.setAttribute("cx", "3");
+          eye2.setAttribute("cy", "-17");
+          eye2.setAttribute("r", "1");
+          eye2.setAttribute("fill", "#ffffff");
+
+          // 身體
+          const body = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          body.setAttribute("d", "M -10 -5 L 10 -5 L 8 15 L -8 15 Z");
+          body.setAttribute("fill", colors[g-1]);
+
+          // 手
+          const arm1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          arm1.setAttribute("x1", "-10");
+          arm1.setAttribute("y1", "-2");
+          arm1.setAttribute("x2", "-14");
+          arm1.setAttribute("y2", "8");
+          arm1.setAttribute("stroke", colors[g-1]);
+          arm1.setAttribute("stroke-width", "3");
+          arm1.setAttribute("stroke-linecap", "round");
+
+          const arm2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          arm2.setAttribute("x1", "10");
+          arm2.setAttribute("y1", "-2");
+          arm2.setAttribute("x2", "14");
+          arm2.setAttribute("y2", "8");
+          arm2.setAttribute("stroke", colors[g-1]);
+          arm2.setAttribute("stroke-width", "3");
+          arm2.setAttribute("stroke-linecap", "round");
+
+          // 添加元素到人物群組
+          personG.appendChild(head);
+          personG.appendChild(eye1);
+          personG.appendChild(eye2);
+          personG.appendChild(body);
+          personG.appendChild(arm1);
+          personG.appendChild(arm2);
+
+          // 綁定點擊發聲朗讀
+          personG.addEventListener('click', () => {
+            speakText(`第${g}組的第${i+1}個人`);
+          });
+
+          container.appendChild(personG);
+        }
+      }
+    }
+
+    // --- 音音朗讀功能 ---
+    function speakText(text) {
+      if (synth.speaking) {
+        synth.cancel();
+      }
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "zh-TW";
+      utterance.rate = 0.95;
+      synth.speak(utterance);
+    }
+
+    function readAloud() {
+      const qText = "有32個人參加遊行，平分成4組，盡量分完，一組有幾個人？用除法算式記記看。";
+      speakText(qText);
+    }
+
+    // --- 提示框 (Toast) 機制 ---
+    function showToast(msg, isError = true) {
+      const toast = document.getElementById("toast-message");
+      const toastText = document.getElementById("toast-text");
+      
+      toastText.innerText = msg;
+      
+      if (isError) {
+        toast.className = "transform scale-100 opacity-100 transition-all duration-300 bg-red-100 border-2 border-red-400 text-red-800 p-4 rounded-xl text-lg font-bold flex items-center gap-3";
+        toast.querySelector('span:first-child').innerText = '❌';
+      } else {
+        toast.className = "transform scale-100 opacity-100 transition-all duration-300 bg-emerald-100 border-2 border-emerald-400 text-emerald-800 p-4 rounded-xl text-lg font-bold flex items-center gap-3";
+        toast.querySelector('span:first-child').innerText = '🎉';
+      }
+      
+      toast.classList.remove("hidden");
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0");
+        toast.classList.add("scale-95");
+        setTimeout(() => {
+          toast.classList.add("hidden");
+        }, 300);
+      }, 3500);
+    }
+
+    // --- 計時器邏輯 ---
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (timerSeconds > 0) {
+          timerSeconds--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          endGame(true); // 時間到，強制結算
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerSeconds / 60);
+      const secs = timerSeconds % 60;
+      const displayStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      document.getElementById("timer-display").innerText = displayStr;
+    }
+
+    // --- 特教填答控制邏輯 (核心互動) ---
+    function setupInputSlots() {
+      const allSlots = document.querySelectorAll('.slot');
+
+      allSlots.forEach(slot => {
+        // 限制輸入純整數
+        slot.addEventListener('input', (e) => {
+          e.target.value = e.target.value.replace(/[^0-9]/g, '');
+          
+          // 自動跳格 (當輸入滿maxLength時跳往下一格)
+          if (e.target.value.length >= e.target.maxLength) {
+            focusNextSlot(e.target);
+          }
+        });
+
+        // 點擊清空機制，並重置高亮
+        slot.addEventListener('click', (e) => {
+          // 只允許操作當前活動步驟的輸入框
+          const isParentInActiveStep = e.target.closest(`#step${currentActiveStep}-card`);
+          if (isParentInActiveStep) {
+            e.target.value = "";
+            activeInputId = e.target.id;
+            updateHighlighting();
+          }
+        });
+
+        // 鍵盤倒退鍵功能 (Backspace 倒退回前一格)
+        slot.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && e.target.value === '') {
+            focusPrevSlot(e.target);
+          }
+        });
+      });
+
+      updateHighlighting();
+    }
+
+    // 更新第一個空空格的高亮閃爍效果
+    function updateHighlighting() {
+      // 移除全網頁所有高亮
+      document.querySelectorAll('.slot').forEach(s => {
+        s.classList.remove('active-slot');
+      });
+
+      // 取得當前步驟中的所有空格
+      const activeStepCard = document.getElementById(`step${currentActiveStep}-card`);
+      if (!activeStepCard) return;
+
+      const stepSlots = activeStepCard.querySelectorAll('.slot');
+      
+      // 找出第一個為空的空格，並高亮
+      let targetSlot = null;
+      for (let s of stepSlots) {
+        if (s.value === "") {
+          targetSlot = s;
+          break;
+        }
+      }
+
+      // 如果全部都有寫值，高亮最後操作的值或不指定
+      if (!targetSlot && stepSlots.length > 0) {
+        targetSlot = document.getElementById(activeInputId) || stepSlots[stepSlots.length - 1];
+      }
+
+      if (targetSlot) {
+        targetSlot.classList.add('active-slot');
+        targetSlot.focus();
+        activeInputId = targetSlot.id;
+      }
+    }
+
+    // 自動跳到下一步驟空格
+    function focusNextSlot(current) {
+      const activeStepCard = document.getElementById(`step${currentActiveStep}-card`);
+      const slotsInStep = Array.from(activeStepCard.querySelectorAll('.slot'));
+      const currentIndex = slotsInStep.indexOf(current);
+
+      if (currentIndex > -1 && currentIndex < slotsInStep.length - 1) {
+        slotsInStep[currentIndex + 1].focus();
+        activeInputId = slotsInStep[currentIndex + 1].id;
+        updateHighlighting();
+      }
+    }
+
+    // 倒退回上一格
+    function focusPrevSlot(current) {
+      const activeStepCard = document.getElementById(`step${currentActiveStep}-card`);
+      const slotsInStep = Array.from(activeStepCard.querySelectorAll('.slot'));
+      const currentIndex = slotsInStep.indexOf(current);
+
+      if (currentIndex > 0) {
+        slotsInStep[currentIndex - 1].focus();
+        slotsInStep[currentIndex - 1].value = "";
+        activeInputId = slotsInStep[currentIndex - 1].id;
+        updateHighlighting();
+      }
+    }
+
+    // --- 檢查答案與解鎖邏輯 ---
+    function checkStep(stepNum) {
+      const stepCard = document.getElementById(`step${stepNum}-card`);
+      const slots = stepCard.querySelectorAll('.slot');
+      
+      // 1. 強制順序防呆：檢查是否有空格未填
+      let hasEmpty = false;
+      slots.forEach(slot => {
+        if (slot.value.trim() === "") {
+          hasEmpty = true;
+        }
+      });
+
+      if (hasEmpty) {
+        playSound('wrong');
+        showToast("請填滿步驟中的所有空格再檢查喔！", true);
+        updateHighlighting();
+        return;
+      }
+
+      // 2. 答案比對
+      let allCorrect = true;
+      slots.forEach(slot => {
+        const correctVal = slot.getAttribute('data-answer');
+        if (slot.value.trim() !== correctVal) {
+          allCorrect = false;
+        }
+      });
+
+      if (allCorrect) {
+        // 答對了！
+        playSound('correct');
+        score++;
+        document.getElementById("score-display").innerText = score;
+        
+        // 鎖定當前步驟，標記綠色成功狀態
+        slots.forEach(slot => {
+          slot.disabled = true;
+          slot.classList.add('correct-slot');
+          slot.classList.remove('active-slot');
+        });
+
+        // 隱藏該關卡的確認按鈕
+        const btn = document.getElementById(`step${stepNum}-btn`);
+        btn.classList.add('hidden');
+
+        // 修改 Badge 樣式
+        const badge = document.getElementById(`step${stepNum}-badge`);
+        badge.innerText = "⭐ 答對了！";
+        badge.className = "text-sm font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700";
+
+        // 更新步驟卡外框
+        stepCard.className = "bg-emerald-50 p-6 rounded-2xl border-2 border-emerald-500 shadow-md transition-all";
+
+        showToast(`恭喜！步驟 ${stepNum} 順利答對！`, false);
+
+        // 解鎖下一關
+        if (stepNum < 3) {
+          unlockStep(stepNum + 1);
+        } else {
+          // 全部通關！
+          setTimeout(() => {
+            endGame(false);
+          }, 600);
+        }
+
+      } else {
+        // 答錯
+        playSound('wrong');
+        showToast("再想想看喔，加油！", true);
+      }
+    }
+
+    // 解鎖特定步驟卡片
+    function unlockStep(nextStepNum) {
+      currentActiveStep = nextStepNum;
+      
+      const nextCard = document.getElementById(`step${nextStepNum}-card`);
+      nextCard.classList.remove('opacity-40', 'pointer-events-none');
+      nextCard.classList.add('border-2', 'border-blue-500', 'shadow-md');
+      
+      // 改按鈕狀態與色調
+      const btn = document.getElementById(`step${nextStepNum}-btn`);
+      btn.disabled = false;
+      btn.className = "w-full bg-blue-600 hover:bg-blue-700 active:translate-y-0.5 text-white font-bold py-3 px-6 rounded-xl text-lg shadow-sm transition-all flex items-center justify-center gap-2";
+
+      // 改 Badge
+      const badge = document.getElementById(`step${nextStepNum}-badge`);
+      badge.innerText = "填答中";
+      badge.className = "text-sm font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600";
+
+      // 改圓圈編號顏色
+      const numSpan = document.getElementById(`step${nextStepNum}-num`);
+      numSpan.className = "w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center";
+
+      // 稍微往下滾動
+      nextCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      // 自動聚焦高亮下一個步驟的第一格
+      setTimeout(() => {
+        updateHighlighting();
+      }, 500);
+    }
+
+    // --- 結算與重置機制 ---
+    function endGame(isTimeout = false) {
+      clearInterval(timerInterval);
+      playSound('victory');
+
+      const modal = document.getElementById("victory-modal");
+      const modalTime = document.getElementById("modal-time");
+      const modalScore = document.getElementById("modal-score");
+
+      // 計算總用時
+      const usedSeconds = 420 - timerSeconds;
+      const mins = Math.floor(usedSeconds / 60);
+      const secs = usedSeconds % 60;
+      modalTime.innerText = `${mins.toString().padStart(2, '0')} 分 ${secs.toString().padStart(2, '0')} 秒`;
+      
+      modalScore.innerText = `${score} / 3 分`;
+
+      if (isTimeout) {
+        showToast("計時結束囉！請看你的結算分數。", true);
+      }
+
+      // 顯示 Modal
+      modal.classList.remove("hidden");
+      setTimeout(() => {
+        modal.querySelector('.transform').classList.remove('scale-95', 'opacity-0');
+      }, 50);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById("victory-modal");
+      modal.querySelector('.transform').classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        modal.classList.add("hidden");
+      }, 200);
+    }
+
+    function resetGame() {
+      score = 0;
+      timerSeconds = 420;
+      currentActiveStep = 1;
+      
+      document.getElementById("score-display").innerText = "0";
+      
+      // 清空與重設所有 Input 卡
+      const allSlots = document.querySelectorAll('.slot');
+      allSlots.forEach(slot => {
+        slot.value = "";
+        slot.disabled = false;
+        slot.className = "slot";
+      });
+
+      // 隱藏 Modal
+      closeModal();
+
+      // 重置步驟 1 視覺狀態
+      const s1Card = document.getElementById('step1-card');
+      s1Card.className = "bg-white p-6 rounded-2xl border-2 border-blue-500 shadow-md transition-all";
+      const s1Btn = document.getElementById('step1-btn');
+      s1Btn.classList.remove('hidden');
+      s1Btn.className = "w-full bg-blue-600 hover:bg-blue-700 active:translate-y-0.5 text-white font-bold py-3 px-6 rounded-xl text-lg shadow-sm transition-all flex items-center justify-center gap-2";
+      document.getElementById('step1-badge').innerText = "填答中";
+      document.getElementById('step1-badge').className = "text-sm font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600";
+
+      // 重新鎖定步驟 2 和 步驟 3
+      const stepsToReset = [2, 3];
+      stepsToReset.forEach(n => {
+        const card = document.getElementById(`step${n}-card`);
+        card.className = "bg-slate-100 p-6 rounded-2xl border border-slate-200 opacity-40 transition-all pointer-events-none";
+        
+        const btn = document.getElementById(`step${n}-btn`);
+        btn.classList.remove('hidden');
+        btn.className = "w-full bg-slate-400 text-white font-bold py-3 px-6 rounded-xl text-lg transition-all cursor-not-allowed";
+        btn.disabled = true;
+
+        const badge = document.getElementById(`step${n}-badge`);
+        badge.innerText = "尚未解鎖";
+        badge.className = "text-sm font-semibold px-2.5 py-1 rounded-full bg-slate-200 text-slate-500";
+
+        const numSpan = document.getElementById(`step${n}-num`);
+        numSpan.className = "w-8 h-8 rounded-full bg-slate-300 text-slate-500 font-bold flex items-center justify-center";
+      });
+
+      // 初始化 SVG 人像與計時器
+      initSVGPeople();
+      startTimer();
+      activeInputId = "slot1";
+      setupInputSlots();
+    }
+
+    // --- Window Onload 啟動器 ---
+    window.onload = function() {
+      initSVGPeople();
+      startTimer();
+      setupInputSlots();
+    };
+  </script>
 </body>
 </html>
