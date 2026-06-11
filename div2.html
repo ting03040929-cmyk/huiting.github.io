@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>包含除法學習單 - 品睿剪彩帶</title>
+    <title>互動式數學首頁 - 剪彩帶學包含除</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts for Friendly Traditional Chinese Typography -->
@@ -11,195 +11,737 @@
     <style>
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #ffffff;
-            color: #000000;
+            background-color: #f8fafc;
         }
-        /* 列印專屬設定 - 強制單頁與邊距控制 */
-        @media print {
-            @page {
-                size: A4 portrait;
-                margin: 1cm; /* 邊距維持 1cm 以爭取空間 */
-            }
-            body {
-                background-color: transparent;
-                padding: 0 !important; /* 移除螢幕顯示用的 padding */
-            }
-            .no-print {
-                display: none !important;
-            }
-            .print-border {
-                border: 2px solid #000;
-            }
-            /* 強制列印背景色和圖片 */
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
+        /* Custom Glowing and Blinking Border for the Active Slot */
+        .active-slot {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
+            animation: pulseBorder 1.5s infinite ease-in-out;
         }
-        /* 作答底線 */
-        .answer-line {
-            display: inline-block;
-            border-bottom: 1px solid #000;
-            width: 50px; 
-            margin: 0 5px;
+        @keyframes pulseBorder {
+            0%, 100% { border-color: #3b82f6; }
+            50% { border-color: #93c5fd; }
+        }
+        /* Math display rules specified by prompt */
+        .math {
+            font-size: 28px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .slot {
+            width: 65px;
+            height: 50px;
+            border: 3px solid #cbd5e1;
+            border-radius: 12px;
             text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: #1e293b;
+            transition: all 0.3s ease;
         }
-        /* 算式框 */
-        .math-box {
-            border: 2px solid #333;
-            border-radius: 8px;
-            padding: 8px 15px; /* 縮小上下 padding */
-            margin-top: 6px;
-            min-height: 50px; /* 縮小最小高度 */
+        .slot:disabled {
+            background-color: #f1f5f9;
+            color: #64748b;
+            border-color: #e2e8f0;
+            cursor: not-allowed;
+        }
+        /* Custom transition for step reveal */
+        .step-transition {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
-<body class="min-h-screen bg-white text-slate-900 p-4 md:p-8 max-w-4xl mx-auto">
+<body class="min-h-screen flex flex-col overflow-x-hidden">
 
-    <!-- 列印按鈕 (僅在螢幕顯示) -->
-    <div class="no-print mb-4 text-center">
-        <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-colors flex items-center gap-2 mx-auto">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-            列印學習單
-        </button>
-        <p class="text-sm text-slate-500 mt-1">提示：列印時建議勾選「背景圖形」以保留尺規的刻度顏色，並確認比例為「預設」或「符合紙張大小」。</p>
-    </div>
-
-    <!-- 學習單標頭 (再縮減下邊距 pb-2 mb-3) -->
-    <header class="border-b-4 border-slate-800 pb-2 mb-3 flex justify-between items-end">
-        <div>
-            <h1 class="text-2xl font-black tracking-wider text-slate-900 mb-1">數學學習單：包含除法</h1>
-            <h2 class="text-lg font-bold text-slate-700">主題：品睿剪彩帶</h2>
+    <!-- Top Navigation Bar -->
+    <header class="bg-indigo-600 text-white px-4 py-3 shadow-md flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <span class="bg-white text-indigo-700 font-extrabold px-3 py-1 rounded-full text-sm">單元三</span>
+            <h1 class="text-xl md:text-2xl font-bold tracking-wide">包含除法：品睿剪彩帶</h1>
         </div>
-        <div class="flex flex-col gap-2 text-base font-bold">
-            <div class="flex items-center gap-2">
-                <span>班級：</span>
-                <div class="border-b border-slate-800 w-20"></div>
+        
+        <!-- Timer & Score Controls -->
+        <div class="flex items-center gap-6">
+            <div class="bg-indigo-700 px-4 py-1.5 rounded-lg flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span id="timer-display" class="font-mono font-bold text-lg text-indigo-100">07:00</span>
             </div>
-            <div class="flex items-center gap-2">
-                <span>座號：</span>
-                <div class="border-b border-slate-800 w-12"></div>
-            </div>
-            <div class="flex items-center gap-2">
-                <span>姓名：</span>
-                <div class="border-b border-slate-800 w-28"></div>
+            <div class="bg-yellow-400 text-indigo-950 px-4 py-1.5 rounded-lg font-black text-lg flex items-center gap-1.5 shadow-sm">
+                <span>得分:</span>
+                <span id="score-display">0</span>
             </div>
         </div>
     </header>
 
-    <!-- 主體內容 (縮小各區塊間距 space-y-4) -->
-    <main class="space-y-4">
-
-        <!-- 題目區塊 (縮小 padding 為 p-3) -->
-        <section class="print-border rounded-xl p-3 bg-slate-50 border-2 border-slate-800">
-            <h3 class="inline-block bg-slate-800 text-white font-bold px-3 py-1 rounded-md text-sm mb-1">生活情境題</h3>
-            <p class="text-xl font-bold leading-relaxed">
-                每一條彩帶長 <span class="underline decoration-2 underline-offset-4">24</span> 公分。品睿把彩帶每 <span class="underline decoration-2 underline-offset-4">6</span> 公分剪成 1 段，最多可以剪成幾段？
-            </p>
-        </section>
-
-        <!-- 視覺模擬區 (縮小留白與高度 max-h-24) -->
-        <section class="print-border rounded-xl p-2 text-center border-2 border-slate-300">
-            <h3 class="text-base font-bold mb-1">彩帶圖示</h3>
-            <div class="w-full aspect-[6/1] flex items-center justify-center max-h-24">
-                <svg class="w-full h-full max-w-2xl mx-auto" viewBox="0 0 600 130" preserveAspectRatio="xMidYMid meet">
-                    <!-- Ruler Scale Group -->
-                    <g transform="translate(0, 90)">
-                        <!-- Main line -->
-                        <line x1="50" y1="0" x2="550" y2="0" stroke="#000" stroke-width="2" />
-                        <!-- Ticks & Text -->
-                        <!-- 0 cm -->
-                        <line x1="50" y1="0" x2="50" y2="8" stroke="#000" stroke-width="2" />
-                        <text x="50" y="22" fill="#000" font-weight="bold" font-size="13" text-anchor="middle">0cm</text>
-                        <!-- 6 cm -->
-                        <line x1="175" y1="0" x2="175" y2="8" stroke="#000" stroke-width="1.5" />
-                        <text x="175" y="22" fill="#000" font-size="13" text-anchor="middle">6cm</text>
-                        <!-- 12 cm -->
-                        <line x1="300" y1="0" x2="300" y2="8" stroke="#000" stroke-width="1.5" />
-                        <text x="300" y="22" fill="#000" font-size="13" text-anchor="middle">12cm</text>
-                        <!-- 18 cm -->
-                        <line x1="425" y1="0" x2="425" y2="8" stroke="#000" stroke-width="1.5" />
-                        <text x="425" y="22" fill="#000" font-size="13" text-anchor="middle">18cm</text>
-                        <!-- 24 cm -->
-                        <line x1="550" y1="0" x2="550" y2="8" stroke="#000" stroke-width="2" />
-                        <text x="550" y="22" fill="#000" font-weight="bold" font-size="13" text-anchor="middle">24cm</text>
-                    </g>
-
-                    <!-- Static Ribbon Visual -->
-                    <rect x="50" y="25" width="500" height="36" rx="4" fill="#e2e8f0" stroke="#000" stroke-width="2" />
-                    <!-- Visual Helper Guides -->
-                    <g stroke="#000" stroke-width="2" stroke-dasharray="6,4">
-                        <line x1="175" y1="15" x2="175" y2="75" />
-                        <line x1="300" y1="15" x2="300" y2="75" />
-                        <line x1="425" y1="15" x2="425" y2="75" />
-                    </g>
-                     <!-- Decorative Scissor Emoji -->
-                     <text x="175" y="12" font-size="18" text-anchor="middle">✂️</text>
-                     <text x="300" y="12" font-size="18" text-anchor="middle">✂️</text>
-                     <text x="425" y="12" font-size="18" text-anchor="middle">✂️</text>
-                </svg>
+    <!-- Main Workspace Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Side: Problem Card and Concrete SVG Ribbon Cutting Visualizer -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            <!-- Question Box -->
+            <div class="bg-white rounded-2xl p-6 shadow-md border border-indigo-100">
+                <span class="inline-block bg-pink-100 text-pink-700 font-bold px-3 py-1 rounded-md text-sm mb-3">生活情境題</span>
+                <p id="problem-statement" class="text-2xl md:text-3xl font-bold text-slate-800 leading-relaxed">
+                    每一條彩帶長 <span class="text-blue-600 underline decoration-wavy underline-offset-4">24</span> 公分。品睿把彩帶每 <span class="text-green-600 underline decoration-wavy underline-offset-4">6</span> 公分剪成 1 段，最多可以剪成幾段？
+                </p>
+                <p class="text-slate-500 text-sm mt-3 border-t pt-3 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                    題型判定：本題為包含除法（等分除與包含除中的包含除）應用題。
+                </p>
             </div>
-            <p class="text-xs font-bold text-slate-600">提示：可以參考上面的圖示，在心裡把彩帶剪開看看喔！</p>
+
+            <!-- SVG Visualizer Block -->
+            <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-100 text-center">
+                <h3 class="text-lg font-bold text-slate-700 mb-3 flex items-center justify-center gap-1">
+                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    彩帶剪切視覺模擬板
+                </h3>
+                <div class="relative w-full aspect-[3/1] bg-slate-50 rounded-xl p-2 flex items-center justify-center border border-dashed border-slate-200">
+                    <svg id="ribbon-svg" class="w-full h-full" viewBox="0 0 600 200" preserveAspectRatio="xMidYMid meet">
+                        <!-- Definitions for Gradients -->
+                        <defs>
+                            <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#ec4899" />
+                                <stop offset="50%" stop-color="#f43f5e" />
+                                <stop offset="100%" stop-color="#e11d48" />
+                            </linearGradient>
+                            <linearGradient id="cutGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#f43f5e" />
+                                <stop offset="100%" stop-color="#fda4af" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Ruler Scale Group -->
+                        <g transform="translate(0, 130)">
+                            <!-- Main line -->
+                            <line x1="50" y1="0" x2="550" y2="0" stroke="#94a3b8" stroke-width="3" />
+                            <!-- Ticks & Text -->
+                            <!-- 0 cm -->
+                            <line x1="50" y1="0" x2="50" y2="8" stroke="#94a3b8" stroke-width="3" />
+                            <text x="50" y="24" fill="#64748b" font-weight="bold" font-size="14" text-anchor="middle">0cm</text>
+                            <!-- 6 cm -->
+                            <line x1="175" y1="0" x2="175" y2="8" stroke="#94a3b8" stroke-width="2" />
+                            <text x="175" y="24" fill="#64748b" font-weight="bold" font-size="14" text-anchor="middle">6cm</text>
+                            <!-- 12 cm -->
+                            <line x1="300" y1="0" x2="300" y2="8" stroke="#94a3b8" stroke-width="2" />
+                            <text x="300" y="24" fill="#64748b" font-weight="bold" font-size="14" text-anchor="middle">12cm</text>
+                            <!-- 18 cm -->
+                            <line x1="425" y1="0" x2="425" y2="8" stroke="#94a3b8" stroke-width="2" />
+                            <text x="425" y="24" fill="#64748b" font-weight="bold" font-size="14" text-anchor="middle">18cm</text>
+                            <!-- 24 cm -->
+                            <line x1="550" y1="0" x2="550" y2="8" stroke="#94a3b8" stroke-width="3" />
+                            <text x="550" y="24" fill="#64748b" font-weight="bold" font-size="14" text-anchor="middle">24cm</text>
+                        </g>
+
+                        <!-- Dynamic Ribbon Visual Group -->
+                        <g id="ribbon-visuals">
+                            <!-- Handled by Javascript depending on state -->
+                        </g>
+                    </svg>
+                </div>
+                <p id="visualizer-hint" class="text-sm font-bold text-indigo-600 mt-2 bg-indigo-50 py-1.5 px-3 rounded-lg">
+                    動手做做看！解開右邊的步驟，彩帶就會開始剪裁喔！
+                </p>
+            </div>
         </section>
 
-        <!-- 作答區 (縮減區塊間距 space-y-4) -->
-        <section class="space-y-4 pl-2">
+        <!-- Right Side: Step-by-Step Unlockable Workspace -->
+        <section class="lg:col-span-7 flex flex-col gap-5">
             
-            <!-- 步驟一 -->
-            <div class="relative">
-                <div class="absolute -left-3 top-0 w-7 h-7 rounded-full bg-slate-200 border-2 border-slate-800 flex items-center justify-center font-black text-base">1</div>
-                <div class="pl-7">
-                    <h2 class="text-lg font-bold mb-1">找出題目中的重要數字</h2>
-                    <div class="space-y-2 text-lg font-medium">
-                        <p class="flex items-end gap-1">
-                            (1) 每一條彩帶全長是 <span class="answer-line pb-1"></span> 公分。
-                        </p>
-                        <p class="flex items-end gap-1">
-                            (2) 品睿把彩帶每 <span class="answer-line pb-1"></span> 公分剪成 1 段。
-                        </p>
-                    </div>
+            <!-- Step 1 Card -->
+            <div id="step-1" class="step-transition bg-white p-6 rounded-2xl shadow-md border-2 border-slate-100 opacity-100">
+                <div class="flex items-center justify-between border-b pb-3 mb-4">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-black">1</span>
+                        步驟一：找出題目中的重要數字
+                    </h2>
+                    <span id="badge-step-1" class="bg-amber-100 text-amber-700 font-bold px-3 py-1 rounded-lg text-sm">進行中</span>
+                </div>
+                
+                <div class="space-y-4 text-xl font-medium text-slate-700">
+                    <p class="flex flex-wrap items-center gap-2">
+                        (1) 每一條彩帶全長是 
+                        <input id="slot-1" type="text" inputmode="decimal" maxlength="2" class="slot" data-target="24" placeholder="?"> 
+                        公分。
+                    </p>
+                    <p class="flex flex-wrap items-center gap-2">
+                        (2) 品睿把彩帶每 
+                        <input id="slot-2" type="text" inputmode="decimal" maxlength="1" class="slot" data-target="6" placeholder="?"> 
+                        公分剪成 1 段。
+                    </p>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button id="btn-check-1" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2">
+                        檢查步驟一
+                    </button>
                 </div>
             </div>
 
-            <!-- 步驟二 -->
-            <div class="relative">
-                <div class="absolute -left-3 top-0 w-7 h-7 rounded-full bg-slate-200 border-2 border-slate-800 flex items-center justify-center font-black text-base">2</div>
-                <div class="pl-7">
-                    <h2 class="text-lg font-bold mb-1">列出除法算式計算段數</h2>
-                    <p class="text-base text-slate-600 mb-1">請寫出完整的除法算式（包含除數、被除數與商）：</p>
-                    <div class="math-box bg-slate-50 flex items-center gap-3 text-xl font-bold">
-                        <span class="inline-block border-b-2 border-slate-800 w-12 text-center h-8"></span>
-                        <span>÷</span>
-                        <span class="inline-block border-b-2 border-slate-800 w-12 text-center h-8"></span>
-                        <span>=</span>
-                        <span class="inline-block border-b-2 border-slate-800 w-12 text-center h-8"></span>
-                        <span class="text-base text-slate-600 font-normal ml-1">(段)</span>
+            <!-- Step 2 Card (Initially Locked) -->
+            <div id="step-2" class="step-transition bg-white p-6 rounded-2xl shadow-md border-2 border-slate-100 opacity-40 pointer-events-none">
+                <div class="flex items-center justify-between border-b pb-3 mb-4">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-black" id="number-badge-2">2</span>
+                        步驟二：列出除法算式計算段數
+                    </h2>
+                    <span id="badge-step-2" class="bg-slate-100 text-slate-500 font-bold px-3 py-1 rounded-lg text-sm">未解鎖</span>
+                </div>
+                
+                <div class="space-y-4 text-xl font-medium text-slate-700">
+                    <p class="mb-4">根據步驟一，我們來列出包含除法的式子：</p>
+                    <div class="math py-4 bg-slate-50 rounded-xl px-4 flex flex-wrap items-center justify-center gap-3">
+                        <input id="slot-3" type="text" inputmode="decimal" maxlength="2" class="slot" data-target="24" placeholder="?">
+                        <span class="text-3xl font-extrabold text-indigo-600">÷</span>
+                        <input id="slot-4" type="text" inputmode="decimal" maxlength="1" class="slot" data-target="6" placeholder="?">
+                        <span class="text-3xl font-extrabold text-indigo-600">=</span>
+                        <input id="slot-5" type="text" inputmode="decimal" maxlength="1" class="slot" data-target="4" placeholder="?">
+                        <span class="text-2xl text-slate-500 font-semibold">(段)</span>
                     </div>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button id="btn-check-2" class="bg-slate-300 text-slate-500 font-bold px-8 py-3 rounded-xl cursor-not-allowed transition-all" disabled>
+                        檢查步驟二
+                    </button>
                 </div>
             </div>
 
-            <!-- 計算區 (增加高度以填補下方空白，從 130px 放大至 250px) -->
-            <div class="relative pl-7">
-                <div class="border-2 border-slate-800 rounded-xl p-3 min-h-[250px] flex flex-col">
-                    <span class="text-lg font-bold mb-1">計算：</span>
+            <!-- Step 3 Card (Initially Locked) -->
+            <div id="step-3" class="step-transition bg-white p-6 rounded-2xl shadow-md border-2 border-slate-100 opacity-40 pointer-events-none">
+                <div class="flex items-center justify-between border-b pb-3 mb-4">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-black" id="number-badge-3">3</span>
+                        步驟三：寫出最後答案與單位
+                    </h2>
+                    <span id="badge-step-3" class="bg-slate-100 text-slate-500 font-bold px-3 py-1 rounded-lg text-sm">未解鎖</span>
                 </div>
-            </div>
+                
+                <div class="space-y-4 text-xl font-medium text-slate-700">
+                    <p class="flex flex-wrap items-center gap-2">
+                        答：一整條彩帶最多可以剪成 
+                        <input id="slot-6" type="text" inputmode="decimal" maxlength="1" class="slot" data-target="4" placeholder="?"> 
+                        段。
+                    </p>
+                </div>
 
-            <!-- 步驟三 -->
-            <div class="relative">
-                <div class="absolute -left-3 top-0 w-7 h-7 rounded-full bg-slate-200 border-2 border-slate-800 flex items-center justify-center font-black text-base">3</div>
-                <div class="pl-7">
-                    <h2 class="text-lg font-bold mb-1">寫出最後答案與單位</h2>
-                    <!-- 縮減內部 padding (p-4 改 p-3) -->
-                    <div class="text-lg font-bold flex items-end gap-2 border-2 border-slate-800 rounded-lg p-3 bg-slate-50">
-                        答：一整條彩帶最多可以剪成 <span class="answer-line pb-1 w-16"></span> 段。
-                    </div>
+                <div class="mt-6 flex justify-end">
+                    <button id="btn-check-3" class="bg-slate-300 text-slate-500 font-bold px-8 py-3 rounded-xl cursor-not-allowed transition-all" disabled>
+                        送出答案
+                    </button>
                 </div>
             </div>
 
         </section>
-
     </main>
 
+    <!-- Custom Floating Notifications (Alert replacement) -->
+    <div id="notification-container" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none flex flex-col gap-2"></div>
+
+    <!-- Completion / Summary Dialog Overlay -->
+    <div id="summary-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl text-center transform scale-95 transition-all duration-300" id="summary-box">
+            <!-- Large success graphic icon -->
+            <div class="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner animate-bounce">
+                <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h2 class="text-3xl font-black text-slate-800 mb-2">恭喜完成挑戰！ 🎉</h2>
+            <p class="text-lg text-slate-500 mb-6">品睿的彩帶成功順利分段囉！</p>
+            
+            <div class="bg-slate-50 rounded-2xl p-6 mb-8 grid grid-cols-2 gap-4 border border-slate-100">
+                <div class="text-center">
+                    <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">獲得分數</p>
+                    <p class="text-3xl font-black text-indigo-600 mt-1" id="modal-score">0 / 3</p>
+                </div>
+                <div class="text-center border-l">
+                    <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">花費時間</p>
+                    <p class="text-3xl font-black text-indigo-600 mt-1" id="modal-time">00:00</p>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <button id="btn-replay" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-indigo-500/20 active:scale-95 transition-all text-lg">
+                    再挑戰一次 🔁
+                </button>
+                <button id="btn-close-modal" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-4 rounded-xl active:scale-95 transition-all text-lg">
+                    關閉視窗
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vanilla Javascript Logic -->
+    <script>
+        // Global Game Configuration & State Variables
+        let currentStep = 1;
+        let score = 0;
+        let timeLeft = 420; // 7 Minutes in seconds
+        let timerInterval = null;
+        let isCompleted = false;
+
+        // Custom Sound Synthesizer via Web Audio API to avoid external asset loading errors
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new AudioCtx();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    // Ascending cheerful major triad chords
+                    const now = audioCtx.currentTime;
+                    osc.type = 'triangle';
+                    
+                    osc.frequency.setValueAtTime(261.63, now); // C4
+                    osc.frequency.setValueAtTime(329.63, now + 0.1); // E4
+                    osc.frequency.setValueAtTime(392.00, now + 0.2); // G4
+                    osc.frequency.setValueAtTime(523.25, now + 0.3); // C5
+                    
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                    
+                    osc.start(now);
+                    osc.stop(now + 0.52);
+                } else if (type === 'wrong') {
+                    // Low solid error buzz
+                    const now = audioCtx.currentTime;
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(130.81, now); // C3
+                    osc.frequency.setValueAtTime(125.00, now + 0.15); // descending pitch slightly
+                    
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    
+                    osc.start(now);
+                    osc.stop(now + 0.31);
+                } else if (type === 'victory') {
+                    // Success fanfare
+                    const now = audioCtx.currentTime;
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.15); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.3); // G5
+                    osc.frequency.setValueAtTime(1046.50, now + 0.45); // C6
+                    
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+                    
+                    osc.start(now);
+                    osc.stop(now + 0.8);
+                }
+            } catch (e) {
+                console.log('Audio Context unsupported or blocked by browser policies.', e);
+            }
+        }
+
+        // Custom Notification Overlay Drawer
+        function showNotification(message, isSuccess = true) {
+            const container = document.getElementById('notification-container');
+            const toast = document.createElement('div');
+            
+            toast.className = `flex items-center gap-2 px-6 py-3.5 rounded-xl shadow-lg border text-lg font-bold transform translate-y-10 opacity-0 transition-all duration-300 ${
+                isSuccess 
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+                : 'bg-rose-50 border-rose-200 text-rose-800'
+            }`;
+            
+            const icon = isSuccess 
+                ? `<svg class="w-6 h-6 text-emerald-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
+                : `<svg class="w-6 h-6 text-rose-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+
+            // Reflow to trigger sliding transitions
+            setTimeout(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            }, 10);
+
+            // Dismiss after duration
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Timer controller functions
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 420; // 7 minutes
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    finishChallenge(); // Trigger summary when time finishes
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const displayStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('timer-display').innerText = displayStr;
+            if (timeLeft <= 60) {
+                // Flash alert styling when timer is critical (under 1 minute)
+                document.getElementById('timer-display').parentElement.classList.replace('bg-indigo-700', 'bg-rose-600');
+                document.getElementById('timer-display').parentElement.classList.add('animate-pulse');
+            } else {
+                document.getElementById('timer-display').parentElement.classList.add('bg-indigo-700');
+                document.getElementById('timer-display').parentElement.classList.remove('bg-rose-600', 'animate-pulse');
+            }
+        }
+
+        function getElapsedTimeFormatted() {
+            const totalElapsed = 420 - timeLeft;
+            const minutes = Math.floor(totalElapsed / 60);
+            const seconds = totalElapsed % 60;
+            return `${String(minutes).padStart(2, '0')} 分 ${String(seconds).padStart(2, '0')} 秒`;
+        }
+
+        // SVG Visualizer State Machine Render Engine
+        function renderRibbonVisual() {
+            const container = document.getElementById('ribbon-visuals');
+            container.innerHTML = ''; // clear first
+
+            if (currentStep === 1) {
+                // State 1: Solid pink ribbon with ribbon body and label
+                container.innerHTML = `
+                    <!-- 24cm Solid Ribbon -->
+                    <rect x="50" y="55" width="500" height="40" rx="6" fill="url(#ribbonGrad)" class="transition-all duration-500" />
+                    <!-- Visual Highlight Label -->
+                    <text x="300" y="80" fill="#ffffff" font-weight="900" font-size="16" text-anchor="middle">一整條彩帶 (24 公分)</text>
+                    <!-- Visual Helper Guides -->
+                    <g opacity="0.3">
+                        <line x1="175" y1="45" x2="175" y2="105" stroke="#475569" stroke-width="2" stroke-dasharray="4,4" />
+                        <line x1="300" y1="45" x2="300" y2="105" stroke="#475569" stroke-width="2" stroke-dasharray="4,4" />
+                        <line x1="425" y1="45" x2="425" y2="105" stroke="#475569" stroke-width="2" stroke-dasharray="4,4" />
+                    </g>
+                `;
+            } else if (currentStep === 2) {
+                // State 2: Show scissor indicators at the division boundaries
+                container.innerHTML = `
+                    <rect x="50" y="55" width="500" height="40" rx="6" fill="url(#ribbonGrad)" />
+                    <!-- Segment Boundaries dashed lines -->
+                    <line x1="175" y1="40" x2="175" y2="110" stroke="#475569" stroke-width="3" stroke-dasharray="6,4" />
+                    <line x1="300" y1="40" x2="300" y2="110" stroke="#475569" stroke-width="3" stroke-dasharray="6,4" />
+                    <line x1="425" y1="40" x2="425" y2="110" stroke="#475569" stroke-width="3" stroke-dasharray="6,4" />
+                    
+                    <!-- Decorative Scissor Emoji Labels representing division points -->
+                    <text x="175" y="32" font-size="20" text-anchor="middle">✂️</text>
+                    <text x="300" y="32" font-size="20" text-anchor="middle">✂️</text>
+                    <text x="425" y="32" font-size="20" text-anchor="middle">✂️</text>
+
+                    <!-- Text indicators pointing showing sections -->
+                    <text x="112" y="80" fill="#ffffff" font-weight="900" font-size="14" text-anchor="middle">6cm</text>
+                    <text x="237" y="80" fill="#ffffff" font-weight="900" font-size="14" text-anchor="middle">6cm</text>
+                    <text x="362" y="80" fill="#ffffff" font-weight="900" font-size="14" text-anchor="middle">6cm</text>
+                    <text x="487" y="80" fill="#ffffff" font-weight="900" font-size="14" text-anchor="middle">6cm</text>
+                `;
+            } else if (currentStep >= 3) {
+                // State 3: Fully split ribbon segments showing physical 4 segments.
+                // Each segment is separated with beautiful gaps and has numbering labels.
+                container.innerHTML = `
+                    <!-- Segment 1 -->
+                    <g transform="translate(-15, 0)" class="transition-all duration-700">
+                        <rect x="50" y="55" width="115" height="40" rx="6" fill="url(#cutGrad)" stroke="#f43f5e" stroke-width="2" />
+                        <text x="107" y="80" fill="#e11d48" font-weight="900" font-size="14" text-anchor="middle">第 1 段 (6cm)</text>
+                    </g>
+                    <!-- Segment 2 -->
+                    <g transform="translate(-5, 0)" class="transition-all duration-700">
+                        <rect x="175" y="55" width="115" height="40" rx="6" fill="url(#cutGrad)" stroke="#f43f5e" stroke-width="2" />
+                        <text x="232" y="80" fill="#e11d48" font-weight="900" font-size="14" text-anchor="middle">第 2 段 (6cm)</text>
+                    </g>
+                    <!-- Segment 3 -->
+                    <g transform="translate(5, 0)" class="transition-all duration-700">
+                        <rect x="300" y="55" width="115" height="40" rx="6" fill="url(#cutGrad)" stroke="#f43f5e" stroke-width="2" />
+                        <text x="357" y="80" fill="#e11d48" font-weight="900" font-size="14" text-anchor="middle">第 3 段 (6cm)</text>
+                    </g>
+                    <!-- Segment 4 -->
+                    <g transform="translate(15, 0)" class="transition-all duration-700">
+                        <rect x="425" y="55" width="115" height="40" rx="6" fill="url(#cutGrad)" stroke="#f43f5e" stroke-width="2" />
+                        <text x="482" y="80" fill="#e11d48" font-weight="900" font-size="14" text-anchor="middle">第 4 段 (6cm)</text>
+                    </g>
+
+                    <text x="300" y="25" fill="#059669" font-weight="900" font-size="16" text-anchor="middle" class="animate-bounce">
+                        🎉 一共分成了 4 段！
+                    </text>
+                `;
+            }
+        }
+
+        // Core Interactive Mechanics
+        const step1Slots = [document.getElementById('slot-1'), document.getElementById('slot-2')];
+        const step2Slots = [document.getElementById('slot-3'), document.getElementById('slot-4'), document.getElementById('slot-5')];
+        const step3Slots = [document.getElementById('slot-6')];
+        const allSlots = [...step1Slots, ...step2Slots, ...step3Slots];
+
+        function getActiveSlots() {
+            if (currentStep === 1) return step1Slots;
+            if (currentStep === 2) return step2Slots;
+            return step3Slots;
+        }
+
+        // Highlight first unfilled slot of the current active step
+        function syncHighlightAndFocus() {
+            const activeSlots = getActiveSlots();
+            
+            // Remove active highlight from all slots
+            allSlots.forEach(slot => {
+                slot.classList.remove('active-slot');
+            });
+
+            // Find first empty slot in active step
+            const firstEmpty = activeSlots.find(slot => slot.value.trim() === '');
+            if (firstEmpty) {
+                firstEmpty.classList.add('active-slot');
+                firstEmpty.focus();
+            } else if (activeSlots.length > 0) {
+                // If everything is full, highlight the last one just for focus context
+                activeSlots[activeSlots.length - 1].classList.add('active-slot');
+            }
+        }
+
+        // Attach specialized Event Listeners to all input slots
+        allSlots.forEach(slot => {
+            // Strictly enforce numeric character inputs
+            slot.addEventListener('keypress', (e) => {
+                const charCode = (e.which) ? e.which : e.keyCode;
+                // Allow digits (48-57), period (46), minus sign (45)
+                if (charCode !== 46 && charCode !== 45 && (charCode < 48 || charCode > 57)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Handle backspaces/character changes for auto-focus jumping
+            slot.addEventListener('input', (e) => {
+                // Filter characters (additional safety safeguard)
+                slot.value = slot.value.replace(/[^0-9.-]/g, '');
+
+                const maxLength = parseInt(slot.getAttribute('maxlength'));
+                if (slot.value.length >= maxLength) {
+                    // Auto jump to next slot in current step
+                    const activeSlots = getActiveSlots();
+                    const currentIndex = activeSlots.indexOf(slot);
+                    if (currentIndex !== -1 && currentIndex < activeSlots.length - 1) {
+                        activeSlots[currentIndex + 1].focus();
+                    }
+                }
+                syncHighlightAndFocus();
+            });
+
+            // Click-to-clear utility
+            slot.addEventListener('click', () => {
+                const activeSlots = getActiveSlots();
+                // Only allow clicks and edits on slots belonging to the current active step
+                if (activeSlots.includes(slot)) {
+                    slot.value = '';
+                    syncHighlightAndFocus();
+                }
+            });
+        });
+
+        // Unlock next stages of the step stack
+        function unlockStep(nextStepNum) {
+            currentStep = nextStepNum;
+            renderRibbonVisual();
+            
+            const prevStep = document.getElementById(`step-${nextStepNum - 1}`);
+            const nextStep = document.getElementById(`step-${nextStepNum}`);
+            const badgePrev = document.getElementById(`badge-step-${nextStepNum - 1}`);
+            const badgeNext = document.getElementById(`badge-step-${nextStepNum}`);
+            const numBadgeNext = document.getElementById(`number-badge-${nextStepNum}`);
+            const btnCheckNext = document.getElementById(`btn-check-${nextStepNum}`);
+
+            // Update Previous step UI to locked-completed style
+            prevStep.classList.add('opacity-75');
+            badgePrev.className = "bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg text-sm";
+            badgePrev.innerText = "已完成 ✔";
+            
+            // Disable previous step input elements
+            const prevSlots = (nextStepNum === 2) ? step1Slots : step2Slots;
+            prevSlots.forEach(s => s.disabled = true);
+
+            // Smoothly reveal and unlock the next active step
+            nextStep.classList.remove('opacity-40', 'pointer-events-none');
+            nextStep.classList.add('border-indigo-200');
+            badgeNext.className = "bg-amber-100 text-amber-700 font-bold px-3 py-1 rounded-lg text-sm";
+            badgeNext.innerText = "進行中";
+            
+            if (numBadgeNext) {
+                numBadgeNext.className = "w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-black";
+            }
+            if (btnCheckNext) {
+                btnCheckNext.className = "bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2";
+                btnCheckNext.disabled = false;
+            }
+
+            // Adjust interactive visualization hints
+            if (currentStep === 2) {
+                document.getElementById('visualizer-hint').innerText = "太棒了！步驟一完成，快列出除法算式來計算段數吧！";
+            } else if (currentStep === 3) {
+                document.getElementById('visualizer-hint').innerText = "哇！彩帶被剪開了！最後一步寫下答句吧！";
+            }
+
+            setTimeout(() => {
+                syncHighlightAndFocus();
+            }, 100);
+        }
+
+        // Verify values filled by the student
+        function checkStep(stepNum) {
+            const slotsToCheck = (stepNum === 1) ? step1Slots : (stepNum === 2) ? step2Slots : step3Slots;
+            
+            // Check for empty slots first
+            const hasEmpty = slotsToCheck.some(slot => slot.value.trim() === '');
+            if (hasEmpty) {
+                playSound('wrong');
+                showNotification('請填滿所有空格再檢查哦！', false);
+                syncHighlightAndFocus();
+                return;
+            }
+
+            // Check if values match specified data-target
+            const isAllCorrect = slotsToCheck.every(slot => {
+                return slot.value.trim() === slot.getAttribute('data-target');
+            });
+
+            if (isAllCorrect) {
+                playSound('correct');
+                score += 1;
+                document.getElementById('score-display').innerText = score;
+                showNotification('答對了！恭喜解鎖下一步！', true);
+                
+                if (stepNum < 3) {
+                    unlockStep(stepNum + 1);
+                } else {
+                    // Full completion!
+                    finishChallenge();
+                }
+            } else {
+                playSound('wrong');
+                showNotification('答案再想想看喔，可以用左側模擬板算算看！', false);
+                syncHighlightAndFocus();
+            }
+        }
+
+        // Display results overlay
+        function finishChallenge() {
+            clearInterval(timerInterval);
+            isCompleted = true;
+            playSound('victory');
+
+            // Render final ribbon split visuals
+            currentStep = 3;
+            renderRibbonVisual();
+
+            // Set final stats inside modal
+            document.getElementById('modal-score').innerText = `${score} / 3`;
+            document.getElementById('modal-time').innerText = getElapsedTimeFormatted();
+
+            // Reveal modal overlay
+            const modal = document.getElementById('summary-modal');
+            const box = document.getElementById('summary-box');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            }, 50);
+        }
+
+        // Complete system reset for restarting
+        function restartGame() {
+            // Restore default values
+            currentStep = 1;
+            score = 0;
+            document.getElementById('score-display').innerText = "0";
+            
+            // Hide final modal
+            const modal = document.getElementById('summary-modal');
+            const box = document.getElementById('summary-box');
+            box.classList.replace('scale-100', 'scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+
+            // Re-render components
+            renderRibbonVisual();
+            document.getElementById('visualizer-hint').innerText = "動手做做看！解開右邊的步驟，彩帶就會開始剪裁喔！";
+
+            // Clean input slot values and set states
+            allSlots.forEach(slot => {
+                slot.value = '';
+                slot.disabled = false;
+            });
+
+            // Reset step box styling structures manually back to initial locked configurations
+            // Step 1 reset
+            const step1 = document.getElementById('step-1');
+            step1.className = "step-transition bg-white p-6 rounded-2xl shadow-md border-2 border-slate-100 opacity-100";
+            document.getElementById('badge-step-1').className = "bg-amber-100 text-amber-700 font-bold px-3 py-1 rounded-lg text-sm";
+            document.getElementById('badge-step-1').innerText = "進行中";
+            
+            // Step 2 reset
+            const step2 = document.getElementById('step-2');
+            step2.className = "step-transition bg-white p-6 rounded-2xl shadow-md border-2 border-slate-100 opacity-40 pointer-events-none";
+            document.getElementById('badge-step-2').className = "bg-slate-100 text-slate-500 font-bold px-3 py-1 rounded-lg text-sm";
+            document.getElementById('badge-step-2').innerText = "未解鎖";
+            document.getElementById('number-badge-2').className = "w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-black";
+            const btn2 = document.getElementById('btn-check-2');
+            btn2.className = "bg-slate-300 text-slate-500 font-bold px-8 py-3 rounded-xl cursor-not-allowed transition-all";
+            btn2.disabled = true;
+
+            // Step 3 reset
+            const step3 = document.getElementById('step-3');
+            step3.className = "step-transition bg-white p-6 rounded-2xl shadow-md border-2 border-slate-100 opacity-40 pointer-events-none";
+            document.getElementById('badge-step-3').className = "bg-slate-100 text-slate-500 font-bold px-3 py-1 rounded-lg text-sm";
+            document.getElementById('badge-step-3').innerText = "未解鎖";
+            document.getElementById('number-badge-3').className = "w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-black";
+            const btn3 = document.getElementById('btn-check-3');
+            btn3.className = "bg-slate-300 text-slate-500 font-bold px-8 py-3 rounded-xl cursor-not-allowed transition-all";
+            btn3.disabled = true;
+
+            // Restart timer and highlight focus sequences
+            startTimer();
+            syncHighlightAndFocus();
+        }
+
+        // Attach action click triggers to check buttons
+        document.getElementById('btn-check-1').addEventListener('click', () => checkStep(1));
+        document.getElementById('btn-check-2').addEventListener('click', () => checkStep(2));
+        document.getElementById('btn-check-3').addEventListener('click', () => checkStep(3));
+        
+        // Attach action triggers to modal control buttons
+        document.getElementById('btn-replay').addEventListener('click', restartGame);
+        document.getElementById('btn-close-modal').addEventListener('click', () => {
+            document.getElementById('summary-modal').classList.add('hidden');
+        });
+
+        // Initialize App on Window Load Completion
+        window.onload = function() {
+            renderRibbonVisual();
+            startTimer();
+            syncHighlightAndFocus();
+        };
+    </script>
 </body>
 </html>
