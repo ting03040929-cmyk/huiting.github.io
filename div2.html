@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>包含除法學習單 - 品睿剪彩帶</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Friendly Traditional Chinese Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+        }
+        /* 列印專屬設定 - 強制單頁與邊距控制 */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 1cm; /* 邊距維持 1cm 以爭取空間 */
+            }
+            body {
+                background-color: transparent;
+                padding: 0 !important; /* 移除螢幕顯示用的 padding */
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-border {
+                border: 2px solid #000;
+            }
+            /* 強制列印背景色和圖片 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+        /* 作答底線 */
+        .answer-line {
+            display: inline-block;
+            border-bottom: 1px solid #000;
+            width: 50px; 
+            margin: 0 5px;
+            text-align: center;
+        }
+        /* 算式框 */
+        .math-box {
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 8px 15px; /* 縮小上下 padding */
+            margin-top: 6px;
+            min-height: 50px; /* 縮小最小高度 */
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-white text-slate-900 p-4 md:p-8 max-w-4xl mx-auto">
+
+    <!-- 列印按鈕 (僅在螢幕顯示) -->
+    <div class="no-print mb-4 text-center">
+        <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-colors flex items-center gap-2 mx-auto">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            列印學習單
+        </button>
+        <p class="text-sm text-slate-500 mt-1">提示：列印時建議勾選「背景圖形」以保留尺規的刻度顏色，並確認比例為「預設」或「符合紙張大小」。</p>
+    </div>
+
+    <!-- 學習單標頭 (再縮減下邊距 pb-2 mb-3) -->
+    <header class="border-b-4 border-slate-800 pb-2 mb-3 flex justify-between items-end">
+        <div>
+            <h1 class="text-2xl font-black tracking-wider text-slate-900 mb-1">數學學習單：包含除法</h1>
+            <h2 class="text-lg font-bold text-slate-700">主題：品睿剪彩帶</h2>
+        </div>
+        <div class="flex flex-col gap-2 text-base font-bold">
+            <div class="flex items-center gap-2">
+                <span>班級：</span>
+                <div class="border-b border-slate-800 w-20"></div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span>座號：</span>
+                <div class="border-b border-slate-800 w-12"></div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span>姓名：</span>
+                <div class="border-b border-slate-800 w-28"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主體內容 (縮小各區塊間距 space-y-4) -->
+    <main class="space-y-4">
+
+        <!-- 題目區塊 (縮小 padding 為 p-3) -->
+        <section class="print-border rounded-xl p-3 bg-slate-50 border-2 border-slate-800">
+            <h3 class="inline-block bg-slate-800 text-white font-bold px-3 py-1 rounded-md text-sm mb-1">生活情境題</h3>
+            <p class="text-xl font-bold leading-relaxed">
+                每一條彩帶長 <span class="underline decoration-2 underline-offset-4">24</span> 公分。品睿把彩帶每 <span class="underline decoration-2 underline-offset-4">6</span> 公分剪成 1 段，最多可以剪成幾段？
+            </p>
+        </section>
+
+        <!-- 視覺模擬區 (縮小留白與高度 max-h-24) -->
+        <section class="print-border rounded-xl p-2 text-center border-2 border-slate-300">
+            <h3 class="text-base font-bold mb-1">彩帶圖示</h3>
+            <div class="w-full aspect-[6/1] flex items-center justify-center max-h-24">
+                <svg class="w-full h-full max-w-2xl mx-auto" viewBox="0 0 600 130" preserveAspectRatio="xMidYMid meet">
+                    <!-- Ruler Scale Group -->
+                    <g transform="translate(0, 90)">
+                        <!-- Main line -->
+                        <line x1="50" y1="0" x2="550" y2="0" stroke="#000" stroke-width="2" />
+                        <!-- Ticks & Text -->
+                        <!-- 0 cm -->
+                        <line x1="50" y1="0" x2="50" y2="8" stroke="#000" stroke-width="2" />
+                        <text x="50" y="22" fill="#000" font-weight="bold" font-size="13" text-anchor="middle">0cm</text>
+                        <!-- 6 cm -->
+                        <line x1="175" y1="0" x2="175" y2="8" stroke="#000" stroke-width="1.5" />
+                        <text x="175" y="22" fill="#000" font-size="13" text-anchor="middle">6cm</text>
+                        <!-- 12 cm -->
+                        <line x1="300" y1="0" x2="300" y2="8" stroke="#000" stroke-width="1.5" />
+                        <text x="300" y="22" fill="#000" font-size="13" text-anchor="middle">12cm</text>
+                        <!-- 18 cm -->
+                        <line x1="425" y1="0" x2="425" y2="8" stroke="#000" stroke-width="1.5" />
+                        <text x="425" y="22" fill="#000" font-size="13" text-anchor="middle">18cm</text>
+                        <!-- 24 cm -->
+                        <line x1="550" y1="0" x2="550" y2="8" stroke="#000" stroke-width="2" />
+                        <text x="550" y="22" fill="#000" font-weight="bold" font-size="13" text-anchor="middle">24cm</text>
+                    </g>
+
+                    <!-- Static Ribbon Visual -->
+                    <rect x="50" y="25" width="500" height="36" rx="4" fill="#e2e8f0" stroke="#000" stroke-width="2" />
+                    <!-- Visual Helper Guides -->
+                    <g stroke="#000" stroke-width="2" stroke-dasharray="6,4">
+                        <line x1="175" y1="15" x2="175" y2="75" />
+                        <line x1="300" y1="15" x2="300" y2="75" />
+                        <line x1="425" y1="15" x2="425" y2="75" />
+                    </g>
+                     <!-- Decorative Scissor Emoji -->
+                     <text x="175" y="12" font-size="18" text-anchor="middle">✂️</text>
+                     <text x="300" y="12" font-size="18" text-anchor="middle">✂️</text>
+                     <text x="425" y="12" font-size="18" text-anchor="middle">✂️</text>
+                </svg>
+            </div>
+            <p class="text-xs font-bold text-slate-600">提示：可以參考上面的圖示，在心裡把彩帶剪開看看喔！</p>
+        </section>
+
+        <!-- 作答區 (縮減區塊間距 space-y-4) -->
+        <section class="space-y-4 pl-2">
+            
+            <!-- 步驟一 -->
+            <div class="relative">
+                <div class="absolute -left-3 top-0 w-7 h-7 rounded-full bg-slate-200 border-2 border-slate-800 flex items-center justify-center font-black text-base">1</div>
+                <div class="pl-7">
+                    <h2 class="text-lg font-bold mb-1">找出題目中的重要數字</h2>
+                    <div class="space-y-2 text-lg font-medium">
+                        <p class="flex items-end gap-1">
+                            (1) 每一條彩帶全長是 <span class="answer-line pb-1"></span> 公分。
+                        </p>
+                        <p class="flex items-end gap-1">
+                            (2) 品睿把彩帶每 <span class="answer-line pb-1"></span> 公分剪成 1 段。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 步驟二 -->
+            <div class="relative">
+                <div class="absolute -left-3 top-0 w-7 h-7 rounded-full bg-slate-200 border-2 border-slate-800 flex items-center justify-center font-black text-base">2</div>
+                <div class="pl-7">
+                    <h2 class="text-lg font-bold mb-1">列出除法算式計算段數</h2>
+                    <p class="text-base text-slate-600 mb-1">請寫出完整的除法算式（包含除數、被除數與商）：</p>
+                    <div class="math-box bg-slate-50 flex items-center gap-3 text-xl font-bold">
+                        <span class="inline-block border-b-2 border-slate-800 w-12 text-center h-8"></span>
+                        <span>÷</span>
+                        <span class="inline-block border-b-2 border-slate-800 w-12 text-center h-8"></span>
+                        <span>=</span>
+                        <span class="inline-block border-b-2 border-slate-800 w-12 text-center h-8"></span>
+                        <span class="text-base text-slate-600 font-normal ml-1">(段)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 計算區 (增加高度以填補下方空白，從 130px 放大至 250px) -->
+            <div class="relative pl-7">
+                <div class="border-2 border-slate-800 rounded-xl p-3 min-h-[250px] flex flex-col">
+                    <span class="text-lg font-bold mb-1">計算：</span>
+                </div>
+            </div>
+
+            <!-- 步驟三 -->
+            <div class="relative">
+                <div class="absolute -left-3 top-0 w-7 h-7 rounded-full bg-slate-200 border-2 border-slate-800 flex items-center justify-center font-black text-base">3</div>
+                <div class="pl-7">
+                    <h2 class="text-lg font-bold mb-1">寫出最後答案與單位</h2>
+                    <!-- 縮減內部 padding (p-4 改 p-3) -->
+                    <div class="text-lg font-bold flex items-end gap-2 border-2 border-slate-800 rounded-lg p-3 bg-slate-50">
+                        答：一整條彩帶最多可以剪成 <span class="answer-line pb-1 w-16"></span> 段。
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

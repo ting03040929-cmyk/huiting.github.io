@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>32人遊行平分問題 - 學習單</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+    
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: #fff;
+      color: #000;
+    }
+
+    /* 列印特定設定 */
+    @media print {
+      body {
+        background-color: white;
+        margin: 0;
+        padding: 0;
+        /* 確保不跨頁的關鍵設定 */
+        page-break-inside: avoid; 
+      }
+      .no-print {
+        display: none !important;
+      }
+      /* 調整頁面間距以適應一頁 */
+      @page {
+        margin: 1.5cm; 
+      }
+      /* 確保邊框在列印時清晰 */
+      .print-border {
+        border: 2px solid #000 !important;
+      }
+      .print-bg-light {
+        background-color: #f8f9fa !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    /* 手寫空格樣式 */
+    .write-slot {
+      display: inline-block;
+      width: 50px;
+      height: 30px;
+      border-bottom: 2px solid #000;
+      margin: 0 4px;
+      vertical-align: bottom;
+    }
+    
+    .write-slot-large {
+      display: inline-block;
+      width: 60px;
+      height: 40px;
+      border: 2px solid #000;
+      border-radius: 6px;
+      margin: 0 6px;
+      vertical-align: middle;
+    }
+
+    /* 算式框樣式 */
+    .math-slot {
+      display: inline-block;
+      width: 60px;
+      height: 50px;
+      border: 2px solid #000;
+      border-radius: 6px;
+      margin: 0 8px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8 max-w-4xl mx-auto bg-white min-h-screen">
+
+  <!-- 網頁版列印按鈕 (列印時會隱藏) -->
+  <div class="no-print mb-4 flex justify-end">
+    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+      </svg>
+      列印學習單
+    </button>
+  </div>
+
+  <!-- 學習單標頭 -->
+  <header class="border-b-2 border-black pb-2 mb-4">
+    <div class="flex justify-between items-end mb-2">
+      <div>
+        <h1 class="text-2xl font-bold mb-1">數學挑戰：平分問題</h1>
+        <p class="text-base font-bold">單元：除法與等分</p>
+      </div>
+      <div class="text-base font-bold flex flex-col gap-1">
+        <div>班級：<span class="inline-block w-20 border-b-2 border-black"></span></div>
+        <div>姓名：<span class="inline-block w-28 border-b-2 border-black"></span></div>
+        <div>座號：<span class="inline-block w-12 border-b-2 border-black"></span></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex flex-col gap-4">
+    
+    <!-- 題目區塊 -->
+    <section class="print-border p-4 rounded-xl print-bg-light">
+      <h2 class="text-lg font-bold mb-2 border-b border-black pb-1">✏️ 請讀一讀題目：</h2>
+      <p class="text-2xl font-bold leading-relaxed tracking-wide">
+        有 32 個人參加遊行，平分成 4 組，盡量分完，一組有幾個人？用除法算式記記看。
+      </p>
+    </section>
+
+    <!-- 視覺提示圖 (縮小以節省空間) -->
+    <section class="border-2 border-gray-400 p-3 rounded-xl">
+      <h2 class="text-base font-bold mb-2 text-center">🎨 遊行車隊示意圖 (請將 32 人平分到 4 台車上)</h2>
+      <div class="flex flex-wrap justify-center gap-2">
+        <!-- 產生4台車的框架供學生想像或畫圈 -->
+        <div class="border-2 border-black rounded-lg p-2 w-40 h-24 flex flex-col items-center justify-start relative">
+          <div class="border-2 border-black rounded px-2 py-0.5 font-bold text-xs bg-white -mt-4">第 1 組</div>
+          <!-- 留白讓學生畫圈圈或寫數字 -->
+        </div>
+        <div class="border-2 border-black rounded-lg p-2 w-40 h-24 flex flex-col items-center justify-start relative">
+          <div class="border-2 border-black rounded px-2 py-0.5 font-bold text-xs bg-white -mt-4">第 2 組</div>
+        </div>
+        <div class="border-2 border-black rounded-lg p-2 w-40 h-24 flex flex-col items-center justify-start relative">
+          <div class="border-2 border-black rounded px-2 py-0.5 font-bold text-xs bg-white -mt-4">第 3 組</div>
+        </div>
+        <div class="border-2 border-black rounded-lg p-2 w-40 h-24 flex flex-col items-center justify-start relative">
+          <div class="border-2 border-black rounded px-2 py-0.5 font-bold text-xs bg-white -mt-4">第 4 組</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 步驟與計算區塊 -->
+    <section class="grid grid-cols-3 gap-6 mt-4 items-stretch">
+      
+      <!-- 左側：步驟區塊 -->
+      <div class="col-span-2 flex flex-col gap-4">
+        <!-- 步驟 1 -->
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-lg shrink-0">1</div>
+          <div class="flex-1">
+            <h3 class="text-lg font-bold mb-2">找出題目中的關鍵數字：</h3>
+            <div class="text-xl font-medium leading-loose ml-2">
+              共有 <span class="write-slot-large"></span> 個人，要平分成 <span class="write-slot-large"></span> 組。
+            </div>
+          </div>
+        </div>
+
+        <!-- 步驟 2 -->
+        <div class="flex items-start gap-3 mt-2">
+          <div class="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-lg shrink-0">2</div>
+          <div class="flex-1">
+            <h3 class="text-lg font-bold mb-2">寫成除法算式算算看：</h3>
+            <div class="flex items-center gap-2 text-3xl font-bold ml-2 mt-2">
+              <span class="math-slot"></span>
+              <span>÷</span>
+              <span class="math-slot"></span>
+              <span>=</span>
+              <span class="math-slot"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 步驟 3 -->
+        <div class="flex items-start gap-3 mt-2">
+          <div class="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-lg shrink-0">3</div>
+          <div class="flex-1">
+            <h3 class="text-lg font-bold mb-2">寫出最後的答案：</h3>
+            <div class="text-xl font-medium leading-loose ml-2">
+              答：一組有 <span class="write-slot-large"></span> 個人。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右側：直式計算方框 -->
+      <div class="col-span-1 border-2 border-black rounded-xl p-4 flex flex-col min-h-[250px]">
+        <h3 class="text-xl font-bold mb-2 tracking-wide">計算：</h3>
+        <!-- 下方留白空間讓學生撰寫直式 -->
+      </div>
+
+    </section>
+
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,488 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【專業列印版】平分與除法數學學習單</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 數學式專用結構 */
+    .math {
+      font-size: 24px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .fraction {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.1;
+      vertical-align: middle;
+    }
+    .fraction span:first-child {
+      border-bottom: 2px solid #000;
+      padding: 0 4px;
+    }
+    .mixed {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    /* --- A4 列印排版專用 CSS --- */
+    .sheet-page {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 10mm 20mm;
+      margin: 20px auto;
+      background: white;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    /* 紙本寫字框 */
+    .print-box {
+      display: inline-block;
+      width: 75px;
+      height: 38px;
+      border: 2px solid #334155;
+      border-radius: 6px;
+      vertical-align: middle;
+      text-align: center;
+      line-height: 34px;
+      font-size: 22px;
+      font-weight: bold;
+      background: #fff;
+      transition: color 0.2s ease;
+    }
+
+    /* 黑白複印優化：強制去除彩色、提高對比度 */
+    .grayscale-print svg, .grayscale-print .ribbon-bg {
+      filter: grayscale(100%) contrast(130%) !important;
+    }
+    .grayscale-print .bg-slate-50 { background-color: #ffffff !important; }
+    .grayscale-print .text-indigo-700 { color: #000000 !important; }
+    .grayscale-print .border-indigo-100 { border-color: #475569 !important; }
+    .grayscale-print .border-slate-400 { border-color: #1e293b !important; }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .sheet-page {
+        width: 210mm;
+        height: 297mm;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        page-break-after: always;
+        padding: 8mm 15mm !important;
+      }
+      /* 強制背景顏色與外觀正常顯示 */
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-200 min-h-screen font-sans flex flex-col transition-colors duration-300" id="body-root">
+
+  <!-- 頂部控制面板（僅在螢幕上顯示，列印時自動隱藏） -->
+  <header class="no-print bg-white shadow-md border-b-4 border-indigo-600 p-4 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+      
+      <!-- 左側說明 -->
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🖨️</span>
+        <div>
+          <h1 class="text-xl font-bold text-slate-850">三年級平分除法學習單（4題對稱排版）</h1>
+          <p class="text-xs text-slate-500">A4 雙頁無痛列印・支援答案套印與影印優化</p>
+        </div>
+      </div>
+
+      <!-- 右側列印專屬設定 -->
+      <div class="flex items-center gap-3 flex-wrap">
+        <!-- 解報切換 -->
+        <button id="btn-toggle-answer" onclick="toggleAnswerKey()" class="px-4 py-2 rounded-xl font-bold text-sm border-2 transition-all bg-white text-red-600 border-red-200 hover:bg-red-50 flex items-center gap-1">
+          <span>📝 顯示解答：關</span>
+        </button>
+
+        <!-- 複印優化切換 -->
+        <button id="btn-toggle-grayscale" onclick="toggleGrayscale()" class="px-4 py-2 rounded-xl font-bold text-sm border-2 transition-all bg-white text-slate-700 border-slate-300 hover:bg-slate-50 flex items-center gap-1">
+          <span>🎨 影印優化：彩色模式</span>
+        </button>
+
+        <!-- 一鍵列印 -->
+        <button onclick="triggerPrint()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-1.5">
+          <span>🖨️ 送出列印</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ======================================= -->
+  <!-- 學習單：第一頁 (題一、題二) -->
+  <!-- ======================================= -->
+  <div class="sheet-page" id="sheet-p1">
+    
+    <!-- 學習單頂部基本資訊欄 -->
+    <div class="border-b-4 border-slate-800 pb-2 mb-3">
+      <div class="flex justify-between items-end">
+        <h1 class="text-2xl font-black text-slate-800">「平分與除法」引導學習單</h1>
+        <span class="text-xs font-bold text-slate-500">單元：分分看與除法(一)</span>
+      </div>
+      <div class="grid grid-cols-4 gap-4 mt-2 text-base font-bold border-t border-slate-300 pt-2">
+        <div>三年 ___ 班</div>
+        <div>座號：______</div>
+        <div>姓名：__________</div>
+        <div class="text-right text-indigo-700">成績：_________ 分</div>
+      </div>
+    </div>
+
+    <!-- 題目一 -->
+    <div class="mb-2">
+      <div class="flex items-start gap-2 mb-1">
+        <span class="bg-slate-800 text-white font-black text-base px-2 py-0.5 rounded">一</span>
+        <p class="text-lg font-bold text-slate-955 leading-relaxed">
+          每一條彩帶長 <span class="underline underline-offset-4 decoration-2">24</span> 公分。郁文把彩帶平分剪成 <span class="underline underline-offset-4 decoration-2">8</span> 段，一段長幾公分？
+        </p>
+      </div>
+      
+      <!-- 題一：實物圖示 -->
+      <div class="flex justify-center my-1.5">
+        <svg width="450" height="74" viewBox="0 0 450 74" class="border-2 border-slate-300 rounded-lg">
+          <rect width="450" height="74" fill="#f8fafc"/>
+          <!-- 標尺 -->
+          <line x1="30" y1="56" x2="420" y2="56" stroke="#475569" stroke-width="2"/>
+          <line x1="30" y1="51" x2="30" y2="61" stroke="#475569" stroke-width="2"/>
+          <line x1="420" y1="51" x2="420" y2="61" stroke="#475569" stroke-width="2"/>
+          <text x="225" y="68" font-size="11" font-weight="extrabold" fill="#334155" text-anchor="middle">全長 24 公分</text>
+          <!-- 彩帶 -->
+          <rect x="30" y="12" width="390" height="26" rx="4" fill="#f472b6" class="ribbon-bg" stroke="#1e293b" stroke-width="1.5"/>
+          <!-- 虛線平分 -->
+          <line x1="78.75" y1="8" x2="78.75" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="127.5" y1="8" x2="127.5" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="176.25" y1="8" x2="176.25" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="225" y1="8" x2="225" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="273.75" y1="8" x2="273.75" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="322.5" y1="8" x2="322.5" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="371.25" y1="8" x2="371.25" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <text x="225" y="29" font-size="13" font-weight="black" fill="#fff" text-anchor="middle">平分剪成 8 段</text>
+        </svg>
+      </div>
+
+      <!-- 題一：引導步驟 -->
+      <div class="space-y-2 pl-6">
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟一：想一想，彩帶一共有多長？</span>
+          <span>➔ 彩帶一共有 <span class="print-box" data-ans="24"></span> 公分。</span>
+        </div>
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟二：看圖分分看，平分剪成幾段？</span>
+          <span>➔ 郁文把彩帶平分剪成 <span class="print-box" data-ans="8"></span> 段。</span>
+        </div>
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟三：列出除法算式算算看：</span>
+          <div class="math ml-2">
+            <span class="print-box" data-ans="24"></span>
+            <span class="mx-1">÷</span>
+            <span class="print-box" data-ans="8"></span>
+            <span class="mx-1">=</span>
+            <span class="print-box" data-ans="3"></span>
+          </div>
+        </div>
+        
+        <!-- 計算欄位 (Q1) - 放大版 (h-36) -->
+        <div class="ml-6 my-1 border-2 border-slate-400 rounded-xl p-2.5 h-40 text-slate-700 text-sm font-bold relative bg-white shadow-inner">
+          <span class="text-slate-400">💡 計算區：</span>
+        </div>
+
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟四：寫出最後的答案：</span>
+          <span>➔ 答：一段彩帶長 <span class="print-box" data-ans="3"></span> 公分。</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="border-t-2 border-dashed border-slate-400 my-3">
+
+    <!-- 題目二 -->
+    <div>
+      <div class="flex items-start gap-2 mb-1">
+        <span class="bg-slate-800 text-white font-black text-base px-2.5 py-0.5 rounded">二</span>
+        <p class="text-lg font-bold text-slate-955 leading-relaxed">
+          每一條紙帶長 <span class="underline underline-offset-4 decoration-2">35</span> 公分。郁文把紙帶平分剪成 <span class="underline underline-offset-4 decoration-2">5</span> 段，一段長幾公分？
+        </p>
+      </div>
+      
+      <!-- 題二：實物圖示 -->
+      <div class="flex justify-center my-1.5">
+        <svg width="450" height="74" viewBox="0 0 450 74" class="border-2 border-slate-300 rounded-lg">
+          <rect width="450" height="74" fill="#f8fafc"/>
+          <!-- 標尺 -->
+          <line x1="30" y1="56" x2="420" y2="56" stroke="#475569" stroke-width="2"/>
+          <line x1="30" y1="51" x2="30" y2="61" stroke="#475569" stroke-width="2"/>
+          <line x1="420" y1="51" x2="420" y2="61" stroke="#475569" stroke-width="2"/>
+          <text x="225" y="68" font-size="11" font-weight="extrabold" fill="#334155" text-anchor="middle">全長 35 公分</text>
+          <!-- 紙帶 -->
+          <rect x="30" y="12" width="390" height="26" rx="4" fill="#4ade80" class="ribbon-bg" stroke="#1e293b" stroke-width="1.5"/>
+          <!-- 虛線平分 -->
+          <line x1="108" y1="8" x2="108" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="186" y1="8" x2="186" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="264" y1="8" x2="264" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="342" y1="8" x2="342" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <text x="225" y="29" font-size="13" font-weight="black" fill="#fff" text-anchor="middle">平分剪成 5 段</text>
+        </svg>
+      </div>
+
+      <!-- 題二：引導步驟 -->
+      <div class="space-y-2 pl-6">
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟一：想一想，紙帶一共有多長？</span>
+          <span>➔ 紙帶一共有 <span class="print-box" data-ans="35"></span> 公分。</span>
+        </div>
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟二：看圖分分看，平分剪成幾段？</span>
+          <span>➔ 郁文把紙帶平分剪成 <span class="print-box" data-ans="5"></span> 段。</span>
+        </div>
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟三：列出除法算式算算看：</span>
+          <div class="math ml-2">
+            <span class="print-box" data-ans="35"></span>
+            <span class="mx-1">÷</span>
+            <span class="print-box" data-ans="5"></span>
+            <span class="mx-1">=</span>
+            <span class="print-box" data-ans="7"></span>
+          </div>
+        </div>
+
+        <!-- 計算欄位 (Q2) - 放大版 (h-36) -->
+        <div class="ml-6 my-1 border-2 border-slate-400 rounded-xl p-2.5 h-40 text-slate-700 text-sm font-bold relative bg-white shadow-inner">
+          <span class="text-slate-400">💡 計算區：</span>
+        </div>
+
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟四：寫出最後的答案：</span>
+          <span>➔ 答：一段紙帶長 <span class="print-box" data-ans="7"></span> 公分。</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======================================= -->
+  <!-- 學習單：第二頁 (題三、題四) -->
+  <!-- ======================================= -->
+  <div class="sheet-page" id="sheet-p2">
+    
+    <!-- 頁頂副標題 -->
+    <div class="border-b-2 border-slate-800 pb-2 mb-3 flex justify-between items-center">
+      <span class="text-lg font-bold text-slate-800">「平分與除法」學習單（第二頁）</span>
+      <span class="text-xs text-slate-500">三年 ___ 班 姓名：___________</span>
+    </div>
+
+    <!-- 題目三 -->
+    <div class="mb-2">
+      <div class="flex items-start gap-2 mb-1">
+        <span class="bg-slate-800 text-white font-black text-base px-2.5 py-0.5 rounded">三</span>
+        <p class="text-lg font-bold text-slate-955 leading-relaxed">
+          每一條緞帶長 <span class="underline underline-offset-4 decoration-2">42</span> 公分。郁文把緞帶平分剪成 <span class="underline underline-offset-4 decoration-2">6</span> 段，一段長幾公分？
+        </p>
+      </div>
+      
+      <!-- 題三：實物圖示 -->
+      <div class="flex justify-center my-1.5">
+        <svg width="450" height="74" viewBox="0 0 450 74" class="border-2 border-slate-300 rounded-lg">
+          <rect width="450" height="74" fill="#f8fafc"/>
+          <!-- 標尺 -->
+          <line x1="30" y1="56" x2="420" y2="56" stroke="#475569" stroke-width="2"/>
+          <line x1="30" y1="51" x2="30" y2="61" stroke="#475569" stroke-width="2"/>
+          <line x1="420" y1="51" x2="420" y2="61" stroke="#475569" stroke-width="2"/>
+          <text x="225" y="68" font-size="11" font-weight="extrabold" fill="#334155" text-anchor="middle">全長 42 公分</text>
+          <!-- 緞帶 -->
+          <rect x="30" y="12" width="390" height="26" rx="4" fill="#60a5fa" class="ribbon-bg" stroke="#1e293b" stroke-width="1.5"/>
+          <!-- 虛線平分 -->
+          <line x1="95" y1="8" x2="95" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="160" y1="8" x2="160" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="225" y1="8" x2="225" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="290" y1="8" x2="290" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="355" y1="8" x2="355" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <text x="225" y="29" font-size="13" font-weight="black" fill="#fff" text-anchor="middle">平分剪成 6 段</text>
+        </svg>
+      </div>
+
+      <!-- 題三：引導步驟 -->
+      <div class="space-y-2 pl-6">
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟一：想一想，緞帶一共有多長？</span>
+          <span>➔ 緞帶一共有 <span class="print-box" data-ans="42"></span> 公分。</span>
+        </div>
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟二：看圖分分看，平分剪成幾段？</span>
+          <span>➔ 郁文把緞帶平分剪成 <span class="print-box" data-ans="6"></span> 段。</span>
+        </div>
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟三：列出除法算式算算看：</span>
+          <div class="math ml-2">
+            <span class="print-box" data-ans="42"></span>
+            <span class="mx-1">÷</span>
+            <span class="print-box" data-ans="6"></span>
+            <span class="mx-1">=</span>
+            <span class="print-box" data-ans="7"></span>
+          </div>
+        </div>
+
+        <!-- 計算欄位 (Q3) - 放大版 (h-36) -->
+        <div class="ml-6 my-1 border-2 border-slate-400 rounded-xl p-2.5 h-40 text-slate-700 text-sm font-bold relative bg-white shadow-inner">
+          <span class="text-slate-400">💡 計算區：</span>
+        </div>
+
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟四：寫出最後的答案：</span>
+          <span>➔ 答：一段緞帶長 <span class="print-box" data-ans="7"></span> 公分。</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="border-t-2 border-dashed border-slate-400 my-3">
+
+    <!-- 題目四 (新增題目) -->
+    <div>
+      <div class="flex items-start gap-2 mb-1">
+        <span class="bg-slate-800 text-white font-black text-base px-2.5 py-0.5 rounded">四</span>
+        <p class="text-lg font-bold text-slate-955 leading-relaxed">
+          每一條毛線長 <span class="underline underline-offset-4 decoration-2">48</span> 公分。郁文把毛線平分剪成 <span class="underline underline-offset-4 decoration-2">8</span> 段，一段長幾公分？
+        </p>
+      </div>
+      
+      <!-- 題四：實物圖示 -->
+      <div class="flex justify-center my-1.5">
+        <svg width="450" height="74" viewBox="0 0 450 74" class="border-2 border-slate-300 rounded-lg">
+          <rect width="450" height="74" fill="#f8fafc"/>
+          <!-- 標尺 -->
+          <line x1="30" y1="56" x2="420" y2="56" stroke="#475569" stroke-width="2"/>
+          <line x1="30" y1="51" x2="30" y2="61" stroke="#475569" stroke-width="2"/>
+          <line x1="420" y1="51" x2="420" y2="61" stroke="#475569" stroke-width="2"/>
+          <text x="225" y="68" font-size="11" font-weight="extrabold" fill="#334155" text-anchor="middle">全長 48 公分</text>
+          <!-- 毛線 -->
+          <rect x="30" y="12" width="390" height="26" rx="4" fill="#fb923c" class="ribbon-bg" stroke="#1e293b" stroke-width="1.5"/>
+          <!-- 虛線平分 -->
+          <line x1="78.75" y1="8" x2="78.75" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="127.5" y1="8" x2="127.5" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="176.25" y1="8" x2="176.25" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="225" y1="8" x2="225" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="273.75" y1="8" x2="273.75" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="322.5" y1="8" x2="322.5" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="371.25" y1="8" x2="371.25" y2="42" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <text x="225" y="29" font-size="13" font-weight="black" fill="#fff" text-anchor="middle">平分剪成 8 段</text>
+        </svg>
+      </div>
+
+      <!-- 題四：引導步驟 -->
+      <div class="space-y-2 pl-6">
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟一：想一想，毛線一共有多長？</span>
+          <span>➔ 毛線一共有 <span class="print-box" data-ans="48"></span> 公分。</span>
+        </div>
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟二：看圖分分看，平分剪成幾段？</span>
+          <span>➔ 郁文把毛線平分剪成 <span class="print-box" data-ans="8"></span> 段。</span>
+        </div>
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟三：列出除法算式算算看：</span>
+          <div class="math ml-2">
+            <span class="print-box" data-ans="48"></span>
+            <span class="mx-1">÷</span>
+            <span class="print-box" data-ans="8"></span>
+            <span class="mx-1">=</span>
+            <span class="print-box" data-ans="6"></span>
+          </div>
+        </div>
+
+        <!-- 計算欄位 (Q4) - 放大版 (h-36) -->
+        <div class="ml-6 my-1 border-2 border-slate-400 rounded-xl p-2.5 h-40 text-slate-700 text-sm font-bold relative bg-white shadow-inner">
+          <span class="text-slate-400">💡 計算區：</span>
+        </div>
+
+        <div class="text-base font-bold flex items-center gap-2">
+          <span>🔹 步驟四：寫出最後的答案：</span>
+          <span>➔ 答：一段毛線長 <span class="print-box" data-ans="6"></span> 公分。</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // 列印參數狀態
+    let showAnswers = false;
+    let isGrayscale = false;
+
+    // 頁面加載時先進行一次解答渲染
+    window.onload = function() {
+      renderPrintAnswers();
+    };
+
+    // 切換解答顯示
+    function toggleAnswerKey() {
+      showAnswers = !showAnswers;
+      const btn = document.getElementById('btn-toggle-answer');
+      if (showAnswers) {
+        btn.innerHTML = "<span>📝 顯示解答：開</span>";
+        btn.className = "px-4 py-2 rounded-xl font-bold text-sm border-2 transition-all bg-red-600 text-white border-red-600 flex items-center gap-1 shadow-sm";
+      } else {
+        btn.innerHTML = "<span>📝 顯示解答：關</span>";
+        btn.className = "px-4 py-2 rounded-xl font-bold text-sm border-2 transition-all bg-white text-red-600 border-red-200 hover:bg-red-50 flex items-center gap-1";
+      }
+      renderPrintAnswers();
+    }
+
+    // 將答案填入格子或清空
+    function renderPrintAnswers() {
+      document.querySelectorAll('.print-box').forEach(box => {
+        const correctAns = box.getAttribute('data-ans');
+        if (showAnswers) {
+          box.innerText = correctAns;
+          box.style.color = '#ef4444'; // 使用鮮明紅色顯示教師解答
+        } else {
+          box.innerText = '';
+          box.style.color = '';
+        }
+      });
+    }
+
+    // 切換高對比黑白預覽模式
+    function toggleGrayscale() {
+      isGrayscale = !isGrayscale;
+      const btn = document.getElementById('btn-toggle-grayscale');
+      const root = document.getElementById('body-root');
+      if (isGrayscale) {
+        btn.innerHTML = "<span>🪙 影印優化：單色黑白</span>";
+        btn.className = "px-4 py-2 rounded-xl font-bold text-sm border-2 transition-all bg-slate-800 text-white border-slate-800 flex items-center gap-1 shadow-sm";
+        root.classList.add('grayscale-print');
+      } else {
+        btn.innerHTML = "<span>🎨 影印優化：彩色模式</span>";
+        btn.className = "px-4 py-2 rounded-xl font-bold text-sm border-2 transition-all bg-white text-slate-700 border-slate-300 hover:bg-slate-50 flex items-center gap-1";
+        root.classList.remove('grayscale-print');
+      }
+    }
+
+    // 發送系統列印指令
+    function triggerPrint() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
