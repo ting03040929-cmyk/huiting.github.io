@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>好玩的除法</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, '微軟正黑體', sans-serif;
+            background-color: #fdfbf7;
+        }
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-15px); }
+            60% { transform: translateY(-7px); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .group-box {
+            border: 4px dashed #60a5fa;
+            border-radius: 1rem;
+            padding: 0.5rem;
+            background-color: #eff6ff;
+            display: inline-flex;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease;
+        }
+        .remainder-box {
+            border: 4px dashed #f87171;
+            border-radius: 1rem;
+            padding: 0.5rem;
+            background-color: #fef2f2;
+            display: inline-flex;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: center;
+        }
+        .unit-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .unit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* 自動示範的物件進入動畫 */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .slide-in-anim {
+            animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+    </style>
+
+    <!-- SVG 生成函數 -->
+    <script>
+        function getSvgApple() {
+            return `<svg viewBox="0 0 100 100" class="w-12 h-12 sm:w-16 sm:h-16 inline-block drop-shadow-md">
+                <path d="M50,90 C20,90 10,60 20,30 C30,10 50,20 50,30 C50,20 70,10 80,30 C90,60 80,90 50,90 Z" fill="#ef4444" />
+                <path d="M50,30 Q55,10 65,5" stroke="#8B4513" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M60,15 Q75,10 80,20 Q65,25 60,15 Z" fill="#22c55e" />
+            </svg>`;
+        }
+        function getSvgCandy() {
+            return `<svg viewBox="0 0 100 100" class="w-12 h-12 sm:w-16 sm:h-16 inline-block drop-shadow-md">
+                <polygon points="25,50 5,30 5,70" fill="#f472b6" stroke="#db2777" stroke-width="2"/>
+                <polygon points="75,50 95,30 95,70" fill="#f472b6" stroke="#db2777" stroke-width="2"/>
+                <circle cx="50" cy="50" r="25" fill="#fbcfe8" stroke="#db2777" stroke-width="3"/>
+                <path d="M35,50 Q50,35 65,50" stroke="#db2777" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>`;
+        }
+        function getSvgCookie() {
+            return `<svg viewBox="0 0 100 100" class="w-12 h-12 sm:w-16 sm:h-16 inline-block drop-shadow-md">
+                <circle cx="50" cy="50" r="40" fill="#d97706" />
+                <circle cx="35" cy="40" r="5" fill="#451a03" />
+                <circle cx="65" cy="35" r="6" fill="#451a03" />
+                <circle cx="50" cy="65" r="5.5" fill="#451a03" />
+                <circle cx="30" cy="60" r="4.5" fill="#451a03" />
+                <circle cx="70" cy="60" r="4" fill="#451a03" />
+            </svg>`;
+        }
+        function getSvgDonut() {
+            return `<svg viewBox="0 0 100 100" class="w-12 h-12 sm:w-16 sm:h-16 inline-block drop-shadow-md">
+                <circle cx="50" cy="50" r="40" fill="#fcd34d" stroke="#d97706" stroke-width="4"/>
+                <path d="M15,50 Q15,15 50,15 Q85,15 85,50 Q85,60 70,65 Q60,60 50,70 Q40,65 30,70 Q20,60 15,50 Z" fill="#ec4899" />
+                <circle cx="50" cy="50" r="15" fill="#fff" stroke="#d97706" stroke-width="3"/>
+                <!-- Sprinkles -->
+                <line x1="30" y1="30" x2="40" y2="25" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+                <line x1="60" y1="25" x2="65" y2="35" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/>
+                <line x1="70" y1="45" x2="80" y2="40" stroke="#34d399" stroke-width="3" stroke-linecap="round"/>
+                <line x1="25" y1="45" x2="35" y2="50" stroke="#fcd34d" stroke-width="3" stroke-linecap="round"/>
+            </svg>`;
+        }
+        function getSvgFlower() {
+            return `<svg viewBox="0 0 100 100" class="w-12 h-12 sm:w-16 sm:h-16 inline-block drop-shadow-md">
+                <circle cx="50" cy="20" r="15" fill="#f472b6" />
+                <circle cx="50" cy="80" r="15" fill="#f472b6" />
+                <circle cx="20" cy="50" r="15" fill="#f472b6" />
+                <circle cx="80" cy="50" r="15" fill="#f472b6" />
+                <circle cx="28" cy="28" r="15" fill="#f472b6" />
+                <circle cx="72" cy="72" r="15" fill="#f472b6" />
+                <circle cx="28" cy="72" r="15" fill="#f472b6" />
+                <circle cx="72" cy="28" r="15" fill="#f472b6" />
+                <circle cx="50" cy="50" r="12" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+            </svg>`;
+        }
+        function getSvgStar() {
+            return `<svg viewBox="0 0 100 100" class="w-16 h-16 sm:w-24 sm:h-24 inline-block drop-shadow-lg bounce">
+                <polygon points="50,5 61,38 95,38 68,59 79,95 50,75 21,95 32,59 5,38 39,38" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+            </svg>`;
+        }
+    </script>
+</head>
+<body class="text-gray-800">
+
+    <div class="max-w-4xl mx-auto p-4 sm:p-6 bg-white shadow-xl min-h-screen rounded-b-3xl">
+        
+        <!-- Header -->
+        <header class="text-center mb-8 bg-yellow-100 p-6 rounded-3xl border-4 border-yellow-300 relative">
+            <button id="btn-home" onclick="showMenu()" class="hidden absolute left-4 top-4 sm:top-6 px-4 py-2 bg-white border-2 border-yellow-400 rounded-xl font-bold text-yellow-700 hover:bg-yellow-50 shadow-sm">
+                🏠 回主畫面
+            </button>
+            <h1 class="text-4xl sm:text-5xl font-bold text-yellow-600 mb-2 mt-4 sm:mt-0">🎈 好玩的除法 🎈</h1>
+            <p class="text-xl sm:text-2xl text-gray-600 font-bold">我們一起來學怎麼「平分」東西！</p>
+        </header>
+
+        <!-- ================= 主選單 (Main Menu) ================= -->
+        <div id="menu-view" class="fade-in space-y-6">
+            <h2 class="text-3xl text-center font-bold text-blue-600 mb-6">請選擇要挑戰的關卡：</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <!-- 單元一 -->
+                <button onclick="startTeach(1)" class="unit-card relative bg-green-50 border-4 border-green-300 p-6 rounded-3xl text-center group">
+                    <div id="badge-1" class="hidden absolute -top-4 -right-4 bg-green-500 text-white w-12 h-12 rounded-full border-4 border-white flex items-center justify-center font-bold text-xl z-10">✔️</div>
+                    <span class="text-6xl block mb-4 group-hover:bounce">🍎</span>
+                    <h3 class="text-2xl font-bold text-green-700 mb-2">單元一</h3>
+                    <p class="text-lg text-green-600 font-bold">什麼是除法？</p>
+                </button>
+                
+                <!-- 單元二 -->
+                <button onclick="startTeach(2)" class="unit-card relative bg-purple-50 border-4 border-purple-300 p-6 rounded-3xl text-center group">
+                    <div id="badge-2" class="hidden absolute -top-4 -right-4 bg-green-500 text-white w-12 h-12 rounded-full border-4 border-white flex items-center justify-center font-bold text-xl z-10">✔️</div>
+                    <span class="text-6xl block mb-4 group-hover:bounce">🍪</span>
+                    <h3 class="text-2xl font-bold text-purple-700 mb-2">單元二</h3>
+                    <p class="text-lg text-purple-600 font-bold">認識「剩下」</p>
+                </button>
+
+                <!-- 單元三 -->
+                <button onclick="startTeach(3)" class="unit-card relative bg-orange-50 border-4 border-orange-300 p-6 rounded-3xl text-center group">
+                    <div id="badge-3" class="hidden absolute -top-4 -right-4 bg-green-500 text-white w-12 h-12 rounded-full border-4 border-white flex items-center justify-center font-bold text-xl z-10">✔️</div>
+                    <span class="text-6xl block mb-4 group-hover:bounce">🍩</span>
+                    <h3 class="text-2xl font-bold text-orange-700 mb-2">單元三</h3>
+                    <p class="text-lg text-orange-600 font-bold">奇數和偶數</p>
+                </button>
+            </div>
+            
+            <div id="all-clear-msg" class="hidden text-center mt-12 fade-in">
+                <script>document.write(getSvgStar() + getSvgStar() + getSvgStar());</script>
+                <h2 class="text-4xl font-bold text-red-500 mt-4">太棒了！所有任務都過關囉！🎉</h2>
+            </div>
+        </div>
+
+        <!-- ================= 教學區 ================= -->
+        
+        <!-- 教學 1 -->
+        <div id="teach-view-1" class="hidden fade-in space-y-8">
+            <section class="bg-green-50 p-6 rounded-3xl border-4 border-green-200 relative">
+                <span class="absolute -top-5 -left-5 text-6xl">🍎</span>
+                <h2 class="text-3xl font-bold text-green-700 mb-4 text-center">單元一：什麼是除法？</h2>
+                <p class="text-2xl text-center mb-6 leading-relaxed">
+                    除法就是<strong class="text-red-500 text-3xl">「平分」</strong>。<br>
+                    每個人拿到的東西要<strong class="text-blue-500">「一樣多」</strong>！
+                </p>
+                <div class="bg-white p-6 rounded-2xl shadow-inner text-center">
+                    <p class="text-xl mb-4 font-bold">例題：6 顆蘋果，每 2 顆裝一袋，可以裝幾袋？</p>
+                    
+                    <!-- 網頁直接示範區 -->
+                    <div class="bg-yellow-50 border-4 border-yellow-300 rounded-2xl p-4 mb-6 shadow-inner relative">
+                        <div class="absolute top-2 right-2 flex gap-2">
+                            <button id="demo1-play-btn" onclick="playDemo(1)" class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow text-sm font-bold transition-all">▶️ 開始示範</button>
+                            <button onclick="resetDemo(1)" class="px-3 py-1 bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-100 text-sm font-bold text-gray-600">🔄 重置</button>
+                        </div>
+                        <p id="demo1-status" class="text-xl font-bold text-yellow-700 mb-2 text-center mr-20">✨ 網頁直接示範：點擊「開始示範」觀察自動平分過程</p>
+                        <div id="demo1-pool" class="flex flex-wrap justify-center gap-2 min-h-[80px] p-2 bg-white bg-opacity-50 rounded-xl border-2 border-dashed border-yellow-400" onclick="demoDrop('demo1-pool', event, 99)" ondragover="demoAllowDrop(event)" ondrop="demoDropEvent(event, 'demo1-pool', 99)">
+                            <!-- JS 動態產生 -->
+                        </div>
+                    </div>
+                    <div id="demo1-zones" class="flex flex-wrap justify-center gap-6 mb-6">
+                        <!-- JS 動態產生 -->
+                    </div>
+
+                    <p class="text-2xl">我們可以用算式記下來：</p>
+                    <div class="text-4xl my-4 text-blue-600">$$ 6 \div 2 = 3 $$</div>
+                    <p class="text-xl font-bold text-green-600">答：可以裝成 3 袋！</p>
+                </div>
+            </section>
+            <div class="text-center">
+                <button onclick="startPractice(1)" class="bounce px-8 py-4 text-3xl font-bold rounded-full bg-pink-500 text-white shadow-xl hover:bg-pink-600 border-4 border-pink-300">
+                    老師教完了，換我動手做！ 🎮
+                </button>
+            </div>
+        </div>
+
+        <!-- 教學 2 -->
+        <div id="teach-view-2" class="hidden fade-in space-y-8">
+            <section class="bg-purple-50 p-6 rounded-3xl border-4 border-purple-200 relative">
+                <span class="absolute -top-5 -left-5 text-6xl">🍪</span>
+                <h2 class="text-3xl font-bold text-purple-700 mb-4 text-center">單元二：認識「剩下」的餘數</h2>
+                <p class="text-2xl text-center mb-6 leading-relaxed">
+                    有時候分完會<strong class="text-red-500 text-3xl">「剩下」</strong>。<br>
+                    剩下的數量不夠裝滿一袋，我們叫它<strong class="text-purple-600">「餘數」</strong>。
+                </p>
+                <div class="bg-white p-6 rounded-2xl shadow-inner text-center">
+                    <p class="text-xl mb-4 font-bold">例題：7 片餅乾，每 3 片裝一盤，可以裝幾盤？還剩幾片？</p>
+                    
+                    <!-- 網頁直接示範區 -->
+                    <div class="bg-yellow-50 border-4 border-yellow-300 rounded-2xl p-4 mb-6 shadow-inner relative">
+                        <div class="absolute top-2 right-2 flex gap-2">
+                            <button id="demo2-play-btn" onclick="playDemo(2)" class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow text-sm font-bold transition-all">▶️ 開始示範</button>
+                            <button onclick="resetDemo(2)" class="px-3 py-1 bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-100 text-sm font-bold text-gray-600">🔄 重置</button>
+                        </div>
+                        <p id="demo2-status" class="text-xl font-bold text-yellow-700 mb-2 text-center mr-20">✨ 網頁直接示範：點擊「開始示範」觀察自動平分過程</p>
+                        <div id="demo2-pool" class="flex flex-wrap justify-center gap-2 min-h-[80px] p-2 bg-white bg-opacity-50 rounded-xl border-2 border-dashed border-yellow-400" onclick="demoDrop('demo2-pool', event, 99)" ondragover="demoAllowDrop(event)" ondrop="demoDropEvent(event, 'demo2-pool', 99)">
+                            <!-- JS 動態產生 -->
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-6 mb-6">
+                        <div id="demo2-zones" class="flex gap-6">
+                            <!-- JS 動態產生 -->
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-3xl font-bold text-red-500 mr-2">剩下👉</span>
+                            <div id="demo2-zone-rem" class="remainder-box min-h-[100px] min-w-[100px] relative cursor-pointer flex flex-wrap content-center justify-center gap-1" onclick="demoDrop('demo2-zone-rem', event, 1)" ondragover="demoAllowDrop(event)" ondrop="demoDropEvent(event, 'demo2-zone-rem', 1)">
+                                <span class="absolute text-center text-sm font-bold text-red-300 pointer-events-none opacity-50 z-0">剩下的</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-2xl">我們可以用算式記下來：</p>
+                    <div class="text-4xl my-4 text-purple-600">$$ 7 \div 3 = 2 \dots 1 $$</div>
+                    <p class="text-xl font-bold text-purple-600">答：裝成 2 盤，剩下 1 片！</p>
+                </div>
+            </section>
+            <div class="text-center">
+                <button onclick="startPractice(2)" class="bounce px-8 py-4 text-3xl font-bold rounded-full bg-pink-500 text-white shadow-xl hover:bg-pink-600 border-4 border-pink-300">
+                    老師教完了，換我動手做！ 🎮
+                </button>
+            </div>
+        </div>
+
+        <!-- 教學 3 -->
+        <div id="teach-view-3" class="hidden fade-in space-y-8">
+            <section class="bg-orange-50 p-6 rounded-3xl border-4 border-orange-200 relative">
+                <span class="absolute -top-5 -left-5 text-6xl">🍩</span>
+                <h2 class="text-3xl font-bold text-orange-700 mb-4 text-center">單元三：奇數和偶數</h2>
+                <p class="text-2xl text-center mb-6 leading-relaxed">
+                    把東西 <strong class="text-blue-500 text-3xl">2 個分一堆</strong>。<br>
+                    剛剛好分完沒有剩（餘數是 0）叫做 <strong class="text-green-600 font-bold">偶數 (雙數)</strong>。<br>
+                    如果最後剩下 1 個（餘數是 1）叫做 <strong class="text-red-500 font-bold">奇數 (單數)</strong>。
+                </p>
+                <p id="demo3-status" class="text-xl font-bold text-yellow-700 mb-4 text-center">✨ 網頁直接示範：點擊「開始示範」觀察奇數和偶數的分法</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                    <div class="absolute -top-12 right-0 flex gap-2 z-10">
+                        <button id="demo3-play-btn" onclick="playDemo(3)" class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow text-sm font-bold transition-all">▶️ 開始示範</button>
+                        <button onclick="resetDemo(3)" class="px-3 py-1 bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-100 text-sm font-bold text-gray-600">🔄 重置示範</button>
+                    </div>
+                    
+                    <!-- Even -->
+                    <div class="bg-white p-4 rounded-2xl shadow-inner text-center border-4 border-green-200">
+                        <p class="text-2xl font-bold text-green-600 mb-2">偶數（雙數）</p>
+                        <p class="text-lg mb-2">例如：4 個甜甜圈</p>
+                        <div id="demo3-even-pool" class="flex flex-wrap justify-center gap-1 min-h-[60px] p-2 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 mb-2 cursor-pointer" onclick="demoDrop('demo3-even-pool', event, 99)" ondragover="demoAllowDrop(event)" ondrop="demoDropEvent(event, 'demo3-even-pool', 99)"></div>
+                        <div id="demo3-even-zones" class="flex justify-center gap-2 mb-2"></div>
+                        <div class="text-2xl text-green-700">$$ 4 \div 2 = 2 \dots 0 $$</div>
+                    </div>
+                    
+                    <!-- Odd -->
+                    <div class="bg-white p-4 rounded-2xl shadow-inner text-center border-4 border-red-200">
+                        <p class="text-2xl font-bold text-red-500 mb-2">奇數（單數）</p>
+                        <p class="text-lg mb-2">例如：5 個甜甜圈</p>
+                        <div id="demo3-odd-pool" class="flex flex-wrap justify-center gap-1 min-h-[60px] p-2 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 mb-2 cursor-pointer" onclick="demoDrop('demo3-odd-pool', event, 99)" ondragover="demoAllowDrop(event)" ondrop="demoDropEvent(event, 'demo3-odd-pool', 99)"></div>
+                        <div class="flex justify-center items-center gap-2 mb-2">
+                            <div id="demo3-odd-zones" class="flex gap-2"></div>
+                            <div id="demo3-odd-zone-rem" class="remainder-box min-h-[80px] min-w-[80px] relative cursor-pointer flex flex-wrap content-center justify-center gap-1" onclick="demoDrop('demo3-odd-zone-rem', event, 1)" ondragover="demoAllowDrop(event)" ondrop="demoDropEvent(event, 'demo3-odd-zone-rem', 1)">
+                                <span class="absolute text-center text-sm font-bold text-red-300 pointer-events-none opacity-50 z-0">剩</span>
+                            </div>
+                        </div>
+                        <div class="text-2xl text-red-600">$$ 5 \div 2 = 2 \dots 1 $$</div>
+                    </div>
+                </div>
+            </section>
+            <div class="text-center">
+                <button onclick="startPractice(3)" class="bounce px-8 py-4 text-3xl font-bold rounded-full bg-pink-500 text-white shadow-xl hover:bg-pink-600 border-4 border-pink-300">
+                    老師教完了，換我動手做！ 🎮
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= 互動練習區 ================= -->
+        <div id="practice-view" class="hidden fade-in">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 sm:h-6 mb-6">
+                <div id="progress-bar" class="bg-blue-500 h-4 sm:h-6 rounded-full transition-all duration-500" style="width: 20%"></div>
+            </div>
+            <p class="text-center text-xl font-bold text-gray-500 mb-6" id="progress-text">題號</p>
+
+            <!-- Question Container -->
+            <div id="question-container" class="bg-white p-6 sm:p-10 rounded-3xl shadow-xl border-4 border-blue-200">
+                <!-- Content will be injected here by JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 遊戲邏輯與資料 -->
+    <script>
+        // --- 🎬 網頁直接示範區專用邏輯 (與練習區獨立) ---
+        let demoSelectedId = null;
+        let demoTimeouts = [];
+        let isDemoRunning = { 1: false, 2: false, 3: false };
+
+        function demoSelect(id, event) {
+            if(event) event.stopPropagation();
+            // 如果正在自動示範，不允許手動操作
+            if (isDemoRunning[1] || isDemoRunning[2] || isDemoRunning[3]) return;
+            if (demoSelectedId && demoSelectedId !== id) {
+                const prev = document.getElementById(demoSelectedId);
+                if(prev) prev.classList.remove('ring-4', 'ring-blue-500', 'bg-blue-100', 'scale-110');
+            }
+            if (demoSelectedId === id) {
+                document.getElementById(id).classList.remove('ring-4', 'ring-blue-500', 'bg-blue-100', 'scale-110');
+                demoSelectedId = null;
+                return;
+            }
+            demoSelectedId = id;
+            const item = document.getElementById(id);
+            item.classList.add('ring-4', 'ring-blue-500', 'bg-blue-100', 'scale-110', 'rounded-full');
+        }
+
+        function demoDrop(zoneId, event, maxItems) {
+            if (event) event.stopPropagation();
+            if (isDemoRunning[1] || isDemoRunning[2] || isDemoRunning[3]) return;
+            if (!demoSelectedId) return;
+            const zone = document.getElementById(zoneId);
+            const item = document.getElementById(demoSelectedId);
+            
+            // 檢查是否超過容量 (pool可以無限放)
+            if (!zoneId.includes('pool') && zone.querySelectorAll('.drag-item').length >= maxItems) {
+                alert("這個框框已經裝滿囉！");
+                return;
+            }
+            item.classList.remove('ring-4', 'ring-blue-500', 'bg-blue-100', 'scale-110');
+            zone.appendChild(item);
+            demoSelectedId = null;
+        }
+
+        function demoDrag(ev) { 
+            if (isDemoRunning[1] || isDemoRunning[2] || isDemoRunning[3]) {
+                ev.preventDefault();
+                return;
+            }
+            ev.dataTransfer.setData("text/plain", ev.currentTarget.id); 
+            demoSelect(ev.currentTarget.id, null); 
+        }
+        
+        function demoAllowDrop(ev) { ev.preventDefault(); }
+        
+        function demoDropEvent(ev, zoneId, maxItems) {
+            ev.preventDefault();
+            if (isDemoRunning[1] || isDemoRunning[2] || isDemoRunning[3]) return;
+            const data = ev.dataTransfer.getData("text/plain");
+            if (data) { demoSelectedId = data; demoDrop(zoneId, null, maxItems); }
+        }
+
+        // 初始化示範區的物件
+        function initDemoUI() {
+            // Unit 1: 6蘋果, 3袋
+            document.getElementById('demo1-pool').innerHTML = Array.from({length: 6}, (_, i) => `<div id="demo1-item-${i}" class="drag-item cursor-pointer transition-all duration-200 p-1 hover:scale-110 bg-white rounded-lg shadow-sm border border-gray-100" draggable="true" ondragstart="demoDrag(event)" onclick="demoSelect('demo1-item-${i}', event)">${getSvgApple()}</div>`).join('');
+            document.getElementById('demo1-zones').innerHTML = Array.from({length: 3}, (_, i) => `<div id="demo1-zone-${i}" class="group-box min-h-[100px] min-w-[100px] relative cursor-pointer flex flex-wrap content-center justify-center gap-1" onclick="demoDrop('demo1-zone-${i}', event, 2)" ondragover="demoAllowDrop(event)" ondrop="demoDropEvent(event, 'demo1-zone-${i}', 2)"><span class="absolute text-center text-sm font-bold text-blue-300 pointer-events-none opacity-50 z-0">放這裡</span></div>`).join('');
+
+            // Unit 2: 7餅乾, 2盤, 餘數1
+            document.getElementById('demo2-pool').innerHTML = Array.from({length: 7}, (_, i) => `<div id="demo2-item-${i}" class="drag-item cursor-pointer transition-all duration-200 p-1 hover:scale-110 bg-white rounded-lg shadow-sm border border-gray-100" draggable="true" ondragstart="demoDrag(event)" onclick="demoSelect('demo2-item-${i}', event)">${getSvgCookie()}</div>`).join('');
+            document.getElementById('demo2-zones').innerHTML = Array.from({length: 2}, (_, i) => `<div id="demo2-zone-${i}" class="group-box min-h-[100px] min-w-[120px] relative cursor-pointer flex flex-wrap content-center justify-center gap-1" onclick="demoDrop('demo2-zone-${i}', event, 3)" ondragover="demoAllowDrop(event)" ondrop="demoDropEvent(event, 'demo2-zone-${i}', 3)"><span class="absolute text-center text-sm font-bold text-blue-300 pointer-events-none opacity-50 z-0">放這裡</span></div>`).join('');
+
+            // Unit 3: 偶數(4甜甜圈, 2組), 奇數(5甜甜圈, 2組, 餘數1)
+            document.getElementById('demo3-even-pool').innerHTML = Array.from({length: 4}, (_, i) => `<div id="demo3-even-item-${i}" class="drag-item cursor-pointer p-1 hover:scale-110 bg-white rounded-lg shadow-sm border border-gray-100" draggable="true" ondragstart="demoDrag(event)" onclick="demoSelect('demo3-even-item-${i}', event)">${getSvgDonut()}</div>`).join('');
+            document.getElementById('demo3-even-zones').innerHTML = Array.from({length: 2}, (_, i) => `<div id="demo3-even-zone-${i}" class="group-box min-h-[80px] min-w-[80px] relative cursor-pointer flex flex-wrap content-center justify-center gap-1" onclick="demoDrop('demo3-even-zone-${i}', event, 2)" ondragover="demoAllowDrop(event)" ondrop="demoDropEvent(event, 'demo3-even-zone-${i}', 2)"></div>`).join('');
+            
+            document.getElementById('demo3-odd-pool').innerHTML = Array.from({length: 5}, (_, i) => `<div id="demo3-odd-item-${i}" class="drag-item cursor-pointer p-1 hover:scale-110 bg-white rounded-lg shadow-sm border border-gray-100" draggable="true" ondragstart="demoDrag(event)" onclick="demoSelect('demo3-odd-item-${i}', event)">${getSvgDonut()}</div>`).join('');
+            document.getElementById('demo3-odd-zones').innerHTML = Array.from({length: 2}, (_, i) => `<div id="demo3-odd-zone-${i}" class="group-box border-red-400 min-h-[80px] min-w-[80px] relative cursor-pointer flex flex-wrap content-center justify-center gap-1" onclick="demoDrop('demo3-odd-zone-${i}', event, 2)" ondragover="demoAllowDrop(event)" ondrop="demoDropEvent(event, 'demo3-odd-zone-${i}', 2)"></div>`).join('');
+        }
+
+        // 清除所有自動示範計時器
+        function clearDemoTimeouts(unitId) {
+            demoTimeouts.forEach(id => clearTimeout(id));
+            demoTimeouts = [];
+            isDemoRunning[1] = false;
+            isDemoRunning[2] = false;
+            isDemoRunning[3] = false;
+            
+            // 恢復所有播放按鈕狀態
+            for (let i = 1; i <= 3; i++) {
+                const playBtn = document.getElementById(`demo${i}-play-btn`);
+                if (playBtn) {
+                    playBtn.disabled = false;
+                    playBtn.innerText = "▶️ 開始示範";
+                    playBtn.className = "px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow text-sm font-bold transition-all";
+                }
+            }
+        }
+
+        // 重置示範區
+        function resetDemo(unitId) {
+            clearDemoTimeouts(unitId);
+
+            if (unitId === 1) {
+                const pool = document.getElementById('demo1-pool');
+                for(let i=0; i<6; i++) {
+                    const item = document.getElementById(`demo1-item-${i}`);
+                    if (item) {
+                        item.classList.remove('slide-in-anim', 'ring-4', 'ring-blue-500', 'bg-blue-100', 'scale-110');
+                        pool.appendChild(item);
+                    }
+                }
+                const statusEl = document.getElementById('demo1-status');
+                if (statusEl) statusEl.innerText = "✨ 網頁直接示範：點擊「開始示範」觀察自動平分過程";
+            } else if (unitId === 2) {
+                const pool = document.getElementById('demo2-pool');
+                for(let i=0; i<7; i++) {
+                    const item = document.getElementById(`demo2-item-${i}`);
+                    if (item) {
+                        item.classList.remove('slide-in-anim', 'ring-4', 'ring-blue-500', 'bg-blue-100', 'scale-110');
+                        pool.appendChild(item);
+                    }
+                }
+                const statusEl = document.getElementById('demo2-status');
+                if (statusEl) statusEl.innerText = "✨ 網頁直接示範：點擊「開始示範」觀察自動平分過程";
+            } else if (unitId === 3) {
+                const poolEven = document.getElementById('demo3-even-pool');
+                for(let i=0; i<4; i++) {
+                    const item = document.getElementById(`demo3-even-item-${i}`);
+                    if (item) {
+                        item.classList.remove('slide-in-anim', 'ring-4', 'ring-blue-500', 'bg-blue-100', 'scale-110');
+                        poolEven.appendChild(item);
+                    }
+                }
+                const poolOdd = document.getElementById('demo3-odd-pool');
+                for(let i=0; i<5; i++) {
+                    const item = document.getElementById(`demo3-odd-item-${i}`);
+                    if (item) {
+                        item.classList.remove('slide-in-anim', 'ring-4', 'ring-blue-500', 'bg-blue-100', 'scale-110');
+                        poolOdd.appendChild(item);
+                    }
+                }
+                const statusEl = document.getElementById('demo3-status');
+                if (statusEl) statusEl.innerText = "✨ 網頁直接示範：點擊「開始示範」觀察奇數和偶數的分法";
+            }
+            demoSelectedId = null;
+        }
+
+        // 自動演示邏輯
+        function playDemo(unitId) {
+            clearDemoTimeouts(unitId);
+            resetDemo(unitId);
+            
+            isDemoRunning[unitId] = true;
+            const playBtn = document.getElementById(`demo${unitId}-play-btn`);
+            if (playBtn) {
+                playBtn.disabled = true;
+                playBtn.innerText = "演示中...";
+                playBtn.className = "px-3 py-1 bg-gray-400 text-white rounded-lg shadow text-sm font-bold cursor-not-allowed";
+            }
+
+            const statusEl = document.getElementById(`demo${unitId}-status`);
+            
+            let moves = [];
+            let statusTextStart = "";
+            let statusTextDone = "";
+
+            if (unitId === 1) {
+                statusTextStart = "✨ 網頁直接示範：正在自動平分蘋果...";
+                statusTextDone = "✨ 網頁直接示範：完成！6 顆蘋果，每 2 顆裝一袋，裝成 3 袋。";
+                moves = [
+                    { itemId: 'demo1-item-0', zoneId: 'demo1-zone-0' },
+                    { itemId: 'demo1-item-1', zoneId: 'demo1-zone-0' },
+                    { itemId: 'demo1-item-2', zoneId: 'demo1-zone-1' },
+                    { itemId: 'demo1-item-3', zoneId: 'demo1-zone-1' },
+                    { itemId: 'demo1-item-4', zoneId: 'demo1-zone-2' },
+                    { itemId: 'demo1-item-5', zoneId: 'demo1-zone-2' }
+                ];
+            } else if (unitId === 2) {
+                statusTextStart = "✨ 網頁直接示範：正在自動平分餅乾...";
+                statusTextDone = "✨ 網頁直接示範：完成！7 片餅乾，每 3 片裝一盤，裝成 2 盤，還剩下 1 片。";
+                moves = [
+                    { itemId: 'demo2-item-0', zoneId: 'demo2-zone-0' },
+                    { itemId: 'demo2-item-1', zoneId: 'demo2-zone-0' },
+                    { itemId: 'demo2-item-2', zoneId: 'demo2-zone-0' },
+                    { itemId: 'demo2-item-3', zoneId: 'demo2-zone-1' },
+                    { itemId: 'demo2-item-4', zoneId: 'demo2-zone-1' },
+                    { itemId: 'demo2-item-5', zoneId: 'demo2-zone-1' },
+                    { itemId: 'demo2-item-6', zoneId: 'demo2-zone-rem' }
+                ];
+            } else if (unitId === 3) {
+                statusTextStart = "✨ 網頁直接示範：正在自動分裝甜甜圈...";
+                statusTextDone = "✨ 網頁直接示範：完成！偶數（左邊）分完沒有剩；奇數（右邊）最後剩下 1 個。";
+                moves = [
+                    // Even side
+                    { itemId: 'demo3-even-item-0', zoneId: 'demo3-even-zone-0' },
+                    { itemId: 'demo3-even-item-1', zoneId: 'demo3-even-zone-0' },
+                    { itemId: 'demo3-even-item-2', zoneId: 'demo3-even-zone-1' },
+                    { itemId: 'demo3-even-item-3', zoneId: 'demo3-even-zone-1' },
+                    // Odd side
+                    { itemId: 'demo3-odd-item-0', zoneId: 'demo3-odd-zone-0' },
+                    { itemId: 'demo3-odd-item-1', zoneId: 'demo3-odd-zone-0' },
+                    { itemId: 'demo3-odd-item-2', zoneId: 'demo3-odd-zone-1' },
+                    { itemId: 'demo3-odd-item-3', zoneId: 'demo3-odd-zone-1' },
+                    { itemId: 'demo3-odd-item-4', zoneId: 'demo3-odd-zone-rem' }
+                ];
+            }
+
+            if (statusEl) {
+                statusEl.innerText = statusTextStart;
+            }
+
+            moves.forEach((move, index) => {
+                const timeoutId = setTimeout(() => {
+                    const item = document.getElementById(move.itemId);
+                    const zone = document.getElementById(move.zoneId);
+                    if (item && zone) {
+                        item.classList.remove('ring-4', 'ring-blue-500', 'bg-blue-100', 'scale-110');
+                        item.classList.add('slide-in-anim');
+                        zone.appendChild(item);
+                    }
+                }, (index + 1) * 600);
+                demoTimeouts.push(timeoutId);
+            });
+
+            // 完成時的回調
+            const doneTimeoutId = setTimeout(() => {
+                isDemoRunning[unitId] = false;
+                if (statusEl) {
+                    statusEl.innerText = statusTextDone;
+                }
+                if (playBtn) {
+                    playBtn.disabled = false;
+                    playBtn.innerText = "🔄 重新示範";
+                    playBtn.className = "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow text-sm font-bold transition-all";
+                }
+            }, (moves.length + 1) * 600);
+            demoTimeouts.push(doneTimeoutId);
+        }
+
+        // --- 題目與闖關邏輯 ---
+        const unitQuestions = {
+            1: [
+                {
+                    id: 1, title: "動手做 1-1：平分糖果 🍬",
+                    text: "桌上有 <strong>8 顆糖果</strong>，每 <strong>2 顆</strong>裝成一袋，可以裝成幾袋呢？",
+                    totalItems: 8, groups: 4, expectedPerGroup: 2, svgFunc: getSvgCandy,
+                    formula: "$$ 8 \\div 2 = 4 $$", options: [2, 3, 4], answer: 4,
+                    hasRemainder: false, expectedRemainder: 0
+                },
+                {
+                    id: 2, title: "動手做 1-2：分蘋果 🍎",
+                    text: "有 <strong>10 顆蘋果</strong>，平分給 <strong>5 個人</strong>，每個人可以拿到幾顆？",
+                    totalItems: 10, groups: 5, expectedPerGroup: 2, svgFunc: getSvgApple,
+                    formula: "$$ 10 \\div 5 = 2 $$", options: [2, 5, 10], answer: 2,
+                    hasRemainder: false, expectedRemainder: 0
+                },
+                {
+                    id: 5, title: "動手做 1-3：1 的除法 🌸",
+                    text: "有 <strong>5 朵花</strong>，每個花瓶只插 <strong>1 朵花</strong>，總共需要幾個花瓶？",
+                    totalItems: 5, groups: 5, expectedPerGroup: 1, svgFunc: getSvgFlower,
+                    formula: "$$ 5 \\div 1 = 5 $$", options: [1, 4, 5], answer: 5,
+                    hasRemainder: false, expectedRemainder: 0
+                }
+            ],
+            2: [
+                {
+                    id: 3, title: "動手做 2-1：烤餅乾有剩嗎？ 🍪",
+                    text: "媽媽烤了 <strong>7 片餅乾</strong>，每 <strong>3 片</strong>裝一袋，可以裝幾袋？<strong class='text-red-500'>會剩下幾片？</strong>",
+                    totalItems: 7, groups: 2, expectedPerGroup: 3, svgFunc: getSvgCookie,
+                    formula: "$$ 7 \\div 3 = 2 \\dots 1 $$", options: ["裝 2 袋，剩 1 片", "裝 3 袋，剩 0 片", "裝 1 袋，剩 4 片"], answer: "裝 2 袋，剩 1 片",
+                    hasRemainder: true, expectedRemainder: 1
+                }
+            ],
+            3: [
+                {
+                    id: 4, title: "動手做 3-1：奇數還是偶數？ 🍩",
+                    text: "這裡有 <strong>6 個甜甜圈</strong>。請把它們「每 2 個分一堆」，看看它剛好分完沒有剩，還是會剩下？<br>請問 6 是<strong>奇數</strong>還是<strong>偶數</strong>？",
+                    totalItems: 6, groups: 3, expectedPerGroup: 2, svgFunc: getSvgDonut,
+                    formula: "$$ 6 \\div 2 = 3 \\dots 0 $$", options: ["奇數 (有剩下)", "偶數 (沒有剩)"], answer: "偶數 (沒有剩)",
+                    hasRemainder: true, expectedRemainder: 0, isOddEvenQuiz: true
+                }
+            ]
+        };
+
+        // 狀態管理
+        let currentUnit = 0;
+        let currentQuestions = [];
+        let currentQIndex = 0;
+        let step = 0; // 0: 互動拖拉分配, 1: 顯示算式與選項
+        let selectedItemId = null;
+        let completedUnits = { 1: false, 2: false, 3: false };
+
+        // --- 畫面切換控制 ---
+        function hideAllViews() {
+            document.getElementById('menu-view').classList.add('hidden');
+            document.getElementById('teach-view-1').classList.add('hidden');
+            document.getElementById('teach-view-2').classList.add('hidden');
+            document.getElementById('teach-view-3').classList.add('hidden');
+            document.getElementById('practice-view').classList.add('hidden');
+        }
+
+        function showMenu() {
+            hideAllViews();
+            clearDemoTimeouts(1);
+            clearDemoTimeouts(2);
+            clearDemoTimeouts(3);
+            
+            document.getElementById('menu-view').classList.remove('hidden');
+            document.getElementById('btn-home').classList.add('hidden');
+            if(completedUnits[1] && completedUnits[2] && completedUnits[3]) {
+                document.getElementById('all-clear-msg').classList.remove('hidden');
+            }
+        }
+
+        function startTeach(unitId) {
+            hideAllViews();
+            resetDemo(unitId); // 每次進入自動重置示範區
+            document.getElementById(`teach-view-${unitId}`).classList.remove('hidden');
+            document.getElementById('btn-home').classList.remove('hidden');
+            
+            renderMathInElement(document.getElementById(`teach-view-${unitId}`), {
+                delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false
+            });
+
+            // 進入後延遲 800ms 自動播放示範
+            const autoPlayTimeout = setTimeout(() => {
+                playDemo(unitId);
+            }, 800);
+            demoTimeouts.push(autoPlayTimeout);
+        }
+
+        function startPractice(unitId) {
+            clearDemoTimeouts(1);
+            clearDemoTimeouts(2);
+            clearDemoTimeouts(3);
+
+            currentUnit = unitId;
+            currentQuestions = unitQuestions[unitId];
+            currentQIndex = 0;
+            step = 0;
+            
+            hideAllViews();
+            document.getElementById('practice-view').classList.remove('hidden');
+            document.getElementById('btn-home').classList.remove('hidden');
+            
+            renderQuestion();
+        }
+
+        // --- 學生練習區的拖拉與點擊邏輯 ---
+        function selectItem(id, event) {
+            if(event) event.stopPropagation();
+            if (selectedItemId && selectedItemId !== id) {
+                const prev = document.getElementById(selectedItemId);
+                if(prev) prev.classList.remove('ring-4', 'ring-red-500', 'bg-red-100', 'scale-110');
+            }
+            if (selectedItemId === id) {
+                document.getElementById(id).classList.remove('ring-4', 'ring-red-500', 'bg-red-100', 'scale-110');
+                selectedItemId = null;
+                return;
+            }
+            selectedItemId = id;
+            const item = document.getElementById(id);
+            item.classList.add('ring-4', 'ring-red-500', 'bg-red-100', 'scale-110', 'rounded-full');
+        }
+
+        function dropToZone(zoneId, event) {
+            if (event) event.stopPropagation();
+            if (!selectedItemId) return;
+            
+            const q = currentQuestions[currentQIndex];
+            const zone = document.getElementById(zoneId);
+            const item = document.getElementById(selectedItemId);
+            
+            if (zone.classList.contains('group-drop-zone') && zone.querySelectorAll('.drag-item').length >= q.expectedPerGroup) {
+                alert("這個框框已經裝滿囉！請放到別的框框裡～");
+                return;
+            }
+
+            if (zone.id === 'remainder-zone' && zone.querySelectorAll('.drag-item').length >= q.expectedRemainder) {
+                alert("這裡放得夠多了！請檢查其他框框喔～");
+                return;
+            }
+
+            item.classList.remove('ring-4', 'ring-red-500', 'bg-red-100', 'scale-110');
+            zone.appendChild(item);
+            selectedItemId = null;
+            checkCompletion();
+        }
+
+        // 拖拉事件定義
+        function drag(ev) { ev.dataTransfer.setData("text", ev.currentTarget.id); selectItem(ev.currentTarget.id, null); }
+        function allowDrop(ev) { ev.preventDefault(); }
+        function drop(ev, zoneId) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            if (data) { selectedItemId = data; dropToZone(zoneId, null); }
+        }
+
+        function checkCompletion() {
+            if (step !== 0) return;
+            const q = currentQuestions[currentQIndex];
+            const pool = document.getElementById('item-pool');
+            if (pool.querySelectorAll('.drag-item').length > 0) return;
+
+            const regularZones = document.querySelectorAll('.group-drop-zone');
+            let isCorrect = true;
+            regularZones.forEach(z => { if (z.querySelectorAll('.drag-item').length !== q.expectedPerGroup) isCorrect = false; });
+            if (q.hasRemainder) {
+                const remZone = document.getElementById('remainder-zone');
+                if (remZone && remZone.querySelectorAll('.drag-item').length !== q.expectedRemainder) isCorrect = false;
+            }
+
+            if (isCorrect) {
+                const msg = document.createElement('div');
+                msg.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl sm:text-6xl font-bold text-white bg-green-500 border-8 border-white p-8 rounded-full shadow-2xl z-50 fade-in bounce flex items-center gap-4';
+                msg.innerHTML = '🌟 分得太好啦！';
+                document.body.appendChild(msg);
+                
+                setTimeout(() => {
+                    msg.remove();
+                    step = 1;
+                    renderQuestion();
+                }, 1800);
+            }
+        }
+
+        // --- 畫面渲染 ---
+        function renderQuestion() {
+            const container = document.getElementById('question-container');
+            const q = currentQuestions[currentQIndex];
+            selectedItemId = null;
+            
+            const progressPct = ((currentQIndex) / currentQuestions.length) * 100 + (step===0? 10 : 50); // 動態進度
+            document.getElementById('progress-bar').style.width = `${progressPct}%`;
+            document.getElementById('progress-text').innerText = `單元 ${currentUnit} - 練習題 ${currentQIndex + 1} / 共 ${currentQuestions.length} 題`;
+
+            if (step === 0) {
+                let itemsHtml = '';
+                for(let i=0; i<q.totalItems; i++) {
+                    itemsHtml += `<div id="item-${i}" class="drag-item cursor-pointer transition-all duration-200 p-2 hover:scale-110 flex items-center justify-center bg-white rounded-xl shadow-sm border-2 border-gray-100" draggable="true" ondragstart="drag(event)" onclick="selectItem('item-${i}', event)">${q.svgFunc()}</div>`;
+                }
+
+                let zonesHtml = '';
+                for(let g=0; g<q.groups; g++) {
+                    zonesHtml += `<div id="zone-${g}" class="group-drop-zone group-box min-h-[120px] min-w-[120px] sm:min-w-[140px] flex flex-wrap content-center items-center justify-center cursor-pointer hover:bg-blue-100 relative" ondragover="allowDrop(event)" ondrop="drop(event, 'zone-${g}')" onclick="dropToZone('zone-${g}', event)"><span class="absolute text-center text-sm font-bold text-blue-300 pointer-events-none opacity-50 z-0">放這裡</span></div>`;
+                }
+
+                let remainderHtml = '';
+                if (q.hasRemainder) {
+                    remainderHtml = `<div class="flex items-center mt-6 w-full justify-center"><span class="text-xl sm:text-2xl font-bold text-red-500 mr-4 bg-white px-4 py-2 rounded-full shadow-sm">剩下 👉</span><div id="remainder-zone" class="remainder-box min-h-[120px] min-w-[120px] sm:min-w-[140px] flex flex-wrap content-center items-center justify-center cursor-pointer hover:bg-red-100 relative" ondragover="allowDrop(event)" ondrop="drop(event, 'remainder-zone')" onclick="dropToZone('remainder-zone', event)"><span class="absolute text-center text-sm font-bold text-red-300 pointer-events-none opacity-50 z-0">剩下的放這</span></div></div>`;
+                }
+
+                container.innerHTML = `
+                    <h2 class="text-3xl sm:text-4xl font-bold text-blue-600 mb-4">${q.title}</h2>
+                    <p class="text-2xl sm:text-3xl text-gray-700 mb-6 leading-relaxed">${q.text}</p>
+                    <div class="bg-yellow-50 border-4 border-yellow-300 rounded-3xl p-6 mb-8 shadow-inner">
+                        <p class="text-xl sm:text-2xl font-bold text-yellow-700 mb-4 text-center">👇 請點擊（或拖拉）物品，把它們分到下面的虛線框框裡</p>
+                        <div id="item-pool" class="flex flex-wrap justify-center gap-2 sm:gap-4 min-h-[100px] p-4 bg-white bg-opacity-50 rounded-2xl border-2 border-dashed border-yellow-400" ondragover="allowDrop(event)" ondrop="drop(event, 'item-pool')" onclick="dropToZone('item-pool', event)">
+                            ${itemsHtml}
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-4 relative">${zonesHtml}</div>
+                    ${remainderHtml}
+                `;
+            } else if (step === 1) {
+                let filledHtml = `<div class="flex flex-wrap justify-center gap-4 p-4 bg-blue-50 rounded-xl min-h-[150px] fade-in">`;
+                for(let g=0; g<q.groups; g++) {
+                    filledHtml += `<div class="group-box shadow-md bg-white">`;
+                    for(let i=0; i<q.expectedPerGroup; i++) filledHtml += q.svgFunc();
+                    filledHtml += `</div>`;
+                }
+                if (q.expectedRemainder > 0 || (q.isOddEvenQuiz && q.expectedRemainder===0)) {
+                    filledHtml += `<div class="flex items-center"><span class="text-xl sm:text-2xl font-bold text-red-500 mr-2">剩下👉</span><div class="remainder-box shadow-md">`;
+                    for(let i=0; i<q.expectedRemainder; i++) filledHtml += q.svgFunc();
+                    filledHtml += `</div></div>`;
+                }
+                filledHtml += `</div>`;
+
+                let optionsHtml = `<div class="mt-8 space-y-6 fade-in">
+                    <p class="text-3xl text-center font-bold text-purple-700 bg-purple-100 p-4 rounded-xl border-4 border-purple-200">太棒了！現在請依據上面的圖選出正確答案：</p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        ${q.options.map(opt => `<button onclick="checkAnswer('${opt}')" class="px-8 py-5 text-2xl sm:text-3xl font-bold rounded-2xl bg-yellow-100 hover:bg-yellow-200 border-4 border-yellow-400 text-yellow-800 shadow-sm transition-transform hover:scale-105 active:scale-95">${opt}</button>`).join('')}
+                    </div>
+                </div>`;
+
+                container.innerHTML = `
+                    <h2 class="text-3xl sm:text-4xl font-bold text-blue-600 mb-4">${q.title}</h2>
+                    <p class="text-2xl sm:text-3xl text-gray-700 mb-8 leading-relaxed">${q.text}</p>
+                    ${filledHtml}
+                    <div class="text-center mt-8 min-h-[80px]">
+                        <div class="text-4xl sm:text-5xl my-6 text-gray-800 fade-in bg-gray-100 py-4 rounded-xl inline-block px-8 shadow-inner font-mono tracking-widest border-2 border-gray-300">
+                            ${q.formula}
+                        </div>
+                        ${optionsHtml}
+                    </div>
+                `;
+                
+                renderMathInElement(container, {
+                    delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false
+                });
+            }
+        }
+
+        // --- 答題與過關邏輯 ---
+        function checkAnswer(selected) {
+            const q = currentQuestions[currentQIndex];
+            const isCorrect = selected == q.answer || selected === q.answer.toString();
+
+            if (isCorrect) {
+                showSuccessModal();
+            } else {
+                alert("喔喔！再想一下，或者數一數上面虛線框框有幾個喔！");
+            }
+        }
+
+        function showSuccessModal() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 fade-in px-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl p-8 sm:p-12 text-center shadow-2xl border-8 border-yellow-400 max-w-lg w-full">
+                    ${getSvgStar()}
+                    <h2 class="text-4xl sm:text-5xl font-bold text-red-500 mt-6 mb-4">答對了！</h2>
+                    <p class="text-2xl sm:text-3xl font-bold text-gray-700 mb-8">你超級棒的！💯</p>
+                    <button onclick="nextQuestion(this)" class="w-full px-8 py-4 text-3xl font-bold rounded-full bg-blue-500 text-white shadow-xl hover:bg-blue-600 border-4 border-blue-300">
+                        ${currentQIndex < currentQuestions.length - 1 ? '下一題 ➔' : '領取過關印章！ 🎉'}
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function nextQuestion(btn) {
+            btn.closest('.fixed').remove();
+            
+            if (currentQIndex < currentQuestions.length - 1) {
+                currentQIndex++;
+                step = 0;
+                renderQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                // 單元完成
+                completedUnits[currentUnit] = true;
+                document.getElementById(`badge-${currentUnit}`).classList.remove('hidden'); // 顯示主選單的打勾印章
+                
+                document.getElementById('question-container').innerHTML = `
+                    <div class="text-center py-12 fade-in">
+                        ${getSvgStar()} ${getSvgStar()} ${getSvgStar()}
+                        <h2 class="text-5xl font-bold text-green-500 mt-8 mb-6">單元 ${currentUnit} 過關！</h2>
+                        <p class="text-3xl text-gray-700 mb-8 leading-relaxed">恭喜你學會了這個單元，我們回主畫面挑戰下一個吧！</p>
+                        <button onclick="showMenu()" class="px-8 py-4 text-2xl font-bold rounded-full bg-yellow-400 text-yellow-900 shadow-xl hover:bg-yellow-500 border-4 border-yellow-200">
+                            🏠 回主畫面選單
+                        </button>
+                    </div>
+                `;
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+        }
+
+        // 頁面載入初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initDemoUI();
+        });
+    </script>
+</body>
+</html>
