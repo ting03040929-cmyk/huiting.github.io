@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第7單元 除法 - 活動1 除法算式(整除)</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Fredoka & Outfit for kid-friendly premium UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', 'Outfit', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #fefaf0 0%, #f7fee7 100%);
+        }
+        
+        .tab-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .tab-btn.active {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .premium-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .premium-card:hover {
+            box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.08), 0 15px 15px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Animations */
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-bounce-slow {
+            animation: bounce-slow 3s infinite;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Ribbon cut transition */
+        .ribbon-part {
+            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+    </style>
+
+    <!-- Web Audio API Sound Synthesizer (No external dependencies) -->
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'pop') {
+                // Short pop sound when clicking or placing items
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.08);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'success') {
+                // Happy chime for correct answer
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.linearRampToValueAtTime(0.25, now + 0.3);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+                
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'fail') {
+                // Buzz sound for error
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(100, now + 0.25);
+                
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'cut') {
+                // Scissors snip sound
+                osc.type = 'noise' || 'sine'; // Simulated snip
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.linearRampToValueAtTime(200, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            }
+        }
+    </script>
+
+    <!-- SVGs definition helper functions -->
+    <script>
+        function getSvgApple(size = 'w-10 h-10') {
+            return `<svg viewBox="0 0 100 100" class="${size} inline-block filter drop-shadow-sm">
+                <path d="M50,85 C25,85 15,60 22,35 C28,15 48,22 50,32 C52,22 72,15 78,35 C85,60 75,85 50,85 Z" fill="#f43f5e" />
+                <path d="M50,32 Q53,15 62,8" stroke="#78350f" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M56,20 Q70,12 75,22 Q62,28 56,20 Z" fill="#10b981" />
+                <ellipse cx="38" cy="45" rx="5" ry="8" fill="#fff" opacity="0.3" transform="rotate(-15 38 45)" />
+            </svg>`;
+        }
+
+        function getSvgCandy(size = 'w-10 h-10') {
+            return `<svg viewBox="0 0 100 100" class="${size} inline-block filter drop-shadow-sm">
+                <polygon points="25,50 5,30 5,70" fill="#ec4899" stroke="#be185d" stroke-width="3" stroke-linejoin="round"/>
+                <polygon points="75,50 95,30 95,70" fill="#ec4899" stroke="#be185d" stroke-width="3" stroke-linejoin="round"/>
+                <circle cx="50" cy="50" r="23" fill="#fbcfe8" stroke="#be185d" stroke-width="4"/>
+                <path d="M35,50 Q50,32 65,50" stroke="#be185d" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path d="M38,55 Q50,42 62,55" stroke="#be185d" stroke-width="2" fill="none" stroke-linecap="round"/>
+            </svg>`;
+        }
+
+        function getSvgBaseball(size = 'w-10 h-10') {
+            return `<svg viewBox="0 0 100 100" class="${size} inline-block filter drop-shadow-sm">
+                <circle cx="50" cy="50" r="40" fill="#f8fafc" stroke="#94a3b8" stroke-width="3"/>
+                <path d="M22,22 Q50,35 78,22" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-dasharray="3 3"/>
+                <path d="M22,78 Q50,65 78,78" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-dasharray="3 3"/>
+            </svg>`;
+        }
+
+        function getSvgCookie(size = 'w-10 h-10', type = 'chocolate') {
+            if (type === 'chocolate') {
+                return `<svg viewBox="0 0 100 100" class="${size} inline-block filter drop-shadow-sm">
+                    <circle cx="50" cy="50" r="40" fill="#d97706" stroke="#b45309" stroke-width="3"/>
+                    <circle cx="35" cy="35" r="7" fill="#451a03" />
+                    <circle cx="65" cy="30" r="6" fill="#451a03" />
+                    <circle cx="50" cy="62" r="7" fill="#451a03" />
+                    <circle cx="30" cy="58" r="5" fill="#451a03" />
+                    <circle cx="68" cy="55" r="5.5" fill="#451a03" />
+                </svg>`;
+            } else if (type === 'check') {
+                return `<svg viewBox="0 0 100 100" class="${size} inline-block filter drop-shadow-sm">
+                    <rect x="15" y="15" width="70" height="70" rx="10" fill="#f59e0b" stroke="#b45309" stroke-width="3"/>
+                    <rect x="15" y="15" width="35" height="35" rx="5" fill="#78350f"/>
+                    <rect x="50" y="50" width="35" height="35" rx="5" fill="#78350f"/>
+                </svg>`;
+            } else if (type === 'star') {
+                return `<svg viewBox="0 0 100 100" class="${size} inline-block filter drop-shadow-sm">
+                    <polygon points="50,10 62,38 92,38 68,57 78,87 50,70 22,87 32,57 8,38 38,38" fill="#fbbf24" stroke="#d97706" stroke-width="3"/>
+                </svg>`;
+            }
+        }
+
+        function getSvgPumpkinCake(size = 'w-12 h-12') {
+            return `<svg viewBox="0 0 100 100" class="${size} inline-block filter drop-shadow-md">
+                <path d="M25,85 L75,85 L85,45 L15,45 Z" fill="#d97706" stroke="#b45309" stroke-width="2" />
+                <path d="M15,45 Q50,20 85,45 Q90,55 50,55 Q10,55 15,45" fill="#f97316" />
+                <!-- Pumpkin Face -->
+                <polygon points="35,32 43,32 39,26" fill="#000" />
+                <polygon points="57,32 65,32 61,26" fill="#000" />
+                <path d="M40,40 Q50,48 60,40" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <!-- Stem -->
+                <path d="M50,20 Q53,8 60,3" stroke="#16a34a" stroke-width="4" fill="none" stroke-linecap="round"/>
+            </svg>`;
+        }
+
+        function getSvgGhostCookie(size = 'w-12 h-12') {
+            return `<svg viewBox="0 0 100 100" class="${size} inline-block filter drop-shadow-md">
+                <path d="M50,15 C30,15 20,35 20,60 C20,80 30,85 40,80 C50,85 60,80 70,85 C80,80 80,60 80,35 C80,15 70,15 50,15 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/>
+                <circle cx="40" cy="40" r="5" fill="#0f172a" />
+                <circle cx="60" cy="40" r="5" fill="#0f172a" />
+                <circle cx="50" cy="55" r="6" fill="#f43f5e" opacity="0.8"/>
+                <path d="M45,62 Q50,66 55,62" stroke="#0f172a" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>`;
+        }
+
+        function getSvgFlower(color = 'red', size = 'w-10 h-10') {
+            const fillCol = color === 'red' ? '#ef4444' : '#3b82f6';
+            const strokeCol = color === 'red' ? '#991b1b' : '#1e3a8a';
+            return `<svg viewBox="0 0 100 100" class="${size} inline-block filter drop-shadow-sm">
+                <circle cx="50" cy="22" r="16" fill="${fillCol}" />
+                <circle cx="50" cy="78" r="16" fill="${fillCol}" />
+                <circle cx="22" cy="50" r="16" fill="${fillCol}" />
+                <circle cx="78" cy="50" r="16" fill="${fillCol}" />
+                <circle cx="30" cy="30" r="16" fill="${fillCol}" />
+                <circle cx="70" cy="70" r="16" fill="${fillCol}" />
+                <circle cx="30" cy="70" r="16" fill="${fillCol}" />
+                <circle cx="70" cy="30" r="16" fill="${fillCol}" />
+                <circle cx="50" cy="50" r="15" fill="#fbbf24" stroke="${strokeCol}" stroke-width="3"/>
+            </svg>`;
+        }
+
+        function getSvgStar(size = 'w-12 h-12') {
+            return `<svg viewBox="0 0 100 100" class="${size} inline-block filter drop-shadow-md">
+                <polygon points="50,5 64,36 98,36 70,57 81,90 50,70 19,90 30,57 2,36 36,36" fill="#fbbf24" stroke="#d97706" stroke-width="2.5"/>
+            </svg>`;
+        }
+
+        function getSvgKid(index, size = 'w-14 h-14') {
+            const colors = ['#f472b6', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+            const hairColors = ['#451a03', '#1e293b', '#d97706', '#0f172a', '#7c2d12'];
+            const skinColors = ['#fde047', '#fbcfe8', '#fed7aa', '#ffedd5', '#fef08a'];
+            
+            return `<svg viewBox="0 0 100 100" class="${size} rounded-full border-4 border-white shadow-md">
+                <circle cx="50" cy="50" r="48" fill="${colors[index % 5]}" />
+                <!-- Skin -->
+                <circle cx="50" cy="52" r="30" fill="${skinColors[index % 5]}" />
+                <!-- Hair -->
+                <path d="M20,40 Q50,15 80,40 Q50,25 20,40 Z" fill="${hairColors[index % 5]}" />
+                <!-- Eyes -->
+                <circle cx="40" cy="48" r="4" fill="#000" />
+                <circle cx="60" cy="48" r="4" fill="#000" />
+                <!-- Smile -->
+                <path d="M42,60 Q50,68 58,60" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <!-- Cheeks -->
+                <circle cx="35" cy="54" r="3" fill="#f43f5e" opacity="0.6"/>
+                <circle cx="65" cy="54" r="3" fill="#f43f5e" opacity="0.6"/>
+            </svg>`;
+        }
+    </script>
+</head>
+<body class="text-gray-800 antialiased min-h-screen pb-12">
+
+    <!-- Top Banner Header -->
+    <header class="max-w-5xl mx-auto mt-6 px-4">
+        <div class="bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 p-1 rounded-3xl shadow-xl">
+            <div class="bg-white px-6 py-5 rounded-[22px] text-center relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 opacity-10 transform rotate-12">
+                    <script>document.write(getSvgStar('w-36 h-36'))</script>
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-amber-700 tracking-wide mb-1">
+                    🎯 第 7 單元：除法
+                </h1>
+                <p class="text-lg sm:text-xl text-amber-600 font-semibold">
+                    活動 1：除法算式（整除）
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="max-w-5xl mx-auto mt-6 px-4">
+        <div class="grid grid-cols-4 gap-2 sm:gap-4">
+            <!-- 1. 暖身 -->
+            <button onclick="switchTab('warmup')" id="tab-warmup" class="tab-btn active px-3 py-4 rounded-2xl bg-amber-400 text-white font-bold text-base sm:text-xl border-b-4 border-amber-600 flex flex-col items-center justify-center gap-1">
+                <span class="text-2xl sm:text-3xl">🟡</span>
+                <span>1. 暖身</span>
+            </button>
+            <!-- 2. 故事 -->
+            <button onclick="switchTab('story')" id="tab-story" class="tab-btn px-3 py-4 rounded-2xl bg-gray-200 text-gray-500 font-bold text-base sm:text-xl border-b-4 border-gray-400 flex flex-col items-center justify-center gap-1">
+                <span class="text-2xl sm:text-3xl">🟠</span>
+                <span>2. 故事</span>
+            </button>
+            <!-- 3. 除法 -->
+            <button onclick="switchTab('division')" id="tab-division" class="tab-btn px-3 py-4 rounded-2xl bg-gray-200 text-gray-500 font-bold text-base sm:text-xl border-b-4 border-gray-400 flex flex-col items-center justify-center gap-1">
+                <span class="text-2xl sm:text-3xl">🔵</span>
+                <span>3. 除法</span>
+            </button>
+            <!-- 4. 演練 -->
+            <button onclick="switchTab('practice')" id="tab-practice" class="tab-btn px-3 py-4 rounded-2xl bg-gray-200 text-gray-500 font-bold text-base sm:text-xl border-b-4 border-gray-400 flex flex-col items-center justify-center gap-1">
+                <span class="text-2xl sm:text-3xl">🟢</span>
+                <span>4. 演練</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="max-w-5xl mx-auto mt-6 px-4">
+
+        <!-- ======================= 1. 暖身 (Warm-up) ======================= -->
+        <section id="content-warmup" class="tab-content block space-y-8 animate-pop">
+            <!-- Part 1: 平分判斷 -->
+            <div class="premium-card p-6 sm:p-8 rounded-3xl">
+                <h2 class="text-2xl font-bold text-amber-500 mb-4 flex items-center gap-2 border-b pb-2">
+                    <span>💡 認識平分</span>
+                    <span class="text-sm font-semibold text-gray-400 bg-gray-100 px-3 py-0.5 rounded-full">動動手</span>
+                    <button onclick="speakText('認識平分。下面的分法中，有平分的在框框中畫圈，沒有的打叉')" class="p-1 text-amber-500 hover:text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                    </button>
+                </h2>
+                <p class="text-xl font-medium text-gray-600 mb-6">下面的分法中，有平分的在框框中畫 ⭕，沒有的打 ❌：</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Q1 Candies -->
+                    <div class="bg-amber-50/50 p-6 rounded-2xl border-2 border-dashed border-amber-200 text-center relative">
+                        <div class="absolute -top-3 left-4 bg-amber-400 text-white font-bold px-3 py-0.5 rounded-full text-sm">第 1 題</div>
+                        <!-- Question visual groups -->
+                        <div class="flex justify-center gap-4 my-4 flex-wrap">
+                            <!-- Group 1 -->
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center items-center w-28 h-28 gap-1">
+                                <script>document.write(getSvgCandy('w-8 h-8') + getSvgCandy('w-8 h-8') + getSvgCandy('w-8 h-8') + getSvgCandy('w-8 h-8'))</script>
+                            </div>
+                            <!-- Group 2 -->
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center items-center w-28 h-28 gap-1">
+                                <script>document.write(getSvgCandy('w-8 h-8') + getSvgCandy('w-8 h-8') + getSvgCandy('w-8 h-8') + getSvgCandy('w-8 h-8'))</script>
+                            </div>
+                            <!-- Group 3 -->
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center items-center w-28 h-28 gap-1">
+                                <script>document.write(getSvgCandy('w-8 h-8') + getSvgCandy('w-8 h-8') + getSvgCandy('w-8 h-8') + getSvgCandy('w-8 h-8'))</script>
+                            </div>
+                        </div>
+                        <p class="text-lg font-bold text-gray-700 mb-4 flex items-center justify-center gap-2">
+                            <span>將糖果分在三個盒子裡</span>
+                            <button onclick="speakText('將糖果分在三個盒子裡')" class="p-0.5 text-amber-500 hover:text-amber-600 bg-amber-100/50 hover:bg-amber-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                </svg>
+                            </button>
+                        </p>
+                        <!-- Answers -->
+                        <div class="flex justify-center gap-4 mt-4">
+                            <button onclick="checkWarmupQ(1, 'O')" class="w-16 h-16 rounded-2xl border-4 border-green-400 hover:bg-green-50 text-2xl font-bold flex items-center justify-center transition-all">⭕</button>
+                            <button onclick="checkWarmupQ(1, 'X')" class="w-16 h-16 rounded-2xl border-4 border-red-400 hover:bg-red-50 text-2xl font-bold flex items-center justify-center transition-all">❌</button>
+                        </div>
+                        <!-- stamp feedback -->
+                        <div id="warmup-stamp-1" class="absolute top-4 right-4 text-6xl font-bold opacity-0 transition-all duration-300 scale-150 pointer-events-none"></div>
+                    </div>
+
+                    <!-- Q2 Baseballs -->
+                    <div class="bg-amber-50/50 p-6 rounded-2xl border-2 border-dashed border-amber-200 text-center relative">
+                        <div class="absolute -top-3 left-4 bg-amber-400 text-white font-bold px-3 py-0.5 rounded-full text-sm">第 2 題</div>
+                        <!-- Question visual groups -->
+                        <div class="flex justify-center gap-4 my-4 flex-wrap">
+                            <!-- Group 1 -->
+                            <div class="bg-white p-2 rounded-xl border border-gray-200 shadow-sm grid grid-cols-3 w-28 h-28 items-center justify-center">
+                                <script>for(let i=0; i<6; i++) document.write(getSvgBaseball('w-7 h-7'))</script>
+                            </div>
+                            <!-- Group 2 -->
+                            <div class="bg-white p-2 rounded-xl border border-gray-200 shadow-sm grid grid-cols-3 w-28 h-28 items-center justify-center">
+                                <script>for(let i=0; i<6; i++) document.write(getSvgBaseball('w-7 h-7'))</script>
+                            </div>
+                            <!-- Group 3 -->
+                            <div class="bg-white p-2 rounded-xl border border-gray-200 shadow-sm grid grid-cols-3 w-28 h-28 items-center justify-center">
+                                <script>for(let i=0; i<6; i++) document.write(getSvgBaseball('w-7 h-7'))</script>
+                            </div>
+                            <!-- Group 4 -->
+                            <div class="bg-white p-2 rounded-xl border border-gray-200 shadow-sm grid grid-cols-3 w-28 h-28 items-center justify-center">
+                                <script>for(let i=0; i<6; i++) document.write(getSvgBaseball('w-7 h-7'))</script>
+                            </div>
+                        </div>
+                        <p class="text-lg font-bold text-gray-700 mb-4 flex items-center justify-center gap-2">
+                            <span>將棒球分在四個箱子裡</span>
+                            <button onclick="speakText('將棒球分在四個箱子裡')" class="p-0.5 text-amber-500 hover:text-amber-600 bg-amber-100/50 hover:bg-amber-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                </svg>
+                            </button>
+                        </p>
+                        <!-- Answers -->
+                        <div class="flex justify-center gap-4 mt-4">
+                            <button onclick="checkWarmupQ(2, 'O')" class="w-16 h-16 rounded-2xl border-4 border-green-400 hover:bg-green-50 text-2xl font-bold flex items-center justify-center transition-all">⭕</button>
+                            <button onclick="checkWarmupQ(2, 'X')" class="w-16 h-16 rounded-2xl border-4 border-red-400 hover:bg-red-50 text-2xl font-bold flex items-center justify-center transition-all">❌</button>
+                        </div>
+                        <!-- stamp feedback -->
+                        <div id="warmup-stamp-2" class="absolute top-4 right-4 text-6xl font-bold opacity-0 transition-all duration-300 scale-150 pointer-events-none"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part 2: 舊工具複習 (用乘法找答案) -->
+            <div class="premium-card p-6 sm:p-8 rounded-3xl">
+                <h2 class="text-2xl font-bold text-amber-500 mb-4 flex items-center gap-2 border-b pb-2">
+                    <span>舊工具複習：用乘法找答案 🔍</span>
+                    <button onclick="speakText('舊工具複習，用乘法找答案。利用九九乘法算出答案，在空格中填入正確的數字')" class="p-1 text-amber-500 hover:text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                    </button>
+                </h2>
+                <p class="text-xl font-medium text-gray-600 mb-6">利用九九乘法算出答案，在空格中填入正確的數字：</p>
+                
+                <div class="space-y-8">
+                    <!-- Mult Q1 -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-150 shadow-sm flex flex-col md:flex-row gap-6 items-center justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-amber-700 mb-2 flex items-center gap-2">
+                                <span>Q1. 糖果平分</span>
+                                <button onclick="speakText('第一題，糖果平分。一包糖果有三十顆，平分給五個小朋友，每個小朋友可以分到幾顆？')" class="p-0.5 text-amber-700 hover:text-amber-800 bg-amber-100/50 hover:bg-amber-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                </button>
+                            </h3>
+                            <p class="text-lg font-semibold text-gray-700">一包糖果有 30 顆，平分給 5 個小朋友，每個小朋友可以分到幾顆？</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-2xl font-bold text-slate-700">
+                            <input id="warmup-mult-1" type="number" class="w-16 p-2 border-2 border-amber-300 rounded-xl text-center focus:ring-4 focus:ring-amber-200" placeholder="?">
+                            <span>&times; 5 = 30</span>
+                            <button onclick="checkWarmupMult(1, 6)" class="ml-4 px-4 py-2 bg-amber-400 hover:bg-amber-500 text-white rounded-xl text-lg transition-all">驗證</button>
+                        </div>
+                    </div>
+
+                    <!-- Mult Q2 -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-150 shadow-sm flex flex-col md:flex-row gap-6 items-center justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-amber-700 mb-2 flex items-center gap-2">
+                                <span>Q2. 餅乾裝袋</span>
+                                <button onclick="speakText('第二題，餅乾裝袋。有二十八塊餅乾，每七塊裝成一袋，一共可以裝成幾袋？')" class="p-0.5 text-amber-700 hover:text-amber-800 bg-amber-100/50 hover:bg-amber-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                </button>
+                            </h3>
+                            <p class="text-lg font-semibold text-gray-700">有 28 塊餅乾，每 7 塊裝成一袋，一共可以裝成幾袋？</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-2xl font-bold text-slate-700">
+                            <span>7 &times;</span>
+                            <input id="warmup-mult-2" type="number" class="w-16 p-2 border-2 border-amber-300 rounded-xl text-center focus:ring-4 focus:ring-amber-200" placeholder="?">
+                            <span>= 28</span>
+                            <button onclick="checkWarmupMult(2, 4)" class="ml-4 px-4 py-2 bg-amber-400 hover:bg-amber-500 text-white rounded-xl text-lg transition-all">驗證</button>
+                        </div>
+                    </div>
+
+                    <!-- Mult Q3 -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-150 shadow-sm flex flex-col md:flex-row gap-6 items-center justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-amber-700 mb-2 flex items-center gap-2">
+                                <span>Q3. 花朵綁束</span>
+                                <button onclick="speakText('第三題，花朵綁束。有四十二朵花，平分綁成六束，每一束有幾朵花？')" class="p-0.5 text-amber-700 hover:text-amber-800 bg-amber-100/50 hover:bg-amber-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                </button>
+                            </h3>
+                            <p class="text-lg font-semibold text-gray-700">有 42 朵花，平分綁成 6 束，每一束有幾朵花？</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-2xl font-bold text-slate-700">
+                            <input id="warmup-mult-3" type="number" class="w-16 p-2 border-2 border-amber-300 rounded-xl text-center focus:ring-4 focus:ring-amber-200" placeholder="?">
+                            <span>&times; 6 = 42</span>
+                            <button onclick="checkWarmupMult(3, 7)" class="ml-4 px-4 py-2 bg-amber-400 hover:bg-amber-500 text-white rounded-xl text-lg transition-all">驗證</button>
+                        </div>
+                    </div>
+
+                    <!-- Mult Q4 -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-150 shadow-sm flex flex-col md:flex-row gap-6 items-center justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-amber-700 mb-2 flex items-center gap-2">
+                                <span>Q4. 零用錢買糖</span>
+                                <button onclick="speakText('第四題，零用錢買糖。俊銘有四十元，買每枝五元的棒棒糖，最多可以買幾枝？')" class="p-0.5 text-amber-700 hover:text-amber-800 bg-amber-100/50 hover:bg-amber-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                </button>
+                            </h3>
+                            <p class="text-lg font-semibold text-gray-700">俊銘有 40 元，買每枝 5 元的棒棒糖，最多可以買幾枝？</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-2xl font-bold text-slate-700">
+                            <span>5 &times;</span>
+                            <input id="warmup-mult-4" type="number" class="w-16 p-2 border-2 border-amber-300 rounded-xl text-center focus:ring-4 focus:ring-amber-200" placeholder="?">
+                            <span>= 40</span>
+                            <button onclick="checkWarmupMult(4, 8)" class="ml-4 px-4 py-2 bg-amber-400 hover:bg-amber-500 text-white rounded-xl text-lg transition-all">驗證</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ======================= 2. 故事 (Story) ======================= -->
+        <section id="content-story" class="tab-content hidden space-y-8 animate-pop">
+            <!-- Scene Description Card -->
+            <div class="premium-card p-6 sm:p-8 rounded-3xl">
+                <h2 class="text-2xl font-bold text-orange-500 mb-4 border-b pb-2 flex items-center gap-2">
+                    <span>📖 烘焙屋情境故事</span>
+                    <button onclick="speakText('烘焙屋情境故事。一行人高高興興地來到了烘焙屋，希望能找回豆豆昨天不小心掉的那包餅乾。')" class="p-1 text-orange-500 hover:text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                    </button>
+                </h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <p class="text-xl font-medium text-gray-600 leading-relaxed mb-4">
+                            一行人高高興興地來到了烘焙屋，希望能找回豆豆昨天不小心掉的那包餅乾。
+                        </p>
+                        <div class="bg-orange-50 p-4 rounded-xl border border-orange-100 mb-4 relative pr-12">
+                            <p class="text-lg font-bold text-orange-700">🧑‍🍳 烘焙師阿姨說：</p>
+                            <p class="text-lg font-medium text-orange-900 leading-relaxed">
+                                「我把這盤子上的餅乾平分裝成了 <strong>3 包</strong>，你們三個人一個人拿 <strong>1 包</strong>剛好分完喔！」
+                            </p>
+                            <button onclick="speakText('烘焙師阿姨說：我把這盤子上的餅乾平分裝成了 3 包，你們三個人一個人拿 1 包剛好分完喔！')" class="absolute top-4 right-4 p-1 text-orange-500 hover:text-orange-600 bg-orange-100/50 hover:bg-orange-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="bg-orange-50 p-4 rounded-xl border border-orange-100 relative pr-12">
+                            <p class="text-lg font-bold text-blue-700">👦 豆豆摸摸頭說：</p>
+                            <p class="text-lg font-medium text-blue-900 leading-relaxed">
+                                「阿姨裝的這包餅乾，數量剛好跟我昨天掉的那包餅乾一模一樣耶！」
+                            </p>
+                            <button onclick="speakText('豆豆摸摸頭說：阿姨裝的這包餅乾，數量剛好跟我昨天掉的那包餅乾一模一樣耶！')" class="absolute top-4 right-4 p-1 text-blue-500 hover:text-blue-600 bg-blue-100/50 hover:bg-blue-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Bakery Counter Visual representation -->
+                    <div class="bg-amber-50/50 p-6 rounded-2xl border-2 border-orange-200 text-center">
+                        <p class="text-lg font-bold text-orange-800 mb-3">🧑‍🍳 烘焙屋烤盤上的餅乾：</p>
+                        <div class="bg-white p-4 rounded-xl border border-orange-150 inline-block shadow-sm">
+                            <!-- Tray with cookies -->
+                            <div class="grid grid-cols-4 gap-4 p-2">
+                                <script>
+                                    // 6 chocolates, 3 checks, 3 stars
+                                    for(let i=0; i<6; i++) document.write(getSvgCookie('w-12 h-12', 'chocolate'));
+                                    for(let i=0; i<3; i++) document.write(getSvgCookie('w-12 h-12', 'check'));
+                                    for(let i=0; i<3; i++) document.write(getSvgStar('w-12 h-12'));
+                                </script>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">（共有 6 個巧克力餅乾、3 個格子餅乾、3 個星星餅乾）</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Card -->
+            <div class="premium-card p-6 sm:p-8 rounded-3xl">
+                <h2 class="text-2xl font-bold text-orange-500 mb-2 text-center flex items-center justify-center gap-2">
+                    <span>🕵️ 觀察與挑戰</span>
+                    <button onclick="speakText('觀察與挑戰。豆豆掉的是哪一包餅乾呢？')" class="p-1 text-orange-500 hover:text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                    </button>
+                </h2>
+                <p class="text-2xl font-extrabold text-gray-700 text-center mb-8">
+                    豆豆掉的是哪一包餅乾呢？
+                </p>
+
+                <!-- Choice cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Choice 1 -->
+                    <button onclick="chooseBag(1)" id="bag-card-1" class="bg-white hover:bg-orange-50 border-4 border-slate-200 hover:border-orange-300 rounded-3xl p-6 transition-all duration-300 flex flex-col items-center">
+                        <div class="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mb-4">
+                            <span class="text-4xl">👜</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-rose-700 mb-2">1 號粉紅包</h3>
+                        <div class="bg-rose-50 border border-rose-100 p-3 rounded-xl flex gap-2 justify-center w-full min-h-[64px]">
+                            <script>
+                                document.write(getSvgCookie('w-10 h-10', 'chocolate'));
+                                document.write(getSvgCookie('w-10 h-10', 'check'));
+                                document.write(getSvgStar('w-10 h-10'));
+                            </script>
+                        </div>
+                        <span class="text-sm text-slate-500 mt-2">( 巧克力 &times; 1, 格子 &times; 1, 星星 &times; 1 )</span>
+                    </button>
+
+                    <!-- Choice 2 (Correct) -->
+                    <button onclick="chooseBag(2)" id="bag-card-2" class="bg-white hover:bg-orange-50 border-4 border-slate-200 hover:border-orange-300 rounded-3xl p-6 transition-all duration-300 flex flex-col items-center relative">
+                        <div class="absolute -top-3 bg-green-500 text-white font-bold px-3 py-1 rounded-full text-xs shadow-md opacity-0 transition-opacity" id="bag-check-badge">正確答案</div>
+                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                            <span class="text-4xl">👜</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-blue-700 mb-2">2 號天藍包</h3>
+                        <div class="bg-blue-50 border border-blue-100 p-3 rounded-xl flex gap-2 justify-center w-full min-h-[64px]">
+                            <script>
+                                document.write(getSvgCookie('w-10 h-10', 'chocolate'));
+                                document.write(getSvgCookie('w-10 h-10', 'chocolate'));
+                                document.write(getSvgCookie('w-10 h-10', 'check'));
+                                document.write(getSvgStar('w-10 h-10'));
+                            </script>
+                        </div>
+                        <span class="text-sm text-slate-500 mt-2">( 巧克力 &times; 2, 格子 &times; 1, 星星 &times; 1 )</span>
+                    </button>
+
+                    <!-- Choice 3 -->
+                    <button onclick="chooseBag(3)" id="bag-card-3" class="bg-white hover:bg-orange-50 border-4 border-slate-200 hover:border-orange-300 rounded-3xl p-6 transition-all duration-300 flex flex-col items-center">
+                        <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                            <span class="text-4xl">👜</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-amber-700 mb-2">3 號橘黃包</h3>
+                        <div class="bg-amber-50 border border-amber-100 p-3 rounded-xl flex gap-2 justify-center w-full min-h-[64px]">
+                            <script>
+                                document.write(getSvgCookie('w-10 h-10', 'chocolate'));
+                                document.write(getSvgCookie('w-10 h-10', 'chocolate'));
+                                document.write(getSvgCookie('w-10 h-10', 'check'));
+                                document.write(getSvgStar('w-10 h-10'));
+                                document.write(getSvgStar('w-10 h-10'));
+                                document.write(getSvgStar('w-10 h-10'));
+                            </script>
+                        </div>
+                        <span class="text-sm text-slate-500 mt-2">( 巧克力 &times; 2, 格子 &times; 1, 星星 &times; 3 )</span>
+                    </button>
+                </div>
+
+                <div class="mt-8 text-center" id="story-feedback">
+                    <p class="text-xl text-gray-500 font-bold">請點擊上方你認為正確的餅乾包包！</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ======================= 3. 除法 (Division Concept) ======================= -->
+        <section id="content-division" class="tab-content hidden space-y-8 animate-pop">
+            <!-- Part 1: 蛋糕減法模擬 -->
+            <div class="premium-card p-6 sm:p-8 rounded-3xl">
+                <h2 class="text-2xl font-bold text-blue-500 mb-4 border-b pb-2 flex items-center gap-2">
+                    <span>🍰 蛋糕裝盤：減法與乘法</span>
+                    <button onclick="speakText('蛋糕裝盤：減法與乘法。例題：把 12 個蛋糕，3 個裝一盤，最多可以裝成幾盤？')" class="p-1 text-blue-500 hover:text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                    </button>
+                </h2>
+                <p class="text-xl font-semibold text-gray-700 mb-6">
+                    例題：把 12 個蛋糕，3 個裝一盤，最多可以裝成幾盤？
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left: Cake pool -->
+                    <div class="bg-amber-50/50 p-6 rounded-2xl border-2 border-amber-200 text-center flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-amber-800 mb-4">🎂 待分裝的南瓜蛋糕 (剩餘 <span id="cake-count">12</span> 個)</h3>
+                            <div id="cake-pool" class="grid grid-cols-4 gap-2 bg-white p-4 rounded-xl min-h-[140px] items-center justify-center shadow-inner">
+                                <script>
+                                    for(let i=0; i<12; i++) {
+                                        document.write(`<div id="cake-item-${i}" class="transition-all duration-500 flex justify-center">${getSvgPumpkinCake()}</div>`);
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                        <button onclick="distributeThreeCakes()" id="btn-distribute-cakes" class="w-full mt-4 bg-amber-400 hover:bg-amber-500 text-white font-bold py-3 px-6 rounded-xl text-lg transition-all shadow-md">
+                            每次分 3 個裝一盤 ➔
+                        </button>
+                    </div>
+
+                    <!-- Middle: Subtraction Steps -->
+                    <div class="bg-blue-50/50 p-6 rounded-2xl border-2 border-blue-200 flex flex-col">
+                        <h3 class="text-lg font-bold text-blue-800 mb-4 text-center">➖ 減法步驟記錄</h3>
+                        <div id="subtraction-steps" class="flex-1 space-y-3 flex flex-col justify-center font-mono text-2xl font-bold text-blue-700">
+                            <p class="text-center text-base text-gray-400 font-normal">點擊左側按鈕開始記錄...</p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Plates view -->
+                    <div class="bg-emerald-50/50 p-6 rounded-2xl border-2 border-emerald-200 text-center">
+                        <h3 class="text-lg font-bold text-emerald-800 mb-4">🍽️ 已裝盤</h3>
+                        <div class="grid grid-cols-2 gap-4" id="plate-container">
+                            <!-- Plate 1 -->
+                            <div class="bg-white p-2 rounded-xl border border-emerald-100 flex flex-col justify-between min-h-[80px] shadow-sm">
+                                <span class="text-xs font-bold text-emerald-600">第 1 盤</span>
+                                <div id="plate-0" class="flex justify-center gap-1 min-h-[40px] items-center"></div>
+                            </div>
+                            <!-- Plate 2 -->
+                            <div class="bg-white p-2 rounded-xl border border-emerald-100 flex flex-col justify-between min-h-[80px] shadow-sm">
+                                <span class="text-xs font-bold text-emerald-600">第 2 盤</span>
+                                <div id="plate-1" class="flex justify-center gap-1 min-h-[40px] items-center"></div>
+                            </div>
+                            <!-- Plate 3 -->
+                            <div class="bg-white p-2 rounded-xl border border-emerald-100 flex flex-col justify-between min-h-[80px] shadow-sm">
+                                <span class="text-xs font-bold text-emerald-600">第 3 盤</span>
+                                <div id="plate-2" class="flex justify-center gap-1 min-h-[40px] items-center"></div>
+                            </div>
+                            <!-- Plate 4 -->
+                            <div class="bg-white p-2 rounded-xl border border-emerald-100 flex flex-col justify-between min-h-[80px] shadow-sm">
+                                <span class="text-xs font-bold text-emerald-600">第 4 盤</span>
+                                <div id="plate-3" class="flex justify-center gap-1 min-h-[40px] items-center"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part 2: 除法算式與名稱對對碰 -->
+            <div class="premium-card p-6 sm:p-8 rounded-3xl">
+                <h2 class="text-2xl font-bold text-blue-500 mb-4 border-b pb-2 flex items-center gap-2">
+                    <span>🏷️ 除法算式元件與意義對對碰</span>
+                    <button onclick="speakText('除法算式元件與意義對對碰。我們可以把上面的問題和結果，寫成除法算式：被除數、除數、與商。')" class="p-1 text-blue-500 hover:text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                    </button>
+                </h2>
+                <p class="text-xl font-medium text-gray-600 mb-6">
+                    我們可以把上面的問題和結果，寫成除法算式：
+                </p>
+
+                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 text-center relative overflow-hidden">
+                    <!-- Equation Rendered big -->
+                    <div class="flex justify-center gap-8 items-center text-5xl sm:text-7xl font-extrabold text-blue-600 py-6 mb-6 select-none">
+                        <div class="flex flex-col items-center">
+                            <span class="transition-all" id="eq-part-1">12</span>
+                            <span id="label-drop-1" onclick="handleZoneClick('label-drop-1')" class="cursor-pointer w-24 h-10 border-2 border-dashed border-slate-300 rounded-lg text-sm flex items-center justify-center text-slate-400 bg-white font-normal mt-2">放這裡</span>
+                        </div>
+                        <div>&divide;</div>
+                        <div class="flex flex-col items-center">
+                            <span class="transition-all" id="eq-part-2">3</span>
+                            <span id="label-drop-2" onclick="handleZoneClick('label-drop-2')" class="cursor-pointer w-24 h-10 border-2 border-dashed border-slate-300 rounded-lg text-sm flex items-center justify-center text-slate-400 bg-white font-normal mt-2">放這裡</span>
+                        </div>
+                        <div>=</div>
+                        <div class="flex flex-col items-center">
+                            <span class="transition-all" id="eq-part-3">4</span>
+                            <span id="label-drop-3" onclick="handleZoneClick('label-drop-3')" class="cursor-pointer w-24 h-10 border-2 border-dashed border-slate-300 rounded-lg text-sm flex items-center justify-center text-slate-400 bg-white font-normal mt-2">放這裡</span>
+                        </div>
+                    </div>
+
+                    <!-- Draggable terms -->
+                    <div class="flex justify-center gap-4 flex-wrap mt-8">
+                        <div id="term-dividend" draggable="true" ondragstart="handleDragStart(event)" onclick="handleTermClick('term-dividend')" class="cursor-grab active:cursor-grabbing bg-amber-400 text-white font-bold px-6 py-3 rounded-2xl text-lg shadow-md border-b-4 border-amber-600 select-none transition-all">被除數</div>
+                        <div id="term-divisor" draggable="true" ondragstart="handleDragStart(event)" onclick="handleTermClick('term-divisor')" class="cursor-grab active:cursor-grabbing bg-rose-400 text-white font-bold px-6 py-3 rounded-2xl text-lg shadow-md border-b-4 border-rose-600 select-none transition-all">除數</div>
+                        <div id="term-quotient" draggable="true" ondragstart="handleDragStart(event)" onclick="handleTermClick('term-quotient')" class="cursor-grab active:cursor-grabbing bg-green-400 text-white font-bold px-6 py-3 rounded-2xl text-lg shadow-md border-b-4 border-green-600 select-none transition-all">商</div>
+                    </div>
+                    
+                    <div class="mt-8" id="matching-feedback">
+                        <p class="text-lg text-gray-500 font-bold">💡 請拖曳上方的「被除數」、「除數」與「商」到對應的框框中！</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part 3: 鬼魂餅乾平分 (魔法連結) -->
+            <div class="premium-card p-6 sm:p-8 rounded-3xl">
+                <h2 class="text-2xl font-bold text-blue-500 mb-4 border-b pb-2 flex items-center gap-2">
+                    <span>👻 乘法與除法的魔法連結</span>
+                    <button onclick="speakText('乘法與除法的魔法連結。例題：把 20 片鬼魂餅乾，平分給 5 個小朋友，每人分到幾片？')" class="p-1 text-blue-500 hover:text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                    </button>
+                </h2>
+                <p class="text-xl font-semibold text-gray-700 mb-6">
+                    例題：把 20 片鬼魂餅乾，平分給 5 個小朋友，每人分到幾片？
+                </p>
+
+                <div class="space-y-6">
+                    <!-- Pool -->
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center">
+                        <h3 class="text-lg font-bold text-slate-700 mb-3">👻 烤好的鬼魂餅乾 (共 20 片，可手動拖拉或點選平分)</h3>
+                        <div id="ghost-pool" ondragover="allowDrop(event)" ondrop="handleGhostDropEvent(event, 'ghost-pool')" onclick="handleGhostPoolClick(event)" class="flex flex-wrap gap-2 justify-center p-4 bg-white rounded-xl shadow-inner min-h-[90px] cursor-pointer">
+                            <script>
+                                for(let i=0; i<20; i++) {
+                                    document.write(`<div id="ghost-${i}" draggable="true" ondragstart="handleGhostDragStart(event)" onclick="handleGhostClick(event)" class="cursor-grab active:cursor-grabbing transition-all duration-300 hover:scale-110 p-1 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-150">${getSvgGhostCookie('w-10 h-10')}</div>`);
+                                }
+                            </script>
+                        </div>
+                    </div>
+
+                    <!-- Kids container -->
+                    <div class="grid grid-cols-5 gap-4">
+                        <script>
+                            for(let i=0; i<5; i++) {
+                                document.write(`
+                                    <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+                                        <div class="mb-2">${getSvgKid(i)}</div>
+                                        <span class="text-xs font-bold text-slate-500">學生 ${i+1}</span>
+                                        <div id="kid-plate-${i}" ondragover="allowDrop(event)" ondrop="handleGhostDropEvent(event, 'kid-plate-${i}')" onclick="handleGhostPlateClick(event, 'kid-plate-${i}')" class="w-full min-h-[140px] bg-slate-50 border border-dashed border-slate-300 rounded-xl mt-2 flex flex-col items-center justify-center p-2 gap-1 flex-wrap content-start cursor-pointer transition-colors hover:bg-slate-100"></div>
+                                    </div>
+                                `);
+                            }
+                        </script>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mt-6">
+                        <button onclick="distributeGhosts()" id="btn-distribute-ghosts" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg transition-all">
+                            ✨ 平分給小朋友
+                        </button>
+                        <button onclick="resetGhosts()" class="bg-gray-200 hover:bg-gray-300 text-gray-600 font-bold py-3 px-6 rounded-full text-lg transition-all">
+                            🔄 重置
+                        </button>
+                    </div>
+
+                    <!-- result display -->
+                    <div id="ghost-result" class="mt-6 text-center hidden">
+                        <p class="text-2xl font-bold text-green-700 mb-2">平分成功！每人分到 4 片！</p>
+                        <p class="text-xl font-medium text-slate-600">
+                            乘法思維：一個人拿 4 片，5 個人共拿了：<strong class="text-rose-500 text-2xl">4 &times; 5 = 20</strong>
+                        </p>
+                        <p class="text-xl font-medium text-slate-600 mt-1">
+                            除法算式：20 片平分給 5 人，記作：<strong class="text-blue-500 text-2xl">20 &divide; 5 = 4</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= 4. 演練 (Practice) ======================= -->
+        <section id="content-practice" class="tab-content hidden space-y-8 animate-pop">
+            <!-- Quiz 1: Parade Grouping -->
+            <div class="premium-card p-6 sm:p-8 rounded-3xl">
+                <h2 class="text-2xl font-bold text-emerald-500 mb-4 border-b pb-2 flex justify-between items-center">
+                    <span class="flex items-center gap-2">
+                        <span>挑戰 1：隊伍平分</span>
+                        <button onclick="speakText('挑戰一，隊伍平分。題目：有 32 個人參加遊行，平分成 4 組，儘量分完，一組有幾個人？')" class="p-1 text-emerald-500 hover:text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                            </svg>
+                        </button>
+                    </span>
+                    <span id="badge-practice-1" class="text-xs bg-gray-200 px-3 py-1 rounded-full font-bold">待完成</span>
+                </h2>
+                <p class="text-xl font-semibold text-gray-700 mb-6">
+                    題目：有 32 個人參加遊行，平分成 4 組，儘量分完，一組有幾個人？
+                </p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <!-- Left: Input form -->
+                    <div class="flex flex-col items-center bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <p class="text-lg font-medium text-slate-600 mb-4">請完成下面的除法算式：</p>
+                        <div class="flex items-center gap-3 text-3xl font-bold text-slate-700">
+                            <span>32</span>
+                            <span>&divide;</span>
+                            <span>4</span>
+                            <span>=</span>
+                            <input id="practice-ans-1" type="number" class="w-20 p-3 border-3 border-emerald-300 rounded-2xl text-center focus:ring-4 focus:ring-emerald-100" placeholder="?">
+                        </div>
+                        <div class="flex gap-4 mt-6 w-full flex-wrap">
+                            <button onclick="verifyPractice1()" class="flex-1 min-w-[120px] bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl text-lg transition-all shadow-md">
+                                提交回答
+                            </button>
+                            <button onclick="demoParadeGrouping()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl text-lg transition-all shadow-md">
+                                ✨ 演示平分
+                            </button>
+                            <button onclick="resetParade()" class="bg-gray-200 hover:bg-gray-300 text-gray-600 font-bold py-3 px-6 rounded-xl text-lg transition-all shadow-md">
+                                🔄 重置
+                            </button>
+                        </div>
+                        <div id="practice-feedback-1" class="mt-4 text-xl font-bold"></div>
+                    </div>
+                    
+                    <!-- Right: Visual Area -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm min-h-[260px] flex flex-col justify-between">
+                        <h3 class="text-lg font-bold text-slate-700 text-center mb-3">👥 遊行隊伍平分演示 (共 32 人，可拖拉分組)</h3>
+                        
+                        <!-- Parade Pool of 32 people -->
+                        <div id="parade-pool" ondragover="allowDrop(event)" ondrop="handleParadeDropEvent(event, 'parade-pool')" onclick="handleParadePoolClick(event)" class="flex flex-wrap gap-1 justify-center p-3 bg-slate-50 rounded-xl min-h-[80px] cursor-pointer">
+                            <script>
+                                for(let i=0; i<32; i++) {
+                                    document.write(`<div id="parade-person-${i}" draggable="true" ondragstart="handleParadeDragStart(event)" onclick="handleParadeClick(event)" class="cursor-grab active:cursor-grabbing transition-all duration-300 hover:scale-110">${getSvgKid(i, 'w-8 h-8')}</div>`);
+                                }
+                            </script>
+                        </div>
+                        
+                        <!-- 4 Group Plates -->
+                        <div class="grid grid-cols-4 gap-2 mt-4" id="parade-groups-container">
+                            <div class="bg-blue-50 p-2 rounded-xl border border-blue-100 min-h-[100px] flex flex-col items-center justify-start gap-1">
+                                <span class="text-[10px] font-bold text-blue-600">第 1 組</span>
+                                <div id="parade-group-0" ondragover="allowDrop(event)" ondrop="handleParadeDropEvent(event, 'parade-group-0')" onclick="handleParadeGroupClick(event, 'parade-group-0')" class="flex flex-wrap gap-0.5 justify-center min-h-[80px] w-full cursor-pointer transition-colors hover:bg-blue-100/50"></div>
+                            </div>
+                            <div class="bg-green-50 p-2 rounded-xl border border-green-100 min-h-[100px] flex flex-col items-center justify-start gap-1">
+                                <span class="text-[10px] font-bold text-green-600">第 2 組</span>
+                                <div id="parade-group-1" ondragover="allowDrop(event)" ondrop="handleParadeDropEvent(event, 'parade-group-1')" onclick="handleParadeGroupClick(event, 'parade-group-1')" class="flex flex-wrap gap-0.5 justify-center min-h-[80px] w-full cursor-pointer transition-colors hover:bg-green-50/50"></div>
+                            </div>
+                            <div class="bg-yellow-50 p-2 rounded-xl border border-yellow-100 min-h-[100px] flex flex-col items-center justify-start gap-1">
+                                <span class="text-[10px] font-bold text-yellow-600">第 3 組</span>
+                                <div id="parade-group-2" ondragover="allowDrop(event)" ondrop="handleParadeDropEvent(event, 'parade-group-2')" onclick="handleParadeGroupClick(event, 'parade-group-2')" class="flex flex-wrap gap-0.5 justify-center min-h-[80px] w-full cursor-pointer transition-colors hover:bg-yellow-50/50"></div>
+                            </div>
+                            <div class="bg-purple-50 p-2 rounded-xl border border-purple-100 min-h-[100px] flex flex-col items-center justify-start gap-1">
+                                <span class="text-[10px] font-bold text-purple-600">第 4 組</span>
+                                <div id="parade-group-3" ondragover="allowDrop(event)" ondrop="handleParadeDropEvent(event, 'parade-group-3')" onclick="handleParadeGroupClick(event, 'parade-group-3')" class="flex flex-wrap gap-0.5 justify-center min-h-[80px] w-full cursor-pointer transition-colors hover:bg-purple-50/50"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz 2 & 3: 剪彩帶模擬器 -->
+            <div class="premium-card p-6 sm:p-8 rounded-3xl">
+                <h2 class="text-2xl font-bold text-emerald-500 mb-4 border-b pb-2 flex justify-between items-center">
+                    <span>挑戰 2 & 3：剪彩帶模擬器</span>
+                    <span id="badge-practice-2" class="text-xs bg-gray-200 px-3 py-1 rounded-full font-bold">待完成</span>
+                </h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Part A: Cut by Length -->
+                    <div class="bg-amber-50/50 p-6 rounded-2xl border-2 border-amber-200 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-amber-800 mb-2 flex items-center gap-2">
+                                <span>✂️ 挑戰 2：按長度分</span>
+                                <button onclick="speakText('挑戰二，按長度分。每一條彩帶長 24 公分。品睿把彩帶每 6 公分剪成 1 段，最多可以剪成幾段？')" class="p-1 text-amber-700 hover:text-amber-800 bg-amber-100/50 hover:bg-amber-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                </button>
+                            </h3>
+                            <p class="text-base text-slate-600 mb-6 leading-relaxed">
+                                每一條彩帶長 24 公分。品睿把彩帶<strong>每 6 公分</strong>剪成 1 段，最多可以剪成幾段？
+                            </p>
+                            <!-- Ribbon container -->
+                            <div class="relative bg-white border border-amber-100 rounded-xl p-6 min-h-[140px] flex items-center justify-center">
+                                <div id="ribbon-len-box" class="w-full h-10 bg-gradient-to-r from-orange-400 to-amber-300 rounded-lg flex relative shadow-sm overflow-hidden">
+                                    <!-- cut lines -->
+                                    <div id="ribbon-len-cut-1" class="absolute left-1/4 top-0 w-0.5 h-full bg-white opacity-0 border-l border-dashed border-red-500 z-10 transition-opacity"></div>
+                                    <div id="ribbon-len-cut-2" class="absolute left-2/4 top-0 w-0.5 h-full bg-white opacity-0 border-l border-dashed border-red-500 z-10 transition-opacity"></div>
+                                    <div id="ribbon-len-cut-3" class="absolute left-3/4 top-0 w-0.5 h-full bg-white opacity-0 border-l border-dashed border-red-500 z-10 transition-opacity"></div>
+                                    
+                                    <div id="ribbon-len-sec-1" class="ribbon-part w-full h-full text-center flex items-center justify-center font-bold text-xs text-white">24 公分</div>
+                                    <div id="ribbon-len-sec-2" class="ribbon-part w-0 h-full overflow-hidden text-center flex items-center justify-center font-bold text-xs text-white"></div>
+                                    <div id="ribbon-len-sec-3" class="ribbon-part w-0 h-full overflow-hidden text-center flex items-center justify-center font-bold text-xs text-white"></div>
+                                    <div id="ribbon-len-sec-4" class="ribbon-part w-0 h-full overflow-hidden text-center flex items-center justify-center font-bold text-xs text-white"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 space-y-4">
+                            <button onclick="simulateRibbonLengthCut()" id="btn-ribbon-len" class="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md">
+                                開始剪裁 (每 6 公分剪一刀)
+                            </button>
+                            <div class="flex items-center gap-2 justify-center text-xl font-bold">
+                                <span>24 &divide; 6 =</span>
+                                <input id="ribbon-len-ans" type="number" class="w-16 p-2 border-2 border-amber-300 rounded-xl text-center" placeholder="?" disabled>
+                                <button onclick="verifyRibbonLen()" id="btn-verify-ribbon-len" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-base transition-all disabled:opacity-50" disabled>驗證</button>
+                            </div>
+                            <p id="ribbon-len-feedback" class="text-center font-bold text-lg min-h-[28px]"></p>
+                        </div>
+                    </div>
+
+                    <!-- Part B: Cut by segment count -->
+                    <div class="bg-blue-50/50 p-6 rounded-2xl border-2 border-blue-200 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-blue-800 mb-2 flex items-center gap-2">
+                                <span>✂️ 挑戰 3：按段數分</span>
+                                <button onclick="speakText('挑戰三，按段數分。每一條彩帶長 24 公分。郁文把彩帶平分剪成 8 段，一段長幾公分？')" class="p-1 text-blue-700 hover:text-blue-800 bg-blue-100/50 hover:bg-blue-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                </button>
+                            </h3>
+                            <p class="text-base text-slate-600 mb-6 leading-relaxed">
+                                每一條彩帶長 24 公分。郁文把彩帶<strong>平分剪成 8 段</strong>，一段長幾公分？
+                            </p>
+                            <!-- Ribbon container -->
+                            <div class="relative bg-white border border-blue-100 rounded-xl p-6 min-h-[140px] flex items-center justify-center">
+                                <div id="ribbon-seg-box" class="w-full h-10 bg-gradient-to-r from-sky-400 to-teal-300 rounded-lg flex relative shadow-sm overflow-hidden">
+                                    <div id="ribbon-seg-sec" class="w-full h-full text-center flex items-center justify-center font-bold text-xs text-white">24 公分</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 space-y-4">
+                            <div class="space-y-1">
+                                <label class="block text-sm font-bold text-slate-600 text-center">調整裁剪的段數: <span id="lbl-seg-slider" class="text-blue-500 text-lg">1</span> 段</label>
+                                <input type="range" id="ribbon-seg-slider" min="1" max="8" value="1" oninput="handleSegSlider(this.value)" class="w-full accent-blue-500">
+                            </div>
+                            <div class="flex items-center gap-2 justify-center text-xl font-bold">
+                                <span>24 &divide; 8 =</span>
+                                <input id="ribbon-seg-ans" type="number" class="w-16 p-2 border-2 border-blue-300 rounded-xl text-center" placeholder="?" disabled>
+                                <button onclick="verifyRibbonSeg()" id="btn-verify-ribbon-seg" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-base transition-all disabled:opacity-50" disabled>驗證</button>
+                            </div>
+                            <p id="ribbon-seg-feedback" class="text-center font-bold text-lg min-h-[28px]"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz 4: 看圖說故事 -->
+            <div class="premium-card p-6 sm:p-8 rounded-3xl">
+                <h2 class="text-2xl font-bold text-emerald-500 mb-4 border-b pb-2 flex justify-between items-center">
+                    <span class="flex items-center gap-2">
+                        <span>挑戰 4：看圖說故事</span>
+                        <button onclick="speakText('挑戰四，看圖說故事。看圖做做看，答案是多少？並寫出除法算式！')" class="p-1 text-emerald-500 hover:text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                            </svg>
+                        </button>
+                    </span>
+                    <span id="badge-practice-3" class="text-xs bg-gray-200 px-3 py-1 rounded-full font-bold">待完成</span>
+                </h2>
+                <p class="text-xl font-semibold text-gray-700 mb-6">
+                    看圖做做看，答案是多少？並寫出除法算式！
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left: 15 Flowers -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between items-center text-center">
+                        <div class="w-full">
+                            <h3 class="text-lg font-bold text-rose-700 mb-4 flex items-center justify-center gap-2">
+                                <span>🌺 紅色花片圈圈看</span>
+                                <button onclick="speakText('紅色花片圈圈看，十五除以三等於多少？提示，每三個花片分成一堆，點選花片來進行分組！')" class="p-1 text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                </button>
+                            </h3>
+                            <!-- Grid array -->
+                            <div class="flex flex-col gap-2 bg-rose-50/50 p-4 rounded-xl items-center mb-4">
+                                <div class="grid grid-cols-5 gap-3" id="flower-grid-red">
+                                    <script>
+                                        for(let i=0; i<15; i++) {
+                                            document.write(`<button onclick="clickFlower('red', ${i})" id="flower-red-${i}" class="hover:scale-115 transition-all p-1 border-2 border-transparent rounded-lg flex items-center justify-center">${getSvgFlower('red', 'w-10 h-10')}</button>`);
+                                        }
+                                    </script>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mb-4">提示：每 3 個花片分成一堆，點選花片來進行分組！</p>
+                        </div>
+                        <div class="space-y-4 w-full">
+                            <div class="flex items-center justify-center gap-2 text-xl font-bold">
+                                <span>15 &divide; 3 =</span>
+                                <input id="flower-red-ans" type="number" class="w-16 p-2 border-2 border-rose-300 rounded-xl text-center" placeholder="?">
+                            </div>
+                            <button onclick="verifyFlowerQuiz('red', 5)" class="w-full bg-rose-400 hover:bg-rose-500 text-white font-bold py-2 rounded-xl">檢查紅色花片算式</button>
+                            <p id="flower-red-feedback" class="font-bold text-lg min-h-[28px]"></p>
+                        </div>
+                    </div>
+
+                    <!-- Right: 28 Flowers -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between items-center text-center">
+                        <div class="w-full">
+                            <h3 class="text-lg font-bold text-blue-700 mb-4 flex items-center justify-center gap-2">
+                                <span>💠 藍色花片圈圈看</span>
+                                <button onclick="speakText('藍色花片圈圈看，二十八除以七等於多少？提示，每七個花片排成一排，點選花片來進行分組！')" class="p-1 text-blue-500 hover:text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full transition-all shadow-sm flex items-center justify-center" title="語音朗讀">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                </button>
+                            </h3>
+                            <!-- Grid array -->
+                            <div class="flex flex-col gap-2 bg-blue-50/50 p-4 rounded-xl items-center mb-4">
+                                <div class="grid grid-cols-4 gap-3" id="flower-grid-blue">
+                                    <script>
+                                        for(let i=0; i<28; i++) {
+                                            document.write(`<button onclick="clickFlower('blue', ${i})" id="flower-blue-${i}" class="hover:scale-115 transition-all p-1 border-2 border-transparent rounded-lg flex items-center justify-center">${getSvgFlower('blue', 'w-10 h-10')}</button>`);
+                                        }
+                                    </script>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mb-4">提示：每 7 個花片排成一排，點選花片來進行分組！</p>
+                        </div>
+                        <div class="space-y-4 w-full">
+                            <div class="flex items-center justify-center gap-2 text-xl font-bold">
+                                <span>28 &divide; 7 =</span>
+                                <input id="flower-blue-ans" type="number" class="w-16 p-2 border-2 border-blue-300 rounded-xl text-center" placeholder="?">
+                            </div>
+                            <button onclick="verifyFlowerQuiz('blue', 4)" class="w-full bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 rounded-xl">檢查藍色花片算式</button>
+                            <p id="flower-blue-feedback" class="font-bold text-lg min-h-[28px]"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+
+    </main>
+
+    <!-- Success Modal popup -->
+    <div id="success-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl border-4 border-amber-400 animate-pop">
+            <script>document.write(getSvgStar('w-20 h-20 animate-bounce-slow mx-auto'))</script>
+            <h3 class="text-3xl font-extrabold text-amber-500 mt-4 mb-2">哇，太棒了！</h3>
+            <p class="text-xl font-bold text-slate-700 mb-6" id="success-modal-text">回答完全正確！</p>
+            <button onclick="closeSuccessModal()" class="w-full bg-amber-400 hover:bg-amber-500 text-white font-bold py-3 rounded-full text-lg shadow-md transition-all">
+                繼續學習 ➔
+            </button>
+        </div>
+    </div>
+
+    <!-- Core Interactive Logic scripts -->
+    <script>
+        // ======================= Tab switcher =======================
+        function switchTab(tabId) {
+            playSound('pop');
+            
+            // update tabs design
+            const tabs = ['warmup', 'story', 'division', 'practice'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tabId) {
+                    btn.classList.add('active', getTabBgColor(t));
+                    btn.classList.remove('bg-gray-200', 'text-gray-500', 'border-gray-400');
+                } else {
+                    btn.classList.remove('active', getTabBgColor(t));
+                    btn.classList.add('bg-gray-200', 'text-gray-500', 'border-gray-400');
+                }
+            });
+
+            // update content display
+            tabs.forEach(t => {
+                const content = document.getElementById(`content-${t}`);
+                if (t === tabId) {
+                    content.classList.remove('hidden');
+                    content.classList.add('block');
+                } else {
+                    content.classList.remove('block');
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        function getTabBgColor(tabId) {
+            switch(tabId) {
+                case 'warmup': return 'bg-amber-400';
+                case 'story': return 'bg-orange-500';
+                case 'division': return 'bg-blue-500';
+                case 'practice': return 'bg-emerald-500';
+            }
+        }
+
+
+        // ======================= 1. 暖身 (Warm-up) Logic =======================
+        let warmupStatus = { 1: false, 2: false };
+        
+        function checkWarmupQ(qIndex, answer) {
+            const correctAnswer = 'O';
+            const stamp = document.getElementById(`warmup-stamp-${qIndex}`);
+            
+            if (answer === correctAnswer) {
+                playSound('success');
+                stamp.innerText = answer === 'O' ? '⭕' : '❌';
+                stamp.className = "absolute top-4 right-4 text-6xl font-bold text-green-500 opacity-100 scale-100 duration-300 pointer-events-none";
+                warmupStatus[qIndex] = true;
+                showGeneralSuccess("答對囉！這是正確的分法判斷！");
+            } else {
+                playSound('fail');
+                stamp.className = "absolute top-4 right-4 text-6xl font-bold text-red-500 opacity-0 scale-150 duration-300 pointer-events-none";
+                alert("不對喔！再想一想「平分」的意思是不是每個人拿到的都一樣多呢？");
+            }
+        }
+
+        function checkWarmupMult(qIndex, expectedVal) {
+            const input = document.getElementById(`warmup-mult-${qIndex}`);
+            const val = parseInt(input.value);
+            if (val === expectedVal) {
+                playSound('success');
+                input.classList.remove('border-amber-300', 'border-red-300');
+                input.classList.add('border-green-500', 'bg-green-50');
+                showGeneralSuccess("乘法算式完全正確！");
+            } else {
+                playSound('fail');
+                input.classList.remove('border-amber-300', 'border-green-500');
+                input.classList.add('border-red-300', 'bg-red-50');
+                alert("算式不對喔，再檢查一下九九乘法表吧！");
+            }
+        }
+
+
+        // ======================= 2. 故事 (Story) Logic =======================
+        function chooseBag(bagIndex) {
+            const card1 = document.getElementById('bag-card-1');
+            const card2 = document.getElementById('bag-card-2');
+            const card3 = document.getElementById('bag-card-3');
+            const badge = document.getElementById('bag-check-badge');
+            const feedback = document.getElementById('story-feedback');
+
+            if (bagIndex === 2) {
+                playSound('success');
+                // Highlight correct bag
+                card2.className = "bg-green-50 border-4 border-green-500 rounded-3xl p-6 transition-all duration-300 flex flex-col items-center scale-105 shadow-lg";
+                badge.classList.remove('opacity-0');
+                badge.classList.add('opacity-100');
+                
+                // reset others
+                card1.className = "bg-white border-4 border-slate-100 opacity-60 rounded-3xl p-6 flex flex-col items-center pointer-events-none";
+                card3.className = "bg-white border-4 border-slate-100 opacity-60 rounded-3xl p-6 flex flex-col items-center pointer-events-none";
+                
+                feedback.innerHTML = `<p class="text-2xl text-green-600 font-bold">🎉 太聰明了！6巧克力&divide;3=2，3格子&divide;3=1，3星星&divide;3=1。所以豆豆掉的就是 2 號包！</p>`;
+                showGeneralSuccess("找到豆豆掉的餅乾包包了！");
+            } else {
+                playSound('fail');
+                feedback.innerHTML = `<p class="text-xl text-red-500 font-bold">❌ 數量不對喔！請算算看烤盤上的餅乾平分成 3 份後，一袋會有幾個呢？</p>`;
+            }
+        }
+
+
+        // ======================= 3. 除法 (Division Concept) Logic =======================
+        let cakesDrawn = 0;
+        
+        function distributeThreeCakes() {
+            if (cakesDrawn >= 12) return;
+            
+            playSound('pop');
+            
+            const stepsDiv = document.getElementById('subtraction-steps');
+            const cakeCountSpan = document.getElementById('cake-count');
+            
+            if (cakesDrawn === 0) {
+                stepsDiv.innerHTML = ''; // Clear help placeholder
+            }
+            
+            // Move 3 cakes to target plate
+            const plateIndex = Math.floor(cakesDrawn / 3);
+            const targetPlate = document.getElementById(`plate-${plateIndex}`);
+            
+            for (let i = 0; i < 3; i++) {
+                const cakeIndex = cakesDrawn + i;
+                const cakeElement = document.getElementById(`cake-item-${cakeIndex}`);
+                if (cakeElement) {
+                    cakeElement.style.opacity = '0';
+                    cakeElement.style.transform = 'scale(0)';
+                    
+                    // Add representation to plate
+                    const miniCake = document.createElement('div');
+                    miniCake.className = 'animate-pop';
+                    miniCake.innerHTML = getSvgPumpkinCake('w-8 h-8');
+                    targetPlate.appendChild(miniCake);
+                }
+            }
+            
+            cakesDrawn += 3;
+            const remaining = 12 - cakesDrawn;
+            cakeCountSpan.innerText = remaining;
+            
+            // Add equation row
+            const stepRow = document.createElement('p');
+            stepRow.className = 'text-center animate-pop';
+            stepRow.innerHTML = `${cakesDrawn === 3 ? '12' : (12 - cakesDrawn + 3)} - 3 = <span class="text-amber-500">${remaining}</span>`;
+            stepsDiv.appendChild(stepRow);
+
+            if (cakesDrawn >= 12) {
+                // Done!
+                const completeMsg = document.createElement('p');
+                completeMsg.className = 'text-base text-emerald-600 font-bold text-center mt-3 animate-pop';
+                completeMsg.innerText = '✨ 每次減去3，剛好減了 4 次！可以裝成 4 盤！';
+                stepsDiv.appendChild(completeMsg);
+                document.getElementById('btn-distribute-cakes').disabled = true;
+                document.getElementById('btn-distribute-cakes').className = "w-full mt-4 bg-gray-300 text-gray-500 font-bold py-3 px-6 rounded-xl text-lg cursor-not-allowed";
+                playSound('success');
+            }
+        }
+
+        // Drag & Drop Terminology Matching
+        let draggedTermId = null;
+        const matchingAnswers = {
+            'label-drop-1': 'term-dividend',
+            'label-drop-2': 'term-divisor',
+            'label-drop-3': 'term-quotient'
+        };
+        let correctMatches = {
+            'label-drop-1': false,
+            'label-drop-2': false,
+            'label-drop-3': false
+        };
+
+        let selectedTermId = null;
+
+        function handleTermClick(termId) {
+            // If the term is already completed, do nothing
+            const card = document.getElementById(termId);
+            if (card.getAttribute('draggable') === 'false') return;
+
+            playSound('pop');
+
+            // Remove highlight from previous term if exists
+            if (selectedTermId) {
+                const prevCard = document.getElementById(selectedTermId);
+                if (prevCard) {
+                    prevCard.classList.remove('ring-4', 'ring-blue-400', 'scale-105');
+                }
+            }
+
+            if (selectedTermId === termId) {
+                selectedTermId = null;
+            } else {
+                selectedTermId = termId;
+                card.classList.add('ring-4', 'ring-blue-400', 'scale-105');
+            }
+        }
+
+        function handleZoneClick(zoneId) {
+            if (correctMatches[zoneId]) return;
+            
+            if (!selectedTermId) {
+                playSound('pop');
+                alert("💡 請先點擊下方的「被除數」、「除數」或「商」名詞卡片，再來點擊這個框框喔！");
+                return;
+            }
+
+            const zone = document.getElementById(zoneId);
+            const data = selectedTermId;
+
+            if (matchingAnswers[zoneId] === data) {
+                playSound('success');
+                const termCard = document.getElementById(data);
+                
+                // Replace zone text with styled correct element
+                zone.innerHTML = `<span class="bg-emerald-500 text-white font-bold px-3 py-1 rounded-md text-xs">${termCard.innerText}</span>`;
+                zone.classList.remove('border-dashed', 'border-slate-300', 'text-slate-400');
+                zone.classList.add('border-solid', 'border-emerald-500', 'bg-emerald-50');
+                
+                // Hide original card
+                termCard.style.opacity = '0.3';
+                termCard.setAttribute('draggable', 'false');
+                termCard.style.cursor = 'not-allowed';
+                termCard.classList.remove('ring-4', 'ring-blue-400', 'scale-105');
+
+                correctMatches[zoneId] = true;
+                selectedTermId = null;
+                checkAllMatches();
+            } else {
+                playSound('fail');
+                alert("不對喔！想一想每個位置的名稱對應是什麼？");
+            }
+        }
+
+        function handleDragStart(ev) {
+            draggedTermId = ev.target.id;
+            ev.dataTransfer.setData("text", ev.target.id);
+            
+            // clear selected highlight if dragging
+            if (selectedTermId) {
+                const prevCard = document.getElementById(selectedTermId);
+                if (prevCard) {
+                    prevCard.classList.remove('ring-4', 'ring-blue-400', 'scale-105');
+                }
+                selectedTermId = null;
+            }
+        }
+
+        // Allow drops on target areas
+        document.addEventListener("DOMContentLoaded", () => {
+            const dropzones = ['label-drop-1', 'label-drop-2', 'label-drop-3'];
+            dropzones.forEach(id => {
+                const zone = document.getElementById(id);
+                
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const data = e.dataTransfer.getData("text");
+                    if (matchingAnswers[id] === data) {
+                        playSound('success');
+                        const termCard = document.getElementById(data);
+                        
+                        // Replace zone text with styled correct element
+                        zone.innerHTML = `<span class="bg-emerald-500 text-white font-bold px-3 py-1 rounded-md text-xs">${termCard.innerText}</span>`;
+                        zone.classList.remove('border-dashed', 'border-slate-300', 'text-slate-400');
+                        zone.classList.add('border-solid', 'border-emerald-500', 'bg-emerald-50');
+                        
+                        // Hide original card
+                        termCard.style.opacity = '0.3';
+                        termCard.setAttribute('draggable', 'false');
+                        termCard.style.cursor = 'not-allowed';
+                        termCard.classList.remove('ring-4', 'ring-blue-400', 'scale-105');
+
+                        correctMatches[id] = true;
+                        checkAllMatches();
+                    } else {
+                        playSound('fail');
+                        alert("不對喔！想一想每個位置的名稱對應是什麼？");
+                    }
+                });
+            });
+        });
+
+        function checkAllMatches() {
+            if (correctMatches['label-drop-1'] && correctMatches['label-drop-2'] && correctMatches['label-drop-3']) {
+                const feedback = document.getElementById('matching-feedback');
+                feedback.innerHTML = `
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-200 animate-pop">
+                        <p class="text-xl text-green-700 font-bold">🎉 完全正確！</p>
+                        <p class="text-base text-slate-600 mt-1">12 是<strong>被除數</strong>，3 是<strong>除數</strong>，算出來的答案 4 就是<strong>商</strong>！</p>
+                    </div>
+                `;
+                showGeneralSuccess("除法算式名詞配對成功！");
+            }
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        // Ghost Cookie drag-and-drop & click-to-match Logic
+        let selectedGhostId = null;
+
+        function handleGhostDragStart(ev) {
+            ev.dataTransfer.setData("text/plain", ev.currentTarget.id);
+            playSound('pop');
+            
+            // Clear any click selection highlight
+            if (selectedGhostId) {
+                const prev = document.getElementById(selectedGhostId);
+                if (prev) prev.classList.remove('ring-4', 'ring-blue-400', 'scale-110');
+                selectedGhostId = null;
+            }
+        }
+
+        function handleGhostClick(ev) {
+            ev.stopPropagation();
+            const id = ev.currentTarget.id;
+            
+            // Don't click if distribute completed
+            if (document.getElementById('btn-distribute-ghosts').disabled) return;
+
+            playSound('pop');
+
+            if (selectedGhostId && selectedGhostId !== id) {
+                const prev = document.getElementById(selectedGhostId);
+                if (prev) prev.classList.remove('ring-4', 'ring-blue-400', 'scale-110');
+            }
+
+            if (selectedGhostId === id) {
+                document.getElementById(id).classList.remove('ring-4', 'ring-blue-400', 'scale-110');
+                selectedGhostId = null;
+            } else {
+                selectedGhostId = id;
+                document.getElementById(id).classList.add('ring-4', 'ring-blue-400', 'scale-110', 'rounded-full');
+            }
+        }
+
+        function handleGhostDropEvent(ev, zoneId) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text/plain");
+            if (data && data.startsWith('ghost-')) {
+                moveGhostToZone(data, zoneId);
+            }
+        }
+
+        function handleGhostPlateClick(ev, plateId) {
+            ev.stopPropagation();
+            if (selectedGhostId) {
+                moveGhostToZone(selectedGhostId, plateId);
+            }
+        }
+
+        function handleGhostPoolClick(ev) {
+            ev.stopPropagation();
+            if (selectedGhostId) {
+                moveGhostToZone(selectedGhostId, 'ghost-pool');
+            }
+        }
+
+        function moveGhostToZone(ghostId, zoneId) {
+            const ghost = document.getElementById(ghostId);
+            const zone = document.getElementById(zoneId);
+            
+            if (!ghost || !zone) return;
+
+            playSound('pop');
+            
+            // Remove highlight
+            ghost.classList.remove('ring-4', 'ring-blue-400', 'scale-110');
+            
+            // Append ghost to zone
+            zone.appendChild(ghost);
+            
+            // Reset selection
+            if (selectedGhostId === ghostId) {
+                selectedGhostId = null;
+            }
+
+            checkGhostGameStatus();
+        }
+
+        function checkGhostGameStatus() {
+            const pool = document.getElementById('ghost-pool');
+            const remainingInPool = pool.querySelectorAll('[id^="ghost-"]').length;
+            const resultDiv = document.getElementById('ghost-result');
+            
+            // If all 20 are distributed
+            if (remainingInPool === 0) {
+                let isCorrect = true;
+                const plateCounts = [];
+                for (let k = 0; k < 5; k++) {
+                    const plate = document.getElementById(`kid-plate-${k}`);
+                    const count = plate.querySelectorAll('[id^="ghost-"]').length;
+                    plateCounts.push(count);
+                    if (count !== 4) {
+                        isCorrect = false;
+                    }
+                }
+                
+                if (isCorrect) {
+                    playSound('success');
+                    resultDiv.classList.remove('hidden');
+                    resultDiv.innerHTML = `
+                        <p class="text-2xl font-bold text-green-700 mb-2">🎉 平分成功！每個小朋友都剛好分到 4 片鬼魂餅乾！</p>
+                        <p class="text-xl font-medium text-slate-600">
+                            乘法思維：一個人拿 4 片，5 個人共拿了：<strong class="text-rose-500 text-2xl">4 &times; 5 = 20</strong>
+                        </p>
+                        <p class="text-xl font-medium text-slate-600 mt-1">
+                            除法算式：20 片平分給 5 人，記作：<strong class="text-blue-500 text-2xl">20 &divide; 5 = 4</strong>
+                        </p>
+                    `;
+                    document.getElementById('btn-distribute-ghosts').disabled = true;
+                    document.getElementById('btn-distribute-ghosts').className = "bg-gray-300 text-gray-500 font-bold py-3 px-8 rounded-full text-lg cursor-not-allowed shadow-inner";
+                    showGeneralSuccess("平分成功！每個人都分到 4 片！");
+                } else {
+                    const feedbackMsg = plateCounts.map((c, i) => `學生${i+1}：${c}片`).join('，');
+                    resultDiv.classList.remove('hidden');
+                    resultDiv.innerHTML = `
+                        <p class="text-xl font-bold text-red-500 mb-2">🤔 還沒有平分喔！目前分法：${feedbackMsg}</p>
+                        <p class="text-lg text-slate-600">請調整一下，讓每個小朋友分到的數量「一樣多」喔！</p>
+                    `;
+                    playSound('fail');
+                }
+            } else {
+                // If not all 20 are distributed, hide the result div
+                resultDiv.classList.add('hidden');
+            }
+        }
+
+        // Ghost Cookie Auto distribution (teacher demo tool)
+        function distributeGhosts() {
+            playSound('pop');
+            
+            // Move 4 to each plate
+            for (let k = 0; k < 5; k++) {
+                const plate = document.getElementById(`kid-plate-${k}`);
+                plate.innerHTML = ''; // reset
+                for (let c = 0; c < 4; c++) {
+                    const ghostIndex = k * 4 + c;
+                    const ghost = document.getElementById(`ghost-${ghostIndex}`);
+                    if (ghost) {
+                        plate.appendChild(ghost);
+                    }
+                }
+            }
+
+            // Update status UI
+            const resultDiv = document.getElementById('ghost-result');
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `
+                <p class="text-2xl font-bold text-green-700 mb-2">平分成功！每人分到 4 片！</p>
+                <p class="text-xl font-medium text-slate-600">
+                    乘法思維：一個人拿 4 片，5 個人共拿了：<strong class="text-rose-500 text-2xl">4 &times; 5 = 20</strong>
+                </p>
+                <p class="text-xl font-medium text-slate-600 mt-1">
+                    除法算式：20 片平分給 5 人，記作：<strong class="text-blue-500 text-2xl">20 &divide; 5 = 4</strong>
+                </p>
+            `;
+            document.getElementById('btn-distribute-ghosts').disabled = true;
+            document.getElementById('btn-distribute-ghosts').className = "bg-gray-300 text-gray-500 font-bold py-3 px-8 rounded-full text-lg cursor-not-allowed shadow-inner";
+            playSound('success');
+        }
+
+        function resetGhosts() {
+            playSound('pop');
+            const pool = document.getElementById('ghost-pool');
+            
+            // Move all ghosts back to pool
+            for (let i = 0; i < 20; i++) {
+                const ghost = document.getElementById(`ghost-${i}`);
+                if (ghost) {
+                    pool.appendChild(ghost);
+                }
+            }
+
+            document.getElementById('ghost-result').classList.add('hidden');
+            selectedGhostId = null;
+            
+            const btn = document.getElementById('btn-distribute-ghosts');
+            btn.disabled = false;
+            btn.className = "bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg transition-all";
+            
+            // Restore default HTML for result
+            document.getElementById('ghost-result').innerHTML = `
+                <p class="text-2xl font-bold text-green-700 mb-2">平分成功！每人分到 4 片！</p>
+                <p class="text-xl font-medium text-slate-600">
+                    乘法思維：一個人拿 4 片，5 個人共拿了：<strong class="text-rose-500 text-2xl">4 &times; 5 = 20</strong>
+                </p>
+                <p class="text-xl font-medium text-slate-600 mt-1">
+                    除法算式：20 片平分給 5 人，記作：<strong class="text-blue-500 text-2xl">20 &divide; 5 = 4</strong>
+                </p>
+            `;
+        }
+
+
+        // ======================= 4. 演練 (Practice) Logic =======================
+        let practiceQuizCompleted = { 1: false, 2: false, 3: false, 4: false };
+
+        function updatePracticeProgress() {
+            const badges = ['badge-practice-1', 'badge-practice-2', 'badge-practice-3'];
+            
+            // Quiz 1 badge
+            if (practiceQuizCompleted[1]) {
+                const b1 = document.getElementById('badge-practice-1');
+                b1.innerText = '✔️ 已完成';
+                b1.className = 'text-xs bg-green-500 text-white px-3 py-1 rounded-full font-bold shadow-sm';
+            }
+
+            // Quiz 2 & 3 badge
+            if (practiceQuizCompleted[2] && practiceQuizCompleted[3]) {
+                const b2 = document.getElementById('badge-practice-2');
+                b2.innerText = '✔️ 已完成';
+                b2.className = 'text-xs bg-green-500 text-white px-3 py-1 rounded-full font-bold shadow-sm';
+            }
+
+            // Quiz 4 badge
+            if (practiceQuizCompleted[4]) {
+                const b3 = document.getElementById('badge-practice-3');
+                b3.innerText = '✔️ 已完成';
+                b3.className = 'text-xs bg-green-500 text-white px-3 py-1 rounded-full font-bold shadow-sm';
+            }
+        }
+
+        // Quiz 1: 32 / 4 = ?
+        let selectedParadePersonId = null;
+
+        function handleParadeDragStart(ev) {
+            ev.dataTransfer.setData("text/plain", ev.currentTarget.id);
+            playSound('pop');
+            
+            // Clear any click selection highlight
+            if (selectedParadePersonId) {
+                const prev = document.getElementById(selectedParadePersonId);
+                if (prev) prev.classList.remove('ring-4', 'ring-blue-400', 'scale-110');
+                selectedParadePersonId = null;
+            }
+        }
+
+        function handleParadeClick(ev) {
+            ev.stopPropagation();
+            const id = ev.currentTarget.id;
+            
+            playSound('pop');
+
+            if (selectedParadePersonId && selectedParadePersonId !== id) {
+                const prev = document.getElementById(selectedParadePersonId);
+                if (prev) prev.classList.remove('ring-4', 'ring-blue-400', 'scale-110');
+            }
+
+            if (selectedParadePersonId === id) {
+                document.getElementById(id).classList.remove('ring-4', 'ring-blue-400', 'scale-110');
+                selectedParadePersonId = null;
+            } else {
+                selectedParadePersonId = id;
+                document.getElementById(id).classList.add('ring-4', 'ring-blue-400', 'scale-110', 'rounded-full');
+            }
+        }
+
+        function handleParadeDropEvent(ev, zoneId) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text/plain");
+            if (data && data.startsWith('parade-person-')) {
+                moveParadePersonToZone(data, zoneId);
+            }
+        }
+
+        function handleParadeGroupClick(ev, groupId) {
+            ev.stopPropagation();
+            if (selectedParadePersonId) {
+                moveParadePersonToZone(selectedParadePersonId, groupId);
+            }
+        }
+
+        function handleParadePoolClick(ev) {
+            ev.stopPropagation();
+            if (selectedParadePersonId) {
+                moveParadePersonToZone(selectedParadePersonId, 'parade-pool');
+            }
+        }
+
+        function moveParadePersonToZone(personId, zoneId) {
+            const person = document.getElementById(personId);
+            const zone = document.getElementById(zoneId);
+            
+            if (!person || !zone) return;
+
+            playSound('pop');
+            
+            // Remove highlight
+            person.classList.remove('ring-4', 'ring-blue-400', 'scale-110');
+            
+            // Append person to zone
+            zone.appendChild(person);
+            
+            // Reset selection
+            if (selectedParadePersonId === personId) {
+                selectedParadePersonId = null;
+            }
+
+            checkParadeGameStatus();
+        }
+
+        function checkParadeGameStatus() {
+            const pool = document.getElementById('parade-pool');
+            const remainingInPool = pool.querySelectorAll('[id^="parade-person-"]').length;
+            const feedback = document.getElementById('practice-feedback-1');
+            
+            if (remainingInPool === 0) {
+                let isCorrect = true;
+                const groupCounts = [];
+                for (let g = 0; g < 4; g++) {
+                    const group = document.getElementById(`parade-group-${g}`);
+                    const count = group.querySelectorAll('[id^="parade-person-"]').length;
+                    groupCounts.push(count);
+                    if (count !== 8) {
+                        isCorrect = false;
+                    }
+                }
+                
+                if (isCorrect) {
+                    playSound('success');
+                    document.getElementById('practice-ans-1').value = 8;
+                    feedback.className = "mt-4 text-xl font-bold text-green-600 animate-pop";
+                    feedback.innerText = "🎉 平分成功！每一組都剛好有 8 個人！";
+                    practiceQuizCompleted[1] = true;
+                    updatePracticeProgress();
+                    showGeneralSuccess("平分成功！一組有 8 個人！");
+                } else {
+                    const feedbackMsg = groupCounts.map((c, i) => `第${i+1}組：${c}人`).join('，');
+                    feedback.className = "mt-4 text-xl font-bold text-red-500 animate-pop";
+                    feedback.innerText = `🤔 還沒有平分喔！目前分組：${feedbackMsg}。請調整一下，讓每一組人數「一樣多」喔！`;
+                }
+            } else {
+                const totalInGroups = 32 - remainingInPool;
+                if (totalInGroups > 0) {
+                    feedback.className = "mt-4 text-xl font-bold text-blue-500 animate-pop";
+                    feedback.innerText = `👥 已分配 ${totalInGroups} 人，還剩 ${remainingInPool} 人在隊伍中。`;
+                } else {
+                    feedback.innerText = '';
+                }
+            }
+        }
+
+        function verifyPractice1() {
+            const val = parseInt(document.getElementById('practice-ans-1').value);
+            const feedback = document.getElementById('practice-feedback-1');
+            
+            if (val === 8) {
+                playSound('success');
+                feedback.className = "mt-4 text-xl font-bold text-green-600 animate-pop";
+                feedback.innerText = "🎉 答對了！一組有 8 個人。";
+                practiceQuizCompleted[1] = true;
+                updatePracticeProgress();
+                demoParadeGrouping();
+                showGeneralSuccess("挑戰 1 答對了！");
+            } else {
+                playSound('fail');
+                feedback.className = "mt-4 text-xl font-bold text-red-500 animate-pop";
+                feedback.innerText = "❌ 答錯了，請再想想看 $8 \\times 4 = 32$ 喔！";
+                renderMathInElement(feedback);
+            }
+        }
+
+        function resetParade() {
+            playSound('pop');
+            const pool = document.getElementById('parade-pool');
+            for (let i = 0; i < 32; i++) {
+                const person = document.getElementById(`parade-person-${i}`);
+                if (person) {
+                    person.classList.remove('ring-4', 'ring-blue-400', 'scale-110');
+                    pool.appendChild(person);
+                }
+            }
+            for (let g = 0; g < 4; g++) {
+                document.getElementById(`parade-group-${g}`).innerHTML = '';
+            }
+            selectedParadePersonId = null;
+            document.getElementById('practice-ans-1').value = '';
+            document.getElementById('practice-feedback-1').innerText = '';
+        }
+
+        function demoParadeGrouping() {
+            resetParade();
+            playSound('pop');
+            
+            setTimeout(() => {
+                for (let g = 0; g < 4; g++) {
+                    const groupContainer = document.getElementById(`parade-group-${g}`);
+                    for (let p = 0; p < 8; p++) {
+                        const personIndex = g * 8 + p;
+                        const person = document.getElementById(`parade-person-${personIndex}`);
+                        if (person) {
+                            groupContainer.appendChild(person);
+                        }
+                    }
+                }
+                playSound('success');
+                
+                document.getElementById('practice-ans-1').value = 8;
+                const feedback = document.getElementById('practice-feedback-1');
+                feedback.className = "mt-4 text-xl font-bold text-green-600 animate-pop";
+                feedback.innerText = "🎉 演示平分完成！每組 8 人，32 ÷ 4 = 8。";
+            }, 100);
+        }
+
+        // Quiz 2: Ribbon Length
+        let ribbonLenCuts = 0;
+        
+        function simulateRibbonLengthCut() {
+            if (ribbonLenCuts >= 3) return;
+            
+            playSound('cut');
+            ribbonLenCuts++;
+            
+            const line = document.getElementById(`ribbon-len-cut-${ribbonLenCuts}`);
+            if (line) {
+                line.classList.remove('opacity-0');
+                line.classList.add('opacity-100');
+            }
+
+            if (ribbonLenCuts === 3) {
+                // finished cuts
+                setTimeout(() => {
+                    playSound('success');
+                    // Split the ribbon parts visually
+                    const sec1 = document.getElementById('ribbon-len-sec-1');
+                    const sec2 = document.getElementById('ribbon-len-sec-2');
+                    const sec3 = document.getElementById('ribbon-len-sec-3');
+                    const sec4 = document.getElementById('ribbon-len-sec-4');
+
+                    sec1.style.width = '25%';
+                    sec1.innerText = '6cm';
+                    sec1.className = 'ribbon-part w-1/4 h-full text-center flex items-center justify-center font-bold text-xs text-white border-r border-white bg-orange-500';
+
+                    sec2.style.width = '25%';
+                    sec2.innerText = '6cm';
+                    sec2.className = 'ribbon-part w-1/4 h-full text-center flex items-center justify-center font-bold text-xs text-white border-r border-white bg-orange-400 animate-pop';
+
+                    sec3.style.width = '25%';
+                    sec3.innerText = '6cm';
+                    sec3.className = 'ribbon-part w-1/4 h-full text-center flex items-center justify-center font-bold text-xs text-white border-r border-white bg-amber-400 animate-pop';
+
+                    sec4.style.width = '25%';
+                    sec4.innerText = '6cm';
+                    sec4.className = 'ribbon-part w-1/4 h-full text-center flex items-center justify-center font-bold text-xs text-white bg-amber-300 animate-pop';
+
+                    // Enable verification input
+                    document.getElementById('ribbon-len-ans').disabled = false;
+                    document.getElementById('btn-verify-ribbon-len').disabled = false;
+                    document.getElementById('ribbon-len-feedback').innerText = "✂️ 彩帶剪裁完畢！可以剪成幾段呢？請填寫答案！";
+                }, 400);
+            }
+        }
+
+        function verifyRibbonLen() {
+            const val = parseInt(document.getElementById('ribbon-len-ans').value);
+            const feedback = document.getElementById('ribbon-len-feedback');
+            
+            if (val === 4) {
+                playSound('success');
+                feedback.className = "text-center font-bold text-lg text-green-600 animate-pop";
+                feedback.innerText = "🎉 答對了！24 公分每 6 公分剪一段，可以剪成 4 段！";
+                practiceQuizCompleted[2] = true;
+                updatePracticeProgress();
+                showGeneralSuccess("挑戰 2 答對了！");
+            } else {
+                playSound('fail');
+                feedback.className = "text-center font-bold text-lg text-red-500 animate-pop";
+                feedback.innerText = "❌ 答錯了，請算算看有幾小段彩帶喔！";
+            }
+        }
+
+        // Quiz 3: Ribbon Segments Slider
+        function handleSegSlider(val) {
+            playSound('pop');
+            document.getElementById('lbl-seg-slider').innerText = val;
+            
+            const box = document.getElementById('ribbon-seg-box');
+            box.innerHTML = ''; // clear
+
+            const segmentColors = [
+                'bg-sky-500', 'bg-sky-400', 'bg-teal-400', 'bg-teal-300',
+                'bg-cyan-500', 'bg-cyan-400', 'bg-emerald-400', 'bg-emerald-300'
+            ];
+
+            const count = parseInt(val);
+            const segWidthPercent = (100 / count).toFixed(2) + '%';
+            
+            for (let i = 0; i < count; i++) {
+                const part = document.createElement('div');
+                part.className = `ribbon-part h-full text-center flex items-center justify-center font-bold text-xs text-white border-r border-white/50 ${segmentColors[i % 8]} animate-pop`;
+                part.style.width = segWidthPercent;
+                
+                if (count === 8) {
+                    part.innerText = '3cm';
+                } else {
+                    part.innerText = '';
+                }
+                box.appendChild(part);
+            }
+
+            if (count === 8) {
+                // Enable verification
+                document.getElementById('ribbon-seg-ans').disabled = false;
+                document.getElementById('btn-verify-ribbon-seg').disabled = false;
+                document.getElementById('ribbon-seg-feedback').innerText = "📏 分割為 8 段了！每一段是多少公分呢？請填寫答案！";
+            } else {
+                document.getElementById('ribbon-seg-ans').disabled = true;
+                document.getElementById('btn-verify-ribbon-seg').disabled = true;
+                document.getElementById('ribbon-seg-feedback').innerText = "";
+            }
+        }
+
+        function verifyRibbonSeg() {
+            const val = parseInt(document.getElementById('ribbon-seg-ans').value);
+            const feedback = document.getElementById('ribbon-seg-feedback');
+            
+            if (val === 3) {
+                playSound('success');
+                feedback.className = "text-center font-bold text-lg text-green-600 animate-pop";
+                feedback.innerText = "🎉 答對了！24 公分平分切成 8 段，每一段是 3 公分！";
+                practiceQuizCompleted[3] = true;
+                updatePracticeProgress();
+                showGeneralSuccess("挑戰 3 答對了！");
+            } else {
+                playSound('fail');
+                feedback.className = "text-center font-bold text-lg text-red-500 animate-pop";
+                feedback.innerText = "❌ 答錯了，想一想 $3 \\times 8 = 24$ 公分喔！";
+                renderMathInElement(feedback);
+            }
+        }
+
+        // Quiz 4: Flower grids
+        let clickedFlowersRed = Array(15).fill(false);
+        let clickedFlowersBlue = Array(28).fill(false);
+
+        function clickFlower(color, index) {
+            playSound('pop');
+            const flowerBtn = document.getElementById(`flower-${color}-${index}`);
+            
+            if (color === 'red') {
+                clickedFlowersRed[index] = !clickedFlowersRed[index];
+                if (clickedFlowersRed[index]) {
+                    flowerBtn.classList.remove('border-transparent');
+                    flowerBtn.classList.add('border-rose-400', 'bg-rose-100/50');
+                } else {
+                    flowerBtn.classList.remove('border-rose-400', 'bg-rose-100/50');
+                    flowerBtn.classList.add('border-transparent');
+                }
+            } else {
+                clickedFlowersBlue[index] = !clickedFlowersBlue[index];
+                if (clickedFlowersBlue[index]) {
+                    flowerBtn.classList.remove('border-transparent');
+                    flowerBtn.classList.add('border-blue-400', 'bg-blue-100/50');
+                } else {
+                    flowerBtn.classList.remove('border-blue-400', 'bg-blue-100/50');
+                    flowerBtn.classList.add('border-transparent');
+                }
+            }
+        }
+
+        function verifyFlowerQuiz(color, expectedAnswer) {
+            const ansInput = document.getElementById(`flower-${color}-ans`);
+            const val = parseInt(ansInput.value);
+            const feedback = document.getElementById(`flower-${color}-feedback`);
+            
+            if (val === expectedAnswer) {
+                playSound('success');
+                feedback.className = "font-bold text-lg text-green-600 animate-pop";
+                feedback.innerText = "🎉 算式完全正確！";
+                
+                if (color === 'red') {
+                    // Check if blue is also solved to complete challenge 4
+                    checkFlowerChallengeCompletion();
+                } else {
+                    checkFlowerChallengeCompletion();
+                }
+            } else {
+                playSound('fail');
+                feedback.className = "font-bold text-lg text-red-500 animate-pop";
+                feedback.innerText = "❌ 算出來的答案不對喔，再數一數可以分出幾堆？";
+            }
+        }
+
+        function checkFlowerChallengeCompletion() {
+            const redVal = parseInt(document.getElementById('flower-red-ans').value);
+            const blueVal = parseInt(document.getElementById('flower-blue-ans').value);
+            
+            if (redVal === 5 && blueVal === 4) {
+                practiceQuizCompleted[4] = true;
+                updatePracticeProgress();
+                showGeneralSuccess("看圖說故事挑戰全部答對！您完成了所有的演練挑戰！");
+            }
+        }
+
+
+        // ======================= General Helpers =======================
+        function showGeneralSuccess(text) {
+            document.getElementById('success-modal-text').innerText = text;
+            const modal = document.getElementById('success-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeSuccessModal() {
+            playSound('pop');
+            const modal = document.getElementById('success-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        // Web Speech API Text-to-Speech Helper
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speaking to avoid overlapping
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Get available voices and prefer Traditional Chinese (zh-TW)
+                const voices = window.speechSynthesis.getVoices();
+                const twVoice = voices.find(v => v.lang.includes('ZH-TW') || v.lang.includes('zh-TW') || v.lang.includes('zh-Hant-TW'));
+                if (twVoice) {
+                    utterance.voice = twVoice;
+                } else {
+                    const zhVoice = voices.find(v => v.lang.toLowerCase().includes('zh'));
+                    if (zhVoice) utterance.voice = zhVoice;
+                }
+                
+                utterance.rate = 0.85; // Slower rate for clear teaching instruction
+                utterance.pitch = 1.05; // Slightly higher pitch for child-friendly friendly voice
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("抱歉，您的瀏覽器不支援語音朗讀功能。");
+            }
+        }
+
+        // Initialize KaTeX formulas on start
+        window.addEventListener("DOMContentLoaded", () => {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+            // Pre-load speech synthesis voices early
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+            }
+        });
+    </script>
+</body>
+</html>
