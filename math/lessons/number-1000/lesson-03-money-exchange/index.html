@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffaf1">
+  <meta name="description" content="認識錢幣與換錢網頁簡報教材">
+  <title>數學學習站</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#slideStage">跳到簡報內容</a>
+  <header class="presenter-bar">
+    <div class="brand-area">
+      <div class="brand" aria-label="數學學習站">
+        <span class="brand-mark" aria-hidden="true">錢</span>
+        <div><strong>數學學習站</strong><small>一步一步學數學</small></div>
+      </div>
+      <nav class="deck-breadcrumb" aria-label="目前位置"><a href="../../../index.html">數學</a><span aria-hidden="true">›</span><a href="../../../index.html#unit=number-1000">1000以內的數</a><span aria-hidden="true">›</span><strong>認識錢幣與換錢</strong></nav>
+    </div>
+    <div class="unit-name">認識錢幣與換錢</div>
+    <div class="presenter-actions">
+      <a class="back-to-platform" href="../../../index.html">← 返回數學首頁</a>
+      <button id="resetSlide" type="button">重設本頁</button>
+      <button id="speakSlide" type="button">🔊 念題目</button>
+      <button id="fullscreen" type="button">⛶ 全螢幕</button>
+    </div>
+  </header>
+
+  <main class="deck-shell">
+    <section id="slideStage" class="slide-stage" aria-live="polite"></section>
+  </main>
+
+  <footer class="slide-controls">
+    <button id="previous" class="nav-button" type="button">← 上一頁</button>
+    <div class="slide-position">
+      <span id="pageLabel">第 1 頁／共 9 頁</span>
+      <div class="progress-track" aria-hidden="true"><span id="progressFill"></span></div>
+    </div>
+    <button id="next" class="nav-button primary" type="button">下一頁 →</button>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

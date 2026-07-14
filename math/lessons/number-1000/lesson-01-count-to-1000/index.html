@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="數到1000網頁簡報教材">
+  <title>數到1000｜網頁簡報</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="presenter-bar">
+    <div class="deck-title-area">
+      <div class="deck-name"><span class="deck-mark">1000</span><strong>數到1000｜網頁簡報</strong></div>
+      <nav class="deck-breadcrumb" aria-label="目前位置"><a href="../../../index.html">數學</a><span aria-hidden="true">›</span><a href="../../../index.html#unit=number-1000">1000以內的數</a><span aria-hidden="true">›</span><strong>數到1000</strong></nav>
+    </div>
+    <div class="presenter-actions">
+      <a class="back-to-platform" href="../../../index.html">← 返回數學首頁</a>
+      <button id="resetSlide" type="button">重設本頁</button>
+      <button id="speakSlide" type="button">🔊 朗讀本頁</button>
+      <button id="fullscreen" type="button">⛶ 全螢幕</button>
+    </div>
+  </header>
+
+  <main class="deck-shell">
+    <section id="slideStage" class="slide-stage" aria-live="polite"></section>
+  </main>
+
+  <footer class="slide-controls">
+    <button id="previous" class="nav-button" type="button">← 上一頁</button>
+    <div class="slide-position">
+      <span id="pageLabel">第 1 頁／共 11 頁</span>
+      <div class="progress-track"><span id="progressFill"></span></div>
+    </div>
+    <button id="next" class="nav-button primary" type="button">下一頁 →</button>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

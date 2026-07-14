@@ -30,7 +30,6 @@ const progressList = document.querySelector("#progressList");
 const nextBtn = document.querySelector("#nextBtn");
 const hintBtn = document.querySelector("#hintBtn");
 const speakBtn = document.querySelector("#speakBtn");
-const calmBtn = document.querySelector("#calmBtn");
 const homeBtn = document.querySelector("#homeBtn");
 const toast = document.querySelector("#toast");
 const lessonActions = document.querySelector(".lesson-actions");
@@ -81,9 +80,7 @@ function renderMathHome() {
     <p class="instruction">請選擇一個數學單元。</p>
     <div class="unit-grid">
       ${curriculum.units.map(unit => `<button class="unit-card unit-${unit.color}" data-unit-id="${unit.id}" ${unit.enabled ? "" : "disabled"}>
-        <span class="unit-icon" aria-hidden="true">${unit.icon}</span>
         <strong>${unit.title}</strong>
-        <span class="unit-note">${unit.note}</span>
       </button>`).join("")}
     </div>
   </div>`;
@@ -104,7 +101,7 @@ function renderUnitHome(unitId = currentUnitId) {
   homeBtn.hidden = false;
   homeBtn.innerHTML = '<span aria-hidden="true">←</span> 返回數學首頁';
   card.innerHTML = `<div class="unit-home">
-    <div class="breadcrumb" aria-label="目前位置"><span>數學</span><b aria-hidden="true">›</b><strong>${unit.title}</strong></div>
+    <div class="breadcrumb" aria-label="目前位置"><a class="breadcrumb-link" href="index.html">數學</a><b aria-hidden="true">›</b><a class="breadcrumb-link current" href="index.html#unit=${unit.id}" aria-current="page">${unit.title}</a></div>
     <div class="unit-title-row"><span class="unit-title-icon unit-${unit.color}" aria-hidden="true">${unit.icon}</span><div><p class="eyebrow">數學單元</p><h1>${unit.title}</h1></div></div>
     <p class="instruction">按照順序學習，也可以回來複習完成的課程。</p>
     <div class="lesson-list">
@@ -117,7 +114,15 @@ function renderUnitHome(unitId = currentUnitId) {
     </div>
   </div>`;
   card.querySelectorAll("[data-lesson-id]:not([disabled])").forEach(button => {
-    button.addEventListener("click", renderHome);
+    button.addEventListener("click", () => {
+      const lesson = unit.lessons.find(item => item.id === button.dataset.lessonId);
+      if (!lesson) return;
+      if (lesson.href) {
+        window.location.href = lesson.href;
+        return;
+      }
+      renderHome();
+    });
   });
 }
 
@@ -130,7 +135,7 @@ function renderHome() {
   homeBtn.hidden = false;
   homeBtn.innerHTML = '<span aria-hidden="true">←</span> 返回除法單元';
   card.innerHTML = `<div class="mode-home">
-    <div class="breadcrumb" aria-label="目前位置"><span>數學</span><b aria-hidden="true">›</b><span>除法</span><b aria-hidden="true">›</b><strong>第 1 課</strong></div>
+    <div class="breadcrumb" aria-label="目前位置"><a class="breadcrumb-link" href="index.html">數學</a><b aria-hidden="true">›</b><a class="breadcrumb-link" href="index.html#unit=division">除法</a><b aria-hidden="true">›</b><strong>第 1 課</strong></div>
     <p class="eyebrow">除法｜第 1 課</p>
     <h1 class="lesson-menu-title">認識平分與除法</h1>
     <p class="instruction">今天想怎麼學？</p>
@@ -492,11 +497,15 @@ nextBtn.addEventListener("click", () => {
 });
 hintBtn.addEventListener("click", showHint);
 speakBtn.addEventListener("click", () => speak());
-calmBtn.addEventListener("click", () => {
-  const active = document.body.classList.toggle("calm");
-  calmBtn.setAttribute("aria-pressed", String(active));
-  showToast(active ? "已開啟柔和模式" : "已關閉柔和模式");
-});
 homeBtn.addEventListener("click", navigateBack);
 
-renderMathHome();
+function renderInitialPage() {
+  const params = new URLSearchParams(window.location.hash.slice(1));
+  const unitId = params.get("unit");
+  const unit = curriculum.units.find(item => item.id === unitId && item.enabled);
+  if (unit) renderUnitHome(unit.id);
+  else renderMathHome();
+}
+
+window.addEventListener("hashchange", renderInitialPage);
+renderInitialPage();
