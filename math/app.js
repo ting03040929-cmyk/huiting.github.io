@@ -138,7 +138,11 @@ function renderUnitHome(unitId = currentUnitId) {
       const lesson = unit.lessons.find(item => item.id === button.dataset.lessonId);
       if (!lesson) return;
       if (lesson.href) {
-        window.location.href = lesson.href;
+        if (lesson.id === "student-self-study") {
+          window.open(lesson.href, "_blank", "noopener,noreferrer");
+        } else {
+          window.location.href = lesson.href;
+        }
         return;
       }
       renderHome();
