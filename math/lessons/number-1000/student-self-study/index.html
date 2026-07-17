@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1000以內的數 - 數位學習網</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font - Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti for celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc; /* 極簡淡雅灰藍底色 */
+        }
+        /* 自訂平滑過渡 */
+        .fade-enter {
+            opacity: 0;
+            transform: scale(0.98);
+        }
+        .fade-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800">
+
+    <header class="bg-white border-b border-slate-100 py-5 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <!-- 左側標題 -->
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-500 text-white p-2.5 rounded-xl">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <!-- 左上角為 1000以內的數 -->
+                    <h1 class="text-xl font-bold text-slate-900 tracking-wide">1000以內的數</h1>
+                    <p class="text-xs text-slate-400">基礎數學數位教材平台</p>
+                </div>
+            </div>
+
+            <!-- 中間角色入口切換器 -->
+            <div class="bg-slate-100 p-1 rounded-xl flex items-center shadow-inner">
+                <button id="btn-student-view" onclick="switchRole('student')" class="px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all duration-200 bg-white text-indigo-600 shadow">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>學生學習入口</span>
+                </button>
+                <button id="btn-teacher-view" onclick="switchRole('teacher')" class="px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all duration-200 text-slate-500 hover:text-slate-800">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>教師管理後台</span>
+                </button>
+            </div>
+
+            <!-- 右上角僅保留 數學領域 -->
+            <div class="bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5">
+                <i class="fa-solid fa-book"></i>
+                <span>數學領域</span>
+            </div>
+        </div>
+    </header>
+
+    <main id="student-portal" class="max-w-6xl w-full mx-auto px-6 py-8 space-y-8 flex-grow">
+        
+        <!-- 身分選擇畫面 (預設顯示) -->
+        <div id="student-selection-view" class="space-y-6">
+            <div class="text-center max-w-xl mx-auto space-y-2 py-4">
+                <h2 class="text-2xl font-black text-slate-900 tracking-wide">🎒 誰要開始學習呢？</h2>
+                <p class="text-slate-500 text-sm">請在下方點選你自己的姓名，進入專屬的微課堂學習世界！</p>
+            </div>
+
+            <div id="student-profiles-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-5xl mx-auto">
+                <!-- 由 JS 動態生成學生卡片 -->
+            </div>
+        </div>
+
+        <!-- 學生專屬課程卡片區 (選擇名字後才顯示) -->
+        <div id="student-lessons-view" class="space-y-8 hidden">
+            <!-- 導讀介紹卡片 -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="space-y-2 text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start gap-3">
+                        <button onclick="logoutStudent()" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-left"></i> 切換其他學生
+                        </button>
+                        <h2 id="student-welcome-title" class="text-xl font-bold text-slate-900">
+                            哈囉！
+                        </h2>
+                    </div>
+                    <p class="text-slate-500 text-sm leading-relaxed max-w-xl">
+                        請點擊下方的微課堂或練習卡片開始探索。每完成一個單元，系統會為您記錄學習腳步，集滿所有單元還有特別的慶祝喔！
+                    </p>
+                </div>
+                <!-- 學習進度條 -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 w-full md:w-64 space-y-2">
+                    <div class="flex justify-between text-xs font-bold text-slate-600">
+                        <span>目前學習進度</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                        <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 教材連結區 -->
+            <section class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-indigo-500"><i class="fa-solid fa-circle-play text-lg"></i></span>
+                        <h3 class="text-base font-bold text-slate-800">數位互動自主學習課堂</h3>
+                    </div>
+                    <button onclick="confirmResetProgress()" class="text-slate-400 hover:text-rose-500 text-xs transition flex items-center gap-1">
+                        <i class="fa-solid fa-trash-can"></i> 重置目前個人紀錄
+                    </button>
+                </div>
+                
+                <!-- 七大教材卡片 grid (一排最多 4 個，依序往下放) -->
+                <div id="lessons-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <!-- 由 JavaScript 動態生成，卡片 hover 時整張背景皆會變換色彩 -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <main id="teacher-portal" class="max-w-6xl w-full mx-auto px-6 py-8 space-y-8 flex-grow hidden">
+        
+        <!-- 頂部概覽卡片 -->
+        <div class="bg-gradient-to-r from-slate-800 to-indigo-900 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="space-y-2 text-center md:text-left">
+                <h2 class="text-xl font-bold flex items-center justify-center md:justify-start gap-2">
+                    <i class="fa-solid fa-chart-line text-indigo-400"></i>
+                    <span>教師管理主控台</span>
+                </h2>
+                <p class="text-slate-300 text-xs leading-relaxed max-w-xl">
+                    在此追蹤班級整體的數位課堂參與狀況。點選學生名字可以進行姓名編輯，所有學生進度皆與學生入口完全同步！
+                </p>
+            </div>
+            <!-- 工具操作按鈕 -->
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button onclick="randomizeMockStudents()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrows-rotate"></i> 隨機生成模擬數據
+                </button>
+                <button onclick="resetAllTeacherData()" class="bg-rose-600 hover:bg-rose-500 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i> 重置全班紀錄
+                </button>
+            </div>
+        </div>
+
+        <!-- 數據統計儀表板卡片 -->
+        <section class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
+                <div class="bg-indigo-50 text-indigo-600 p-3.5 rounded-xl">
+                    <i class="fa-solid fa-users text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-bold">班級總人數</p>
+                    <h3 id="stat-total-students" class="text-2xl font-extrabold text-slate-900">-- 人</h3>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
+                <div class="bg-emerald-50 text-emerald-600 p-3.5 rounded-xl">
+                    <i class="fa-solid fa-percent text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-bold">全班平均完成度</p>
+                    <h3 id="stat-avg-progress" class="text-2xl font-extrabold text-slate-900">--%</h3>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
+                <div class="bg-amber-50 text-amber-600 p-3.5 rounded-xl">
+                    <i class="fa-solid fa-trophy text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-bold">完課率 (100% 達成)</p>
+                    <h3 id="stat-complete-rate" class="text-2xl font-extrabold text-slate-900">--</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- 學生名冊進度列表 -->
+        <section class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-500"><i class="fa-solid fa-list-check"></i></span>
+                    <h3 class="text-base font-bold text-slate-800">學生進度總覽表</h3>
+                </div>
+                <span class="text-xs text-slate-400 font-medium">※ 點擊下方名字可隨時編輯學生姓名</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase bg-slate-50/20">
+                            <th class="py-4 px-6">學號</th>
+                            <th class="py-4 px-6">姓名 / 身分</th>
+                            <th class="py-4 px-6 text-center">已完成課堂與練習數</th>
+                            <th class="py-4 px-6">詳細學習狀態 (課堂 1 - 6 & 練習)</th>
+                            <th class="py-4 px-6 text-right">進度比例</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teacher-roster-tbody" class="divide-y divide-slate-50 text-sm">
+                        <!-- 由 JavaScript 動態生成名冊 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- 教師密碼驗證彈窗 -->
+    <div id="password-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm border border-slate-100 shadow-2xl space-y-5 transform scale-95 transition-transform duration-300">
+            <div class="text-center space-y-2">
+                <div class="bg-indigo-50 text-indigo-600 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">身分驗證</h3>
+                <p class="text-xs text-slate-400">請輸入教師管理密碼以利進入後台</p>
+            </div>
+            
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-slate-500">教師登入密碼</label>
+                <input type="password" id="teacher-password-input" onkeydown="if(event.key === 'Enter') submitTeacherPassword()" placeholder="請輸入密碼" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition text-center tracking-widest font-mono">
+                <p id="password-error-msg" class="text-rose-500 text-xs hidden text-center mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>密碼錯誤，請重新輸入</p>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button onclick="closePasswordModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs transition">
+                    取消
+                </button>
+                <button onclick="submitTeacherPassword()" class="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs transition shadow">
+                    驗證登入
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 學生姓名編輯彈窗 -->
+    <div id="edit-name-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm border border-slate-100 shadow-2xl space-y-5 transform scale-95 transition-transform duration-300">
+            <div class="text-center space-y-2">
+                <div class="bg-indigo-50 text-indigo-600 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-solid fa-user-pen"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">修改學生姓名</h3>
+                <p class="text-xs text-slate-400">請輸入新的學生姓名</p>
+            </div>
+            
+            <div class="space-y-1">
+                <input type="text" id="edit-student-name-input" onkeydown="if(event.key === 'Enter') submitNewName()" placeholder="請輸入姓名" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition text-center font-bold text-slate-800">
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeEditNameModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs transition">
+                    取消
+                </button>
+                <button onclick="submitNewName()" class="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs transition">
+                    確定修改
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 客製化確認對話框 -->
+    <div id="custom-confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm border border-slate-100 shadow-2xl space-y-4 transform scale-95 transition-transform duration-300">
+            <div class="text-center space-y-2">
+                <div class="bg-rose-50 text-rose-500 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-solid fa-circle-question"></i>
+                </div>
+                <h3 id="confirm-title" class="text-lg font-bold text-slate-900">確認操作</h3>
+                <p id="confirm-desc" class="text-xs text-slate-500 leading-relaxed">您確定要執行此操作嗎？這將會清除您所有的進度。</p>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button id="confirm-cancel-btn" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs transition">
+                    取消
+                </button>
+                <button id="confirm-ok-btn" class="w-1/2 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-xs transition">
+                    確定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 輕量吐司提示 (Toast Notification) -->
+    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <span id="toast-icon" class="text-emerald-400"><i class="fa-solid fa-circle-check"></i></span>
+        <p id="toast-text" class="text-xs font-bold tracking-wide"></p>
+    </div>
+
+    <!-- 頁尾 -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <div class="max-w-6xl mx-auto px-6 space-y-1">
+            <p class="font-medium text-slate-500">1000以內的數 數位自主學習平台</p>
+        </div>
+    </footer>
+
+    <script>
+        // 七大核心課堂與練習資料庫
+        const lessons = [
+            { 
+                title: "數到1000", 
+                url: "https://math-1000-special-class.ting03040929.chatgpt.site", 
+                desc: "學習如何從1數到1000，掌握三位數與千位數的數數規則與順序。", 
+                label: "課堂 1",
+                icon: "fa-solid fa-arrow-trend-up",
+                themeHover: "hover:bg-indigo-50/80 hover:border-indigo-300 hover:text-indigo-900",
+                badgeColor: "bg-indigo-100 text-indigo-800",
+                buttonHover: "group-hover:bg-indigo-600 group-hover:text-white"
+            },
+            { 
+                title: "02-1_10個一是1個十", 
+                url: "https://share.gemini.google/CDk2VQ2YwEJr", 
+                desc: "認識十進位制的第一步，理解當「一」累積滿十個就能合成為一個「十」。", 
+                label: "課堂 2",
+                icon: "fa-solid fa-cubes",
+                themeHover: "hover:bg-emerald-50/80 hover:border-emerald-300 hover:text-emerald-900",
+                badgeColor: "bg-emerald-100 text-emerald-800",
+                buttonHover: "group-hover:bg-emerald-600 group-hover:text-white"
+            },
+            { 
+                title: "02-2_10個十是1個百", 
+                url: "https://share.gemini.google/uks4CENDojFw", 
+                desc: "深入十進位核心，觀察並操作10條橘色長條積木組合成一片綠色百格板。", 
+                label: "課堂 3",
+                icon: "fa-solid fa-layer-group",
+                themeHover: "hover:bg-blue-50/80 hover:border-blue-300 hover:text-blue-900",
+                badgeColor: "bg-blue-100 text-blue-800",
+                buttonHover: "group-hover:bg-blue-600 group-hover:text-white"
+            },
+            { 
+                title: "02-3_1個百是100", 
+                url: "https://share.gemini.google/LHq9qcABtKAK", 
+                desc: "認識 100 這個重要的數字，並精準練習它的記法、讀法與圖示對照。", 
+                label: "課堂 4",
+                icon: "fa-solid fa-medal",
+                themeHover: "hover:bg-violet-50/80 hover:border-violet-300 hover:text-violet-900",
+                badgeColor: "bg-violet-100 text-violet-800",
+                buttonHover: "group-hover:bg-violet-600 group-hover:text-white"
+            },
+            { 
+                title: "02-4_用幾個百、幾個十、幾個一組成數字", 
+                url: "https://share.gemini.google/gfuLMyfSxuwc", 
+                desc: "學習將「百位、十位、個位」的數量拆解與拼湊，建立紮實的位值表概念。", 
+                label: "課堂 5",
+                icon: "fa-solid fa-puzzle-piece",
+                themeHover: "hover:bg-amber-50/80 hover:border-amber-300 hover:text-amber-900",
+                badgeColor: "bg-amber-100 text-amber-800",
+                buttonHover: "group-hover:bg-amber-600 group-hover:text-white"
+            },
+            { 
+                title: "02-5_超過10個要先換位", 
+                url: "https://share.gemini.google/vbw8CozOLiNB", 
+                desc: "挑戰進位概念！當某個位數累積超過十個，必須先換算進位到下一個高位值。", 
+                label: "課堂 6",
+                icon: "fa-solid fa-arrows-spin",
+                themeHover: "hover:bg-rose-50/80 hover:border-rose-300 hover:text-rose-900",
+                badgeColor: "bg-rose-100 text-rose-800",
+                buttonHover: "group-hover:bg-rose-600 group-hover:text-white"
+            },
+            { 
+                title: "1000元以內錢幣實驗室", 
+                url: "https://money-lab-1000-tw.ting03040929.chatgpt.site", 
+                desc: "透過擬真的台灣硬幣與紙鈔操作，練習 1000 元以內的收付、換幣與數錢！", 
+                label: "互動練習",
+                icon: "fa-solid fa-coins",
+                themeHover: "hover:bg-teal-50/80 hover:border-teal-300 hover:text-teal-900",
+                badgeColor: "bg-teal-100 text-teal-800",
+                buttonHover: "group-hover:bg-teal-600 group-hover:text-white"
+            }
+        ];
+
+        // 讀取班級名冊與進度 (配合 lessons.length 動態填滿長度)
+        let defaultStudents = [
+            { id: "S001", name: "阿中", progress: Array(lessons.length).fill(false) },
+            { id: "S002", name: "阿睿", progress: Array(lessons.length).fill(false) },
+            { id: "S003", name: "陳小美", progress: Array(lessons.length).fill(false) },
+            { id: "S004", name: "張小強", progress: Array(lessons.length).fill(false) },
+            { id: "S005", name: "許小茹", progress: Array(lessons.length).fill(false) }
+        ];
+
+        let studentsList = JSON.parse(localStorage.getItem('math_students_database_v3')) || defaultStudents;
+        
+        // 確保因新增項目導致舊資料陣列長度不足時能自動向後填滿 false 的相容性設計
+        studentsList.forEach(st => {
+            if (!Array.isArray(st.progress)) {
+                st.progress = Array(lessons.length).fill(false);
+            } else {
+                while (st.progress.length < lessons.length) {
+                    st.progress.push(false);
+                }
+            }
+        });
+
+        // 自動偵測舊預設名單，將王小明、林小華無縫更新為阿中、阿睿
+        if (studentsList[0] && studentsList[0].id === "S001" && studentsList[0].name === "王小明") {
+            studentsList[0].name = "阿中";
+        }
+        if (studentsList[1] && studentsList[1].id === "S002" && studentsList[1].name === "林小華") {
+            studentsList[1].name = "阿睿";
+        }
+
+        // 當前登入學生的 ID
+        let currentStudentId = localStorage.getItem('math_active_student_id') || null;
+
+        // 當前導覽角色
+        let currentRole = 'student'; // 'student' or 'teacher'
+        let isTeacherUnlocked = false; // 是否已通過密碼驗證
+
+        // 初始化
+        window.onload = function() {
+            saveToStorage();
+            updateStudentUI();
+            renderTeacherRoster();
+            updateTeacherStats();
+        };
+
+        // 存檔至 LocalStorage
+        function saveToStorage() {
+            localStorage.setItem('math_students_database_v3', JSON.stringify(studentsList));
+            if (currentStudentId) {
+                localStorage.setItem('math_active_student_id', currentStudentId);
+            } else {
+                localStorage.removeItem('math_active_student_id');
+            }
+        }
+
+        function updateStudentUI() {
+            const selectionView = document.getElementById('student-selection-view');
+            const lessonsView = document.getElementById('student-lessons-view');
+
+            if (!currentStudentId) {
+                // 未選身分，秀出「誰要學習」畫面
+                selectionView.classList.remove('hidden');
+                lessonsView.classList.add('hidden');
+                renderStudentProfiles();
+            } else {
+                // 已選身分，秀出「微課堂連結」
+                selectionView.classList.add('hidden');
+                lessonsView.classList.remove('hidden');
+
+                const activeStudent = studentsList.find(s => s.id === currentStudentId);
+                if (activeStudent) {
+                    document.getElementById('student-welcome-title').innerHTML = `
+                        ✨ 哈囉，<span class="text-indigo-600 font-extrabold">${activeStudent.name}</span>！今天想學習哪一堂課呢？
+                    `;
+                    renderLessons(activeStudent);
+                    updateProgress(activeStudent);
+                } else {
+                    logoutStudent();
+                }
+            }
+        }
+
+        // 渲染身分選擇卡片
+        function renderStudentProfiles() {
+            const grid = document.getElementById('student-profiles-grid');
+            grid.innerHTML = '';
+
+            const avatarColors = [
+                'bg-indigo-100 text-indigo-700',
+                'bg-emerald-100 text-emerald-700',
+                'bg-blue-100 text-blue-700',
+                'bg-purple-100 text-purple-700',
+                'bg-amber-100 text-amber-700',
+                'bg-rose-100 text-rose-700'
+            ];
+
+            // 滑鼠移過去時，整張卡片（包括底部）更換背景色的主題樣式
+            const hoverColors = [
+                'hover:bg-indigo-50/80 hover:border-indigo-300 hover:text-indigo-900',
+                'hover:bg-emerald-50/80 hover:border-emerald-300 hover:text-emerald-900',
+                'hover:bg-blue-50/80 hover:border-blue-300 hover:text-blue-900',
+                'hover:bg-purple-50/80 hover:border-purple-300 hover:text-purple-900',
+                'hover:bg-amber-50/80 hover:border-amber-300 hover:text-amber-900',
+                'hover:bg-rose-50/80 hover:border-rose-300 hover:text-rose-900'
+            ];
+
+            studentsList.forEach((st, idx) => {
+                const colorClass = avatarColors[idx % avatarColors.length];
+                const hoverClass = hoverColors[idx % hoverColors.length];
+                const completedCount = st.progress.filter(Boolean).length;
+                const percentage = Math.round((completedCount / lessons.length) * 100);
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl p-5 border border-slate-100 shadow-sm transition-all duration-300 cursor-pointer text-center space-y-4 flex flex-col justify-between transform hover:-translate-y-1 hover:shadow-md ${hoverClass}`;
+                card.onclick = () => loginStudent(st.id);
+
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="w-14 h-14 rounded-2xl ${colorClass} font-black text-lg flex items-center justify-center mx-auto shadow-sm transition-all duration-300 group-hover:scale-105">
+                            ${st.name.charAt(0)}
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-slate-800 text-base transition-colors duration-200">${st.name}</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">學生帳戶</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-[11px] font-bold text-slate-500">學習進度: ${percentage}%</div>
+                        <div class="w-full bg-slate-150 rounded-full h-1.5 overflow-hidden bg-slate-100">
+                            <div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="text-xs font-bold text-indigo-600 pt-1 flex items-center justify-center gap-1 transition-all duration-200">
+                            <span>進入學習</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 登入特定學生
+        function loginStudent(id) {
+            currentStudentId = id;
+            saveToStorage();
+            updateStudentUI();
+            showToast(`🎒 已成功載入 ${studentsList.find(s => s.id === id).name} 的個人學習看板！`, "fa-solid fa-circle-check", "text-emerald-400");
+        }
+
+        // 登出/切換學生
+        function logoutStudent() {
+            currentStudentId = null;
+            saveToStorage();
+            updateStudentUI();
+        }
+
+        function renderLessons(student) {
+            const container = document.getElementById('lessons-container');
+            container.innerHTML = '';
+
+            lessons.forEach((lesson, index) => {
+                const isVisited = student.progress[index] === true;
+                
+                const statusBadge = isVisited 
+                    ? `<span class="bg-emerald-500 text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-check"></i> 已讀完</span>`
+                    : `<span class="bg-slate-100 text-slate-400 text-[11px] px-2.5 py-0.5 rounded-full font-bold">未學習</span>`;
+
+                const card = document.createElement('div');
+                card.className = `group bg-white rounded-2xl p-6 border border-slate-100 shadow-sm cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${lesson.themeHover} flex flex-col justify-between space-y-5`;
+                
+                card.onclick = function() {
+                    markAsVisited(index, lesson.url);
+                };
+
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start">
+                            <span class="${lesson.badgeColor} text-[11px] font-extrabold px-2.5 py-1 rounded-lg uppercase tracking-wide flex items-center">
+                                <i class="${lesson.icon} mr-1"></i> ${lesson.label}
+                            </span>
+                            ${statusBadge}
+                        </div>
+                        <h4 class="font-extrabold text-slate-800 text-lg group-hover:text-slate-950 transition-colors duration-200 line-clamp-1">${lesson.title}</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed group-hover:text-slate-600 transition-colors duration-200 line-clamp-2">${lesson.desc}</p>
+                    </div>
+                    <div class="pt-2 border-t border-slate-50 group-hover:border-slate-200/50 transition-colors">
+                        <div class="w-full py-2.5 bg-slate-50 text-slate-600 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all duration-300 ${lesson.buttonHover}">
+                            <span>點擊開始</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 點選學習並記錄
+        function markAsVisited(index, url) {
+            window.open(url, '_blank');
+            
+            const activeStudent = studentsList.find(s => s.id === currentStudentId);
+            if (activeStudent && !activeStudent.progress[index]) {
+                activeStudent.progress[index] = true;
+                saveToStorage();
+                
+                updateStudentUI();
+                renderTeacherRoster();
+                updateTeacherStats();
+            }
+        }
+
+        // 更新學習進度百分比
+        function updateProgress(student) {
+            const total = lessons.length;
+            const visitedCount = student.progress.filter(Boolean).length;
+            const percentage = Math.round((visitedCount / total) * 100);
+
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+
+            progressBar.style.width = `${percentage}%`;
+            progressText.innerText = `${percentage}%`;
+
+            if (visitedCount === total && total > 0) {
+                setTimeout(triggerCelebration, 500);
+            }
+        }
+
+        // 學習圓滿慶祝特效
+        function triggerCelebration() {
+            showToast("✨ 恭喜你完成所有課堂與練習！獲得精緻好學勳章！ 🏅", "fa-solid fa-trophy", "text-amber-400");
+            confetti({
+                particleCount: 120,
+                spread: 80,
+                origin: { y: 0.6 }
+            });
+        }
+
+        function switchRole(role) {
+            if (role === 'student') {
+                document.getElementById('student-portal').classList.remove('hidden');
+                document.getElementById('teacher-portal').classList.add('hidden');
+                
+                document.getElementById('btn-student-view').className = "px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all duration-200 bg-white text-indigo-600 shadow";
+                document.getElementById('btn-teacher-view').className = "px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all duration-200 text-slate-500 hover:text-slate-800";
+                
+                currentRole = 'student';
+                updateStudentUI();
+            } else if (role === 'teacher') {
+                if (isTeacherUnlocked) {
+                    showTeacherDashboard();
+                } else {
+                    openPasswordModal();
+                }
+            }
+        }
+
+        function openPasswordModal() {
+            const modal = document.getElementById('password-modal');
+            const input = document.getElementById('teacher-password-input');
+            const error = document.getElementById('password-error-msg');
+            
+            input.value = "";
+            error.classList.add('hidden');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('.scale-95').classList.remove('scale-95');
+            }, 10);
+            input.focus();
+        }
+
+        function closePasswordModal() {
+            const modal = document.getElementById('password-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function submitTeacherPassword() {
+            const inputVal = document.getElementById('teacher-password-input').value;
+            const error = document.getElementById('password-error-msg');
+
+            // 密碼為 '520'
+            if (inputVal === '520') {
+                isTeacherUnlocked = true;
+                closePasswordModal();
+                showTeacherDashboard();
+                showToast("🔐 教師密碼驗證通過！已進入管理後台", "fa-solid fa-circle-check", "text-emerald-400");
+            } else {
+                error.classList.remove('hidden');
+                document.getElementById('teacher-password-input').focus();
+            }
+        }
+
+        function showTeacherDashboard() {
+            document.getElementById('student-portal').classList.add('hidden');
+            document.getElementById('teacher-portal').classList.remove('hidden');
+
+            document.getElementById('btn-student-view').className = "px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all duration-200 text-slate-500 hover:text-slate-800";
+            document.getElementById('btn-teacher-view').className = "px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all duration-200 bg-white text-indigo-600 shadow";
+            
+            currentRole = 'teacher';
+            renderTeacherRoster();
+            updateTeacherStats();
+        }
+
+        function renderTeacherRoster() {
+            const tbody = document.getElementById('teacher-roster-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            studentsList.forEach(st => {
+                const completedCount = st.progress.filter(Boolean).length;
+                const percentage = Math.round((completedCount / lessons.length) * 100);
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50 transition-colors group";
+                row.innerHTML = `
+                    <td class="py-4 px-6 font-mono text-xs text-slate-400">${st.id}</td>
+                    <td class="py-4 px-6 text-slate-700 font-bold">
+                        <span class="cursor-pointer hover:text-indigo-600 transition-colors flex items-center gap-1.5" onclick="openEditNameModal('${st.id}', '${st.name}')" title="點擊編輯姓名">
+                            <span>${st.name}</span>
+                            <i class="fa-solid fa-pen text-slate-300 group-hover:text-slate-400 text-xs transition-colors"></i>
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 text-center text-slate-600">${completedCount} / ${lessons.length}</td>
+                    <td class="py-4 px-6">
+                        <div class="flex gap-1.5 justify-start">
+                            ${renderProgressDots(st.progress)}
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-right font-bold text-slate-600">${percentage}%</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderProgressDots(progArray) {
+            return progArray.map((isDone, idx) => {
+                const title = idx === 6 ? "練習：錢幣實驗室" : `課堂 ${idx+1}`;
+                const innerText = idx === 6 ? "💰" : idx+1;
+                if (isDone) {
+                    return `<span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 text-[10px] font-bold flex items-center justify-center shadow-sm" title="${title}：已讀完"><i class="fa-solid fa-check"></i></span>`;
+                } else {
+                    return `<span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-400 text-[10px] font-bold flex items-center justify-center border border-dashed border-slate-200" title="${title}：未讀完">${innerText}</span>`;
+                }
+            }).join('');
+        }
+
+        function updateTeacherStats() {
+            const totalCount = studentsList.length;
+            let totalPercentageSum = 0;
+            let fullCompletes = 0;
+
+            studentsList.forEach(st => {
+                const completedCount = st.progress.filter(Boolean).length;
+                const percent = (completedCount / lessons.length) * 100;
+                totalPercentageSum += percent;
+                
+                if (completedCount === lessons.length) {
+                    fullCompletes++;
+                }
+            });
+
+            const avgProgress = totalCount > 0 ? Math.round(totalPercentageSum / totalCount) : 0;
+
+            document.getElementById('stat-total-students').innerText = `${totalCount} 人`;
+            document.getElementById('stat-avg-progress').innerText = `${avgProgress}%`;
+            document.getElementById('stat-complete-rate').innerText = `${fullCompletes} / ${totalCount} 人`;
+        }
+
+        function randomizeMockStudents() {
+            studentsList.forEach(st => {
+                st.progress = Array.from({ length: lessons.length }, () => Math.random() > 0.4);
+            });
+            saveToStorage();
+            renderTeacherRoster();
+            updateTeacherStats();
+            showToast("🎲 班級學生進度已隨機分配！", "fa-solid fa-arrows-rotate", "text-amber-400");
+        }
+
+        function resetAllTeacherData() {
+            showCustomConfirm("重置全班學習紀錄", "這將會將班級所有學生的名字與學習進度全部清除歸零。確定嗎？", () => {
+                studentsList = [
+                    { id: "S001", name: "阿中", progress: Array(lessons.length).fill(false) },
+                    { id: "S002", name: "阿睿", progress: Array(lessons.length).fill(false) },
+                    { id: "S003", name: "陳小美", progress: Array(lessons.length).fill(false) },
+                    { id: "S004", name: "張小強", progress: Array(lessons.length).fill(false) },
+                    { id: "S005", name: "許小茹", progress: Array(lessons.length).fill(false) }
+                ];
+                currentStudentId = null;
+                saveToStorage();
+
+                updateStudentUI();
+                renderTeacherRoster();
+                updateTeacherStats();
+                showToast("🧹 所有班級歷程已成功重置歸零", "fa-solid fa-trash-can", "text-rose-400");
+            });
+        }
+
+        // 學生姓名編輯控制
+        let editingTargetId = null;
+
+        function openEditNameModal(targetId, currentName) {
+            editingTargetId = targetId;
+            const modal = document.getElementById('edit-name-modal');
+            const input = document.getElementById('edit-student-name-input');
+            
+            input.value = currentName;
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('.scale-95').classList.remove('scale-95');
+            }, 10);
+            input.focus();
+        }
+
+        function closeEditNameModal() {
+            const modal = document.getElementById('edit-name-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                editingTargetId = null;
+            }, 300);
+        }
+
+        function submitNewName() {
+            const input = document.getElementById('edit-student-name-input');
+            const newName = input.value.trim();
+            
+            if (!newName) {
+                showToast("⚠️ 姓名不能為空白！", "fa-solid fa-circle-exclamation", "text-amber-400");
+                return;
+            }
+
+            const student = studentsList.find(st => st.id === editingTargetId);
+            if (student) {
+                const oldName = student.name;
+                student.name = newName;
+                saveToStorage();
+                showToast(`✏️ 已成功更新學生姓名：${oldName} ➡️ ${newName}`, "fa-solid fa-user-pen", "text-indigo-400");
+            }
+
+            renderTeacherRoster();
+            updateStudentUI();
+            closeEditNameModal();
+        }
+
+        // 重置當前學童進度
+        function confirmResetProgress() {
+            if (!currentStudentId) return;
+            const activeStudent = studentsList.find(s => s.id === currentStudentId);
+            const name = activeStudent ? activeStudent.name : "目前學生";
+
+            showCustomConfirm("確定要重新開始嗎？", `這將會清除「${name}」的所有學習點擊紀錄，進度條會歸零。`, () => {
+                if (activeStudent) {
+                    activeStudent.progress = Array(lessons.length).fill(false);
+                    saveToStorage();
+                    updateStudentUI();
+                    renderTeacherRoster();
+                    updateTeacherStats();
+                    showToast("🧹 您的自主學習進度已成功重置", "fa-solid fa-check", "text-emerald-400");
+                }
+            });
+        }
+
+        // 客製化對話確認框控制
+        let currentConfirmCallback = null;
+        function showCustomConfirm(title, desc, onConfirm) {
+            const modal = document.getElementById('custom-confirm-modal');
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-desc').innerText = desc;
+            
+            currentConfirmCallback = onConfirm;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('.scale-95').classList.remove('scale-95');
+            }, 10);
+        }
+
+        document.getElementById('confirm-ok-btn').onclick = function() {
+            if (currentConfirmCallback) {
+                currentConfirmCallback();
+            }
+            closeCustomConfirm();
+        };
+
+        document.getElementById('confirm-cancel-btn').onclick = closeCustomConfirm;
+
+        function closeCustomConfirm() {
+            const modal = document.getElementById('custom-confirm-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                currentConfirmCallback = null;
+            }, 300);
+        }
+
+        // 美觀輕量通知 Toast 模組
+        function showToast(message, iconClass = "fa-solid fa-circle-check", iconColorClass = "text-emerald-400") {
+            const toast = document.getElementById('toast-notification');
+            const toastText = document.getElementById('toast-text');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastText.innerText = message;
+            toastIcon.innerHTML = `<i class="${iconClass}"></i>`;
+            toastIcon.className = iconColorClass;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
