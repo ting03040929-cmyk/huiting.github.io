@@ -7,7 +7,7 @@ window.MATH_CURRICULUM = {
       icon: "數",
       color: "blue",
       enabled: true,
-      note: "共 5 份教材｜目前完成 5 份",
+      note: "共 6 份教材｜目前完成 6 份",
       lessons: [
         {
           id: "count-to-1000",
@@ -53,6 +53,15 @@ window.MATH_CURRICULUM = {
           enabled: true,
           status: "可以學習",
           href: "lessons/number-1000/lesson-05-compare-review/index.html"
+        },
+        {
+          id: "student-self-study",
+          order: 6,
+          title: "1000 以內的數學生自學",
+          source: "1000.html",
+          enabled: true,
+          status: "可以學習",
+          href: "lessons/number-1000/student-self-study/index.html"
         }
       ]
     },
