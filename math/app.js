@@ -100,17 +100,37 @@ function renderUnitHome(unitId = currentUnitId) {
   lessonActions.hidden = true;
   homeBtn.hidden = false;
   homeBtn.innerHTML = '<span aria-hidden="true">←</span> 返回數學首頁';
+  const lessonGroups = unit.id === "number-1000"
+    ? [
+        {
+          id: "handouts",
+          title: "上課用講義",
+          description: "第 1～5 課，適合教師帶領上課使用。",
+          lessons: unit.lessons.filter(lesson => lesson.order <= 5)
+        },
+        {
+          id: "self-study",
+          title: "學生自學",
+          description: "學生可依自己的進度操作與練習。",
+          lessons: unit.lessons.filter(lesson => lesson.order > 5)
+        }
+      ]
+    : [{ id: "all", title: "", description: "", lessons: unit.lessons }];
+  const lessonRows = lessons => lessons.map(lesson => `<button class="lesson-row" data-lesson-id="${lesson.id}" ${lesson.enabled ? "" : "disabled"}>
+    <span class="lesson-number">${lesson.order}</span>
+    <span class="lesson-info"><strong>${lesson.title}</strong><small>${lesson.source || "教材尚未放入工作區"}</small></span>
+    <span class="lesson-status ${lesson.enabled ? "ready" : "pending"}">${lesson.status}</span>
+    <span class="lesson-arrow" aria-hidden="true">${lesson.enabled ? "→" : "–"}</span>
+  </button>`).join("");
   card.innerHTML = `<div class="unit-home">
     <div class="breadcrumb" aria-label="目前位置"><a class="breadcrumb-link" href="index.html">數學</a><b aria-hidden="true">›</b><a class="breadcrumb-link current" href="index.html#unit=${unit.id}" aria-current="page">${unit.title}</a></div>
     <div class="unit-title-row"><span class="unit-title-icon unit-${unit.color}" aria-hidden="true">${unit.icon}</span><div><p class="eyebrow">數學單元</p><h1>${unit.title}</h1></div></div>
-    <p class="instruction">按照順序學習，也可以回來複習完成的課程。</p>
-    <div class="lesson-list">
-      ${unit.lessons.map(lesson => `<button class="lesson-row" data-lesson-id="${lesson.id}" ${lesson.enabled ? "" : "disabled"}>
-        <span class="lesson-number">${lesson.order}</span>
-        <span class="lesson-info"><strong>${lesson.title}</strong><small>${lesson.source || "教材尚未放入工作區"}</small></span>
-        <span class="lesson-status ${lesson.enabled ? "ready" : "pending"}">${lesson.status}</span>
-        <span class="lesson-arrow" aria-hidden="true">${lesson.enabled ? "→" : "–"}</span>
-      </button>`).join("")}
+    <p class="instruction">請選擇上課用講義，或進入學生自學頁面。</p>
+    <div class="lesson-groups">
+      ${lessonGroups.filter(group => group.lessons.length).map(group => `<section class="lesson-group lesson-group-${group.id}">
+        ${group.title ? `<div class="lesson-group-heading"><div><p class="lesson-group-label">學習專區</p><h2>${group.title}</h2></div><p>${group.description}</p></div>` : ""}
+        <div class="lesson-list">${lessonRows(group.lessons)}</div>
+      </section>`).join("")}
     </div>
   </div>`;
   card.querySelectorAll("[data-lesson-id]:not([disabled])").forEach(button => {
