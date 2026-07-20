@@ -127,7 +127,7 @@ function renderUnitHome(unitId = currentUnitId) {
   card.innerHTML = `<div class="unit-home">
     <div class="breadcrumb" aria-label="目前位置"><a class="breadcrumb-link" href="index.html">數學</a><b aria-hidden="true">›</b><a class="breadcrumb-link current" href="index.html#unit=${unit.id}" aria-current="page">${unit.title}</a></div>
     <div class="unit-title-row"><span class="unit-title-icon unit-${unit.color}" aria-hidden="true">${unit.icon}</span><div><p class="eyebrow">數學單元</p><h1>${unit.title}</h1></div></div>
-    <p class="instruction">請選擇上課用講義，或進入學生自學頁面。</p>
+    <p class="instruction">${unit.id === "number-2000" ? "請選擇上課用簡報，或查看學生自習頁面。" : "請選擇上課用講義，或進入學生自學頁面。"}</p>
     <div class="lesson-groups">
       ${lessonGroups.filter(group => group.lessons.length).map(group => `<section class="lesson-group lesson-group-${group.id}">
         ${group.title ? `<div class="lesson-group-heading"><div><p class="lesson-group-label">學習專區</p><h2>${group.title}</h2></div><p>${group.description}</p></div>` : ""}
