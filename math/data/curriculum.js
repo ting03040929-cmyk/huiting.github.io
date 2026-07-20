@@ -66,6 +66,35 @@ window.MATH_CURRICULUM = {
       ]
     },
     {
+      id: "number-2000",
+      title: "2000 以內的數",
+      icon: "2K",
+      color: "green",
+      enabled: true,
+      note: "上課用簡報 1 份｜學生自習準備中",
+      lessons: [
+        {
+          id: "recognize-1000-2000",
+          kind: "presentation",
+          order: 1,
+          title: "認識 1000 與 2000",
+          source: "01_認識1000與2000.pptx",
+          enabled: true,
+          status: "可以上課",
+          href: "lessons/number-2000/lesson-01-recognize-1000-2000/index.html"
+        },
+        {
+          id: "student-self-study-2000",
+          kind: "self-study",
+          order: 2,
+          title: "2000 以內的數學生自習",
+          source: "教材準備中",
+          enabled: false,
+          status: "準備中"
+        }
+      ]
+    },
+    {
       id: "division",
       title: "除法",
       icon: "÷",
