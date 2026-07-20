@@ -100,19 +100,21 @@ function renderUnitHome(unitId = currentUnitId) {
   lessonActions.hidden = true;
   homeBtn.hidden = false;
   homeBtn.innerHTML = '<span aria-hidden="true">←</span> 返回數學首頁';
-  const lessonGroups = unit.id === "number-1000"
+  const hasLearningGroups = ["number-1000", "number-2000"].includes(unit.id);
+  const isSelfStudy = lesson => lesson.kind === "self-study" || lesson.id === "student-self-study";
+  const lessonGroups = hasLearningGroups
     ? [
         {
           id: "handouts",
-          title: "上課用講義",
-          description: "第 1～5 課，適合教師帶領上課使用。",
-          lessons: unit.lessons.filter(lesson => lesson.order <= 5)
+          title: unit.id === "number-2000" ? "上課用簡報" : "上課用講義",
+          description: unit.id === "number-2000" ? "適合教師帶領全班上課使用。" : "第 1～5 課，適合教師帶領上課使用。",
+          lessons: unit.lessons.filter(lesson => !isSelfStudy(lesson))
         },
         {
           id: "self-study",
           title: "學生自學",
           description: "學生可依自己的進度操作與練習。",
-          lessons: unit.lessons.filter(lesson => lesson.order > 5)
+          lessons: unit.lessons.filter(isSelfStudy)
         }
       ]
     : [{ id: "all", title: "", description: "", lessons: unit.lessons }];
@@ -138,7 +140,7 @@ function renderUnitHome(unitId = currentUnitId) {
       const lesson = unit.lessons.find(item => item.id === button.dataset.lessonId);
       if (!lesson) return;
       if (lesson.href) {
-        if (lesson.id === "student-self-study") {
+        if (isSelfStudy(lesson)) {
           window.open(lesson.href, "_blank", "noopener,noreferrer");
         } else {
           window.location.href = lesson.href;
