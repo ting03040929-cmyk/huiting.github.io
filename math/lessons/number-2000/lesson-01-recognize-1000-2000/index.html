@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="認識1000與2000國中特教版網頁簡報">
+  <title>認識1000與2000｜網頁簡報</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="presenter-bar">
+    <div class="deck-name"><span class="deck-mark">2000</span><strong>認識1000與2000｜網頁簡報</strong></div>
+    <div class="presenter-actions">
+      <button id="resetSlide" type="button">↻ 重設本頁</button>
+      <button id="speakSlide" type="button">🔊 朗讀本頁</button>
+      <button id="fullscreen" type="button">⛶ 全螢幕</button>
+    </div>
+  </header>
+
+  <main class="deck-shell">
+    <section id="slideStage" class="slide-stage" aria-live="polite"></section>
+  </main>
+
+  <footer class="slide-controls">
+    <button id="previous" class="nav-button" type="button">← 上一頁</button>
+    <div class="slide-position">
+      <span id="pageLabel">第 1 頁／共 9 頁</span>
+      <div class="progress-track" aria-hidden="true"><span id="progressFill"></span></div>
+    </div>
+    <button id="next" class="nav-button primary" type="button">下一頁 →</button>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
