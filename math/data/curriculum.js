@@ -71,7 +71,7 @@ window.MATH_CURRICULUM = {
       icon: "2K",
       color: "green",
       enabled: true,
-      note: "上課用簡報 2 份｜學生自習準備中",
+      note: "上課用簡報 2 份｜學生自習 1 份",
       lessons: [
         {
           id: "recognize-1000-2000",
@@ -97,10 +97,11 @@ window.MATH_CURRICULUM = {
           id: "student-self-study-2000",
           kind: "self-study",
           order: 3,
-          title: "2000 以內的數學生自習",
-          source: "教材準備中",
-          enabled: false,
-          status: "準備中"
+          title: "積木數數定位板",
+          source: "學生自學互動教材",
+          enabled: true,
+          status: "可以練習",
+          href: "lessons/number-2000/student-self-study/index.html"
         }
       ]
     },
