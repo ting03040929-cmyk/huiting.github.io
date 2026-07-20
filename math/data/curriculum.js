@@ -71,7 +71,7 @@ window.MATH_CURRICULUM = {
       icon: "2K",
       color: "green",
       enabled: true,
-      note: "上課用簡報 1 份｜學生自習準備中",
+      note: "上課用簡報 2 份｜學生自習準備中",
       lessons: [
         {
           id: "recognize-1000-2000",
@@ -84,9 +84,19 @@ window.MATH_CURRICULUM = {
           href: "lessons/number-2000/lesson-01-recognize-1000-2000/index.html"
         },
         {
+          id: "place-value-reading-writing",
+          kind: "presentation",
+          order: 2,
+          title: "位值與數的讀寫",
+          source: "02_位值與數的讀寫.pptx",
+          enabled: true,
+          status: "可以上課",
+          href: "lessons/number-2000/lesson-02-place-value-reading-writing/index.html"
+        },
+        {
           id: "student-self-study-2000",
           kind: "self-study",
-          order: 2,
+          order: 3,
           title: "2000 以內的數學生自習",
           source: "教材準備中",
           enabled: false,
