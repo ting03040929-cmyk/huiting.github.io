@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7fbfd">
+  <meta name="description" content="2000以內的數：位值與數的讀寫，國中特教班網頁簡報教材。">
+  <title>位值與數的讀寫｜網頁簡報</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#slideStage">跳到簡報內容</a>
+
+  <header class="presenter-bar">
+    <div class="brand" aria-label="數學網頁簡報">
+      <span class="brand-mark" aria-hidden="true">位</span>
+      <div><strong>位值與數的讀寫</strong><small>2000 以內的數｜國中特教版</small></div>
+    </div>
+    <div class="presenter-actions">
+      <button id="resetSlide" type="button">重新開始本頁</button>
+      <button id="speakSlide" type="button">朗讀本頁</button>
+      <button id="fullscreen" type="button">全螢幕</button>
+    </div>
+  </header>
+
+  <main class="deck-shell">
+    <section id="slideStage" class="slide-stage" aria-live="polite"></section>
+  </main>
+
+  <footer class="slide-controls">
+    <button id="previous" class="nav-button" type="button">上一頁</button>
+    <div class="slide-position">
+      <span id="pageLabel">第 1 頁，共 8 頁</span>
+      <div id="progressDots" class="progress-dots" aria-label="學習進度"></div>
+    </div>
+    <button id="next" class="nav-button primary" type="button">下一頁</button>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
