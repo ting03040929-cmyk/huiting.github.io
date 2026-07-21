@@ -71,7 +71,7 @@ window.MATH_CURRICULUM = {
       icon: "2K",
       color: "green",
       enabled: true,
-      note: "上課用簡報 2 份｜學生自習 1 份",
+      note: "上課用簡報 3 份｜學生自習 1 份",
       lessons: [
         {
           id: "recognize-1000-2000",
@@ -94,9 +94,19 @@ window.MATH_CURRICULUM = {
           href: "lessons/number-2000/lesson-02-place-value-reading-writing/index.html"
         },
         {
+          id: "compare-order",
+          kind: "presentation",
+          order: 3,
+          title: "比大小與排序",
+          source: "03_比大小與排序.pptx",
+          enabled: true,
+          status: "可以上課",
+          href: "lessons/number-2000/lesson-03-compare-order/index.html"
+        },
+        {
           id: "student-self-study-2000",
           kind: "self-study",
-          order: 3,
+          order: 4,
           title: "積木數數定位板",
           source: "學生自學互動教材",
           enabled: true,
