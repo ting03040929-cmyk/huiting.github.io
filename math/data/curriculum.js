@@ -71,7 +71,7 @@ window.MATH_CURRICULUM = {
       icon: "2K",
       color: "green",
       enabled: true,
-      note: "上課用簡報 3 份｜學生自習 1 份",
+      note: "上課用簡報 4 份｜學生自習 1 份",
       lessons: [
         {
           id: "recognize-1000-2000",
@@ -112,6 +112,16 @@ window.MATH_CURRICULUM = {
           enabled: true,
           status: "可以練習",
           href: "lessons/number-2000/student-self-study/index.html"
+        },
+        {
+          id: "comprehensive-practice",
+          kind: "presentation",
+          order: 5,
+          title: "綜合練習",
+          source: "05_綜合練習.pptx",
+          enabled: true,
+          status: "可以練習",
+          href: "lessons/number-2000/lesson-05-comprehensive-practice/index.html"
         }
       ]
     },
