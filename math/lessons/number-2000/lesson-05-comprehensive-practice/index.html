@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="國中特教班自閉症學生適用的 2000 以內的數綜合練習網頁簡報">
+  <title>2000以內的數｜綜合練習</title>
+  <style>
+    :root {
+      --ink: #18324a;
+      --muted: #567086;
+      --blue: #087eae;
+      --blue-soft: #e8f6fb;
+      --yellow: #ffd43b;
+      --green: #14865b;
+      --green-soft: #eaf8f1;
+      --red: #c33b31;
+      --red-soft: #fff0ee;
+      --paper: #fffdf8;
+      --line: #c8d8e3;
+      --shadow: 0 18px 50px rgba(15, 48, 70, .18);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: #dce9ef;
+      overflow: hidden;
+    }
+
+    button, select, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, select:focus-visible, input:focus-visible {
+      outline: 4px solid var(--yellow);
+      outline-offset: 3px;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .toolbar, .nav {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      padding: .55rem 1rem;
+      background: #12334a;
+      color: white;
+      z-index: 20;
+    }
+
+    .toolbar { justify-content: space-between; }
+    .toolbar__group { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+    .toolbar label { font-size: .95rem; }
+    .toolbar select, .tool-btn {
+      min-height: 2.6rem;
+      padding: .45rem .75rem;
+      border: 2px solid rgba(255,255,255,.55);
+      border-radius: .55rem;
+      color: white;
+      background: #1b506f;
+      font-weight: 700;
+    }
+
+    .stage {
+      display: grid;
+      place-items: center;
+      min-height: 0;
+      padding: .7rem;
+    }
+
+    .deck {
+      position: relative;
+      width: min(100%, calc((100vh - 8.5rem) * 4 / 3));
+      aspect-ratio: 4 / 3;
+      max-height: calc(100vh - 8.5rem);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border-radius: .35rem;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      padding: 2.5% 4% 3%;
+      background:
+        linear-gradient(135deg, rgba(255,212,59,.24) 0 6%, transparent 6%),
+        var(--paper);
+      overflow-y: auto;
+    }
+
+    .slide.active { display: flex; }
+    .slide-title {
+      margin: 0;
+      color: var(--blue);
+      font-size: clamp(1.45rem, 3.6vw, 3rem);
+      line-height: 1.15;
+      font-weight: 900;
+    }
+
+    .slide-subtitle {
+      margin: .35em 0 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.45rem);
+    }
+
+    .title-slide { justify-content: center; text-align: center; }
+    .title-slide .kicker { color: var(--blue); font-weight: 900; font-size: clamp(1.2rem, 2.5vw, 2rem); }
+    .title-slide h1 { margin: .28em 0; font-size: clamp(2rem, 5.8vw, 4.8rem); line-height: 1.08; }
+    .title-slide .part { display: inline-block; padding: .3em .8em; border-bottom: .22em solid var(--yellow); font-size: clamp(1.1rem, 2.6vw, 2rem); font-weight: 800; }
+
+    .flow {
+      order: -1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: .45rem;
+      margin: 0 0 1.2%;
+      padding: .45rem;
+      border-radius: .75rem;
+      background: #edf3f6;
+    }
+
+    .flow span {
+      padding: .42em .2em;
+      border: 2px solid transparent;
+      border-radius: .55rem;
+      color: #476072;
+      text-align: center;
+      font-size: clamp(.72rem, 1.35vw, 1rem);
+      font-weight: 800;
+    }
+
+    .flow span.done { color: var(--green); background: var(--green-soft); }
+    .flow span.now { color: #152f43; border-color: var(--blue); background: white; box-shadow: inset 0 -.28rem var(--yellow); }
+
+    .content {
+      flex: 1;
+      display: grid;
+      align-content: center;
+      gap: clamp(.5rem, 1.7vh, 1.1rem);
+      min-height: 0;
+    }
+
+    .instruction {
+      margin: 0;
+      font-size: clamp(1.15rem, 2.7vw, 2.1rem);
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    .keyword { color: var(--red); font-weight: 900; }
+    .big-number { font-size: clamp(2.2rem, 7vw, 5.5rem); font-weight: 900; letter-spacing: .04em; text-align: center; }
+    .visual-box {
+      padding: clamp(.7rem, 1.7vw, 1.15rem);
+      border: 3px solid #9ed9eb;
+      border-radius: 1rem;
+      background: white;
+    }
+
+    .choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+    .choice, .action-btn {
+      min-height: 3.6rem;
+      padding: .65rem .5rem;
+      border: 3px solid #86b7ca;
+      border-radius: .85rem;
+      color: var(--ink);
+      background: white;
+      font-size: clamp(1.05rem, 2.5vw, 1.9rem);
+      font-weight: 900;
+    }
+    .choice:hover { background: var(--blue-soft); }
+    .choice.selected { border-color: var(--blue); background: var(--blue-soft); box-shadow: inset 0 -.35rem var(--yellow); }
+    .choice.correct { border-color: var(--green); background: var(--green-soft); color: #0d6846; }
+    .choice.wrong { border-color: var(--red); background: var(--red-soft); color: #9d2d27; }
+
+    .feedback {
+      min-height: 3.2rem;
+      margin: 0;
+      padding: .55rem .8rem;
+      border-radius: .7rem;
+      background: #eef4f7;
+      font-size: clamp(.95rem, 1.9vw, 1.35rem);
+      font-weight: 800;
+    }
+    .feedback.ok { color: #0d6846; background: var(--green-soft); }
+    .feedback.try { color: #8a2a24; background: var(--red-soft); }
+
+    .hint {
+      margin: 0;
+      padding: .55em .8em;
+      border-left: .45rem solid var(--yellow);
+      background: #fff8d9;
+      font-size: clamp(.92rem, 1.8vw, 1.25rem);
+      line-height: 1.45;
+    }
+    body[data-scaffold="partial"] .hint .full-only,
+    body[data-scaffold="minimal"] .hint,
+    body[data-scaffold="independent"] .hint,
+    body[data-scaffold="independent"] .demo-detail { display: none; }
+
+    .check-row { display: flex; gap: .7rem; justify-content: center; flex-wrap: wrap; }
+    .action-btn { min-width: 9rem; min-height: 3rem; border-width: 2px; font-size: clamp(.95rem, 2vw, 1.35rem); }
+    .action-btn.primary { border-color: var(--blue); background: var(--blue); color: white; }
+    .action-btn.secondary { border-color: #94aaba; background: white; }
+
+    .goals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .goal-card { padding: .75rem 1rem; border-left: .45rem solid var(--blue); border-radius: .5rem; background: white; box-shadow: 0 3px 12px rgba(20,60,80,.08); }
+    .goal-card strong { display: block; color: var(--blue); margin-bottom: .25rem; }
+
+    .step-list { display: grid; gap: .6rem; }
+    .step-list p { margin: 0; padding: .62rem .8rem; border-radius: .55rem; background: white; font-size: clamp(1rem, 2vw, 1.35rem); font-weight: 700; }
+
+    .number-cards { display: flex; justify-content: center; gap: .55rem; flex-wrap: wrap; }
+    .number-card { min-width: 3.5rem; padding: .45rem .65rem; border: 3px solid #e3aa00; border-radius: .55rem; background: #fff5bf; text-align: center; font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 900; }
+
+    .place-board { width: 100%; border-collapse: separate; border-spacing: .3rem; text-align: center; }
+    .place-board th { padding: .45rem; border-radius: .5rem; color: white; background: var(--blue); font-size: clamp(.85rem, 1.7vw, 1.1rem); }
+    .place-board td { padding: .5rem; border: 3px solid var(--line); border-radius: .5rem; background: white; font-size: clamp(1.25rem, 3vw, 2.1rem); font-weight: 900; }
+    .money-place-board { max-width: 34rem; margin: 0 auto; }
+    body[data-scaffold="minimal"] .money-place-board .support-digit,
+    body[data-scaffold="independent"] .money-place-board .support-digit { visibility: hidden; }
+
+    /* 第 12 頁內容較多，從上方依序排列，避免置中時向上溢出並壓到標題。 */
+    .money-task .slide-title { margin-bottom: .35rem; font-size: clamp(1.35rem, 3vw, 2.5rem); }
+    .money-task .content { align-content: start; gap: clamp(.28rem, .9vh, .6rem); }
+    .money-task .instruction { font-size: clamp(1.05rem, 2.1vw, 1.65rem); line-height: 1.25; }
+    .money-task .place-board th,
+    .money-task .place-board td { padding: .28rem; }
+    .money-task .money-item { padding: .35rem; }
+    .money-task .money-icon { min-height: 2.2rem; margin-bottom: .2rem; }
+    .money-task .counter button { width: 1.9rem; height: 1.9rem; }
+    .money-task .counter output { font-size: 1.15rem; }
+    .money-task .money-total { font-size: clamp(1rem, 2vw, 1.45rem); }
+    .money-task .hint { padding: .35em .65em; font-size: clamp(.82rem, 1.55vw, 1.05rem); }
+    .money-task .action-btn { min-height: 2.5rem; }
+
+    .sequence { display: flex; align-items: center; justify-content: center; gap: .45rem; flex-wrap: wrap; font-size: clamp(1.25rem, 3vw, 2.2rem); font-weight: 900; }
+    .sequence select { min-width: 5.5rem; padding: .35rem; border: 3px solid var(--blue); border-radius: .55rem; background: white; font-weight: 900; }
+
+    .money-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .55rem; }
+    .money-item { padding: .55rem; border: 3px solid var(--line); border-radius: .75rem; background: white; text-align: center; }
+    .money-icon { display: grid; place-items: center; min-height: 2.7rem; margin-bottom: .35rem; border-radius: .35rem; background: #edf8e7; color: #255e39; font-weight: 900; }
+    .money-item:nth-child(n+3) .money-icon { border-radius: 50%; aspect-ratio: 1; width: 3rem; min-height: 0; margin-inline: auto; background: #fff1ba; color: #7d5c00; }
+    .counter { display: flex; justify-content: center; align-items: center; gap: .35rem; }
+    .counter button { width: 2.2rem; height: 2.2rem; border: 2px solid var(--blue); border-radius: .5rem; color: var(--blue); background: white; font-weight: 900; }
+    .counter output { min-width: 2rem; font-size: 1.35rem; font-weight: 900; }
+    .money-total { text-align: center; font-size: clamp(1.1rem, 2.5vw, 1.8rem); font-weight: 900; }
+
+    .number-line { display: grid; grid-template-columns: repeat(11, 1fr); align-items: end; padding-top: 1.3rem; border-bottom: .35rem solid var(--blue); }
+    .tick { position: relative; min-height: 3.2rem; text-align: center; font-size: clamp(.72rem, 1.35vw, 1rem); font-weight: 800; }
+    .tick::after { content: ""; position: absolute; left: 50%; bottom: -.38rem; width: .18rem; height: .8rem; background: var(--blue); }
+    .marker { display: block; color: var(--red); font-size: clamp(1.3rem, 3vw, 2.1rem); }
+
+    .summary-checks { display: grid; gap: .45rem; }
+    .summary-checks label { padding: .55rem .75rem; border-radius: .55rem; background: white; font-size: clamp(.95rem, 1.8vw, 1.25rem); font-weight: 700; }
+    .summary-checks input { width: 1.3rem; height: 1.3rem; vertical-align: middle; }
+
+    .nav { justify-content: center; }
+    .nav button {
+      min-width: 7rem;
+      min-height: 2.8rem;
+      border: 2px solid rgba(255,255,255,.45);
+      border-radius: .65rem;
+      color: white;
+      background: #1b506f;
+      font-weight: 900;
+    }
+    .nav button:disabled { opacity: .4; cursor: not-allowed; }
+    .slide-count { min-width: 7rem; text-align: center; font-weight: 800; }
+
+    dialog {
+      width: min(92vw, 900px);
+      max-height: 88vh;
+      padding: 0;
+      border: 0;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      color: var(--ink);
+    }
+    dialog::backdrop { background: rgba(8,30,44,.7); }
+    .teacher-head { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; color: white; background: #12334a; }
+    .teacher-head h2 { margin: 0; }
+    .teacher-body { padding: 1.1rem 1.4rem 1.6rem; line-height: 1.6; }
+    .teacher-body h3 { color: var(--blue); margin: 1.1rem 0 .4rem; }
+    .teacher-body li { margin-bottom: .3rem; }
+
+    @media (max-width: 720px) {
+      .toolbar { align-items: flex-start; }
+      .toolbar__title { display: none; }
+      .goals-grid { grid-template-columns: 1fr; }
+      .choices { grid-template-columns: 1fr; }
+      .money-grid { grid-template-columns: 1fr 1fr; }
+      .deck { width: 100%; max-height: calc(100vh - 9rem); }
+      .slide { padding: 3% 4%; }
+      .flow span { font-size: .68rem; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .slide.active { animation: appear .22s ease-out; }
+      @keyframes appear { from { opacity: .35; transform: translateX(1%); } }
+    }
+  </style>
+</head>
+<body data-scaffold="full">
+  <main class="app">
+    <header class="toolbar" aria-label="簡報工具列">
+      <div class="toolbar__group">
+        <strong class="toolbar__title">2000以內的數｜綜合練習</strong>
+        <label for="scaffold">提示模式</label>
+        <select id="scaffold" aria-label="選擇提示模式">
+          <option value="full">第一層：完整提示</option>
+          <option value="partial">第二層：部分提示</option>
+          <option value="minimal">第三層：最少提示</option>
+          <option value="independent">第四層：獨立完成</option>
+        </select>
+      </div>
+      <div class="toolbar__group">
+        <button class="tool-btn" id="teacherBtn" type="button">教師提示</button>
+        <button class="tool-btn" id="fullscreenBtn" type="button">全螢幕</button>
+      </div>
+    </header>
+
+    <div class="stage">
+      <div class="deck" id="deck" aria-live="polite">
+        <section class="slide title-slide active" data-kind="intro">
+          <div class="kicker">第1單元｜2000以內的數</div>
+          <h1>綜合練習</h1>
+          <div class="part">讀數・位值・比大小・數線</div>
+          <p class="slide-subtitle">一次完成一題。完成後，檢查一次。</p>
+        </section>
+
+        <section class="slide" data-kind="intro">
+          <h2 class="slide-title">今天要學什麼</h2>
+          <div class="content goals-grid">
+            <div class="goal-card"><strong>讀數</strong>從 3 個選項中，選出正確數字。</div>
+            <div class="goal-card"><strong>位值</strong>說出千、百、十、個位的數。</div>
+            <div class="goal-card"><strong>比大小</strong>用 ＞、＜、＝比較兩個數。</div>
+            <div class="goal-card"><strong>數線</strong>看移動方向，寫出算式和答案。</div>
+          </div>
+          <p class="hint"><strong>重要語詞：</strong>千位、百位、十位、個位、往右、往左。</p>
+        </section>
+
+        <section class="slide" data-kind="intro">
+          <h2 class="slide-title">每一題都照 4 個步驟</h2>
+          <div class="content step-list">
+            <p>① 看題目：先看清楚要做什麼。</p>
+            <p>② 找關鍵：找數字、位值或移動方向。</p>
+            <p>③ 選答案：一次完成一題。</p>
+            <p>④ 檢查：再看一次，確認答案。</p>
+          </div>
+          <p class="hint"><span class="full-only">教師先示範下一題，學生再開始練習。</span>流程條會固定在每一題上方。</p>
+        </section>
+
+        <section class="slide task" data-answer="1020">
+          <div class="flow" aria-label="作答流程"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">示範：把讀法換成數字</h2>
+          <div class="content">
+            <p class="instruction">「一千零二十」用數字記成多少？</p>
+            <div class="visual-box demo-detail">
+              <table class="place-board" aria-label="一千零二十的位值">
+                <tr><th>千位</th><th>百位</th><th>十位</th><th>個位</th></tr>
+                <tr><td>1</td><td>0</td><td>2</td><td>0</td></tr>
+              </table>
+            </div>
+            <div class="choices"><button class="choice" data-value="120">120</button><button class="choice" data-value="1020">1020</button><button class="choice" data-value="1200">1200</button></div>
+            <p class="hint"><strong>思考：</strong>「一千」放千位；「二十」放十位。<span class="full-only">百位和個位沒有數，所以寫 0。</span></p>
+            <div class="check-row"><button class="action-btn primary check-choice">檢查答案</button></div>
+            <p class="feedback">選一個答案，再按「檢查答案」。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer="1401">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 1：讀法換成數字</h2>
+          <div class="content">
+            <p class="instruction">「一千四百零一」用數字記成多少？</p>
+            <div class="choices"><button class="choice" data-value="1410">1410</button><button class="choice" data-value="1401">1401</button><button class="choice" data-value="1041">1041</button></div>
+            <p class="hint"><strong>提示：</strong>找出千、百、十、個位。<span class="full-only">「零」表示十位是 0。</span></p>
+            <div class="check-row"><button class="action-btn primary check-choice">檢查答案</button></div>
+            <p class="feedback">先選答案。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer="1604|1624">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 2：每次加 10</h2>
+          <div class="content">
+            <p class="instruction">看規律，選出空格裡的數。</p>
+            <div class="sequence">1584 → 1594 →
+              <select class="seq-answer" aria-label="第一個空格"><option value="">選擇</option><option>1595</option><option>1604</option><option>1694</option></select>
+              → 1614 →
+              <select class="seq-answer" aria-label="第二個空格"><option value="">選擇</option><option>1615</option><option>1624</option><option>1714</option></select>
+            </div>
+            <p class="hint"><strong>提示：</strong>每往右一格，就加 10。個位數不變。</p>
+            <div class="check-row"><button class="action-btn primary check-sequence">檢查答案</button></div>
+            <p class="feedback">完成兩個空格，再檢查。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer="1526|1426|1326">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 3：每次減 100</h2>
+          <div class="content">
+            <p class="instruction">看規律，選出空格裡的數。</p>
+            <div class="sequence">1826 → 1726 → 1626 →
+              <select class="seq-answer"><option value="">選擇</option><option>1616</option><option>1526</option><option>1426</option></select> →
+              <select class="seq-answer"><option value="">選擇</option><option>1516</option><option>1426</option><option>1326</option></select> →
+              <select class="seq-answer"><option value="">選擇</option><option>1416</option><option>1326</option><option>1226</option></select>
+            </div>
+            <p class="hint"><strong>提示：</strong>每往右一格，就減 100。十位和個位不變。</p>
+            <div class="check-row"><button class="action-btn primary check-sequence">檢查答案</button></div>
+            <p class="feedback">完成三個空格，再檢查。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer="2000">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 4：合起來是多少</h2>
+          <div class="content">
+            <p class="instruction">1 個千和 10 個百合起來是多少？</p>
+            <div class="visual-box big-number">1000 ＋ 1000 ＝ ？</div>
+            <div class="choices"><button class="choice" data-value="1100">1100</button><button class="choice" data-value="2000">2000</button><button class="choice" data-value="1200">1200</button></div>
+            <p class="hint"><strong>提示：</strong>10 個百是 1000。<span class="full-only">所以是 1000 加 1000。</span></p>
+            <div class="check-row"><button class="action-btn primary check-choice">檢查答案</button></div>
+            <p class="feedback">先選答案。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer="1000|90">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 5：數字表示多少</h2>
+          <div class="content">
+            <div class="big-number">1<span class="keyword">0</span>9<span class="keyword">0</span></div>
+            <p class="instruction">1090 中的 1 和 9，各表示多少？</p>
+            <div class="sequence">1 表示
+              <select class="seq-answer"><option value="">選擇</option><option>1</option><option>100</option><option>1000</option></select>
+              ，9 表示
+              <select class="seq-answer"><option value="">選擇</option><option>9</option><option>90</option><option>900</option></select>
+            </div>
+            <p class="hint"><strong>提示：</strong>1 在千位；9 在十位。</p>
+            <div class="check-row"><button class="action-btn primary check-sequence">檢查答案</button></div>
+            <p class="feedback">完成兩個空格，再檢查。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer="1530|1035">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">補充練習：排四位數</h2>
+          <div class="content">
+            <div class="number-cards"><span class="number-card">1</span><span class="number-card">3</span><span class="number-card">5</span><span class="number-card">0</span></div>
+            <p class="instruction">每張卡用一次。2000 以內最大和最小的四位數是多少？</p>
+            <div class="sequence">最大
+              <select class="seq-answer"><option value="">選擇</option><option>1350</option><option>1503</option><option>1530</option></select>
+              ，最小
+              <select class="seq-answer"><option value="">選擇</option><option>0135</option><option>1035</option><option>1053</option></select>
+            </div>
+            <p class="hint"><strong>提示：</strong>要小於 2000，千位只能放 1。<span class="full-only">再把剩下的數字由大到小或由小到大排列；最小四位數的千位不能是 0。</span></p>
+            <div class="check-row"><button class="action-btn primary check-sequence">檢查答案</button></div>
+            <p class="feedback">完成兩個空格，再檢查。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer="600|800|1400|1600">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 6：看數線</h2>
+          <div class="content">
+            <p class="instruction">每一小格是 200。選出四個位置的數。</p>
+            <div class="number-line" aria-label="0 到 2000 的數線">
+              <span class="tick">0</span><span class="tick">200</span><span class="tick">400</span><span class="tick"><b class="marker">A</b>600</span><span class="tick"><b class="marker">B</b>800</span><span class="tick">1000</span><span class="tick">1200</span><span class="tick"><b class="marker">C</b>1400</span><span class="tick"><b class="marker">D</b>1600</span><span class="tick">1800</span><span class="tick">2000</span>
+            </div>
+            <div class="sequence">A
+              <select class="seq-answer"><option value="">選擇</option><option>500</option><option>600</option><option>700</option></select> B
+              <select class="seq-answer"><option value="">選擇</option><option>700</option><option>800</option><option>900</option></select> C
+              <select class="seq-answer"><option value="">選擇</option><option>1300</option><option>1400</option><option>1500</option></select> D
+              <select class="seq-answer"><option value="">選擇</option><option>1500</option><option>1600</option><option>1700</option></select>
+            </div>
+            <p class="hint"><strong>提示：</strong>從 0 開始，每一格加 200。</p>
+            <div class="check-row"><button class="action-btn primary check-sequence">檢查答案</button></div>
+            <p class="feedback">完成四個空格，再檢查。</p>
+          </div>
+        </section>
+
+        <section class="slide task money-task" data-answer="1063">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">生活應用：付 1063 元</h2>
+          <div class="content">
+            <p class="instruction">按 ＋ 選出剛好 1063 元。</p>
+            <table class="place-board money-place-board" aria-label="1063 的定位板">
+              <tr><th>千位</th><th>百位</th><th>十位</th><th>個位</th></tr>
+              <tr><td><span class="support-digit">1</span></td><td><span class="support-digit">0</span></td><td><span class="support-digit">6</span></td><td><span class="support-digit">3</span></td></tr>
+            </table>
+            <div class="money-grid">
+              <div class="money-item" data-value="1000"><div class="money-icon">1000 元</div><div class="counter"><button class="minus" aria-label="減少1000元">－</button><output>0</output><button class="plus" aria-label="增加1000元">＋</button></div></div>
+              <div class="money-item" data-value="100"><div class="money-icon">100 元</div><div class="counter"><button class="minus" aria-label="減少100元">－</button><output>0</output><button class="plus" aria-label="增加100元">＋</button></div></div>
+              <div class="money-item" data-value="10"><div class="money-icon">10 元</div><div class="counter"><button class="minus" aria-label="減少10元">－</button><output>0</output><button class="plus" aria-label="增加10元">＋</button></div></div>
+              <div class="money-item" data-value="1"><div class="money-icon">1 元</div><div class="counter"><button class="minus" aria-label="減少1元">－</button><output>0</output><button class="plus" aria-label="增加1元">＋</button></div></div>
+            </div>
+            <div class="money-total">現在共 <output class="total">0</output> 元</div>
+            <p class="hint"><strong>提示：</strong>1063 是 1 個千、0 個百、6 個十、3 個一。</p>
+            <div class="check-row"><button class="action-btn primary check-money">檢查答案</button><button class="action-btn secondary reset-money">重新選</button></div>
+            <p class="feedback">選好錢，再檢查。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer=">">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">示範：比較大小</h2>
+          <div class="content">
+            <div class="big-number">1401　？　1399</div>
+            <div class="choices"><button class="choice" data-value=">">＞</button><button class="choice" data-value="<">＜</button><button class="choice" data-value="=">＝</button></div>
+            <div class="visual-box demo-detail"><strong>思考步驟：</strong>先比千位，都是 1。再比百位：4 比 3 大，所以 1401 比 1399 大。</div>
+            <p class="hint"><strong>關鍵：</strong>從最高位開始比。</p>
+            <div class="check-row"><button class="action-btn primary check-choice">檢查答案</button></div>
+            <p class="feedback">選一個符號，再檢查。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer=">">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 7：比較大小</h2>
+          <div class="content"><div class="big-number">2000　？　10 個百</div>
+            <div class="choices"><button class="choice" data-value=">">＞</button><button class="choice" data-value="<">＜</button><button class="choice" data-value="=">＝</button></div>
+            <p class="hint"><strong>提示：</strong>先把 10 個百換成 1000。</p>
+            <div class="check-row"><button class="action-btn primary check-choice">檢查答案</button></div><p class="feedback">選一個符號，再檢查。</p></div>
+        </section>
+
+        <section class="slide task" data-answer="<">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 8：比較大小</h2>
+          <div class="content"><div class="big-number">1450　？　一千四百五十九</div>
+            <div class="choices"><button class="choice" data-value=">">＞</button><button class="choice" data-value="<">＜</button><button class="choice" data-value="=">＝</button></div>
+            <p class="hint"><strong>提示：</strong>把「一千四百五十九」寫成 1459，再比較。</p>
+            <div class="check-row"><button class="action-btn primary check-choice">檢查答案</button></div><p class="feedback">選一個符號，再檢查。</p></div>
+        </section>
+
+        <section class="slide task" data-answer="=">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 9：比較大小</h2>
+          <div class="content"><div class="big-number">一千七百零八　？　1708</div>
+            <div class="choices"><button class="choice" data-value=">">＞</button><button class="choice" data-value="<">＜</button><button class="choice" data-value="=">＝</button></div>
+            <p class="hint"><strong>提示：</strong>兩邊都先寫成數字。</p>
+            <div class="check-row"><button class="action-btn primary check-choice">檢查答案</button></div><p class="feedback">選一個符號，再檢查。</p></div>
+        </section>
+
+        <section class="slide task" data-answer="1341">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 10：放進定位板</h2>
+          <div class="content">
+            <div class="number-cards"><span class="number-card">1000</span><span class="number-card">300</span><span class="number-card">40</span><span class="number-card">1</span></div>
+            <table class="place-board"><tr><th>千位</th><th>百位</th><th>十位</th><th>個位</th></tr><tr><td>1</td><td>3</td><td>4</td><td>1</td></tr></table>
+            <div class="choices"><button class="choice" data-value="1341">1341</button><button class="choice" data-value="1431">1431</button><button class="choice" data-value="1314">1314</button></div>
+            <p class="hint"><strong>提示：</strong>依序讀千、百、十、個位。</p>
+            <div class="check-row"><button class="action-btn primary check-choice">檢查答案</button></div><p class="feedback">選出定位板裡的數。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer="1620">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 11：放進定位板</h2>
+          <div class="content">
+            <div class="number-cards"><span class="number-card">1000</span><span class="number-card">600</span><span class="number-card">20</span><span class="number-card">0</span></div>
+            <table class="place-board"><tr><th>千位</th><th>百位</th><th>十位</th><th>個位</th></tr><tr><td>1</td><td>6</td><td>2</td><td>0</td></tr></table>
+            <div class="choices"><button class="choice" data-value="1260">1260</button><button class="choice" data-value="1602">1602</button><button class="choice" data-value="1620">1620</button></div>
+            <p class="hint"><strong>提示：</strong>個位沒有一，所以寫 0。</p>
+            <div class="check-row"><button class="action-btn primary check-choice">檢查答案</button></div><p class="feedback">選出定位板裡的數。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer="9">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 12：往右移動</h2>
+          <div class="content">
+            <p class="instruction">青蛙從 3 往右移動 6 格，會到哪裡？</p>
+            <div class="number-line"><span class="tick">0</span><span class="tick">1</span><span class="tick">2</span><span class="tick"><b class="marker">🐸</b>3</span><span class="tick">4</span><span class="tick">5</span><span class="tick">6</span><span class="tick">7</span><span class="tick">8</span><span class="tick">9</span><span class="tick">10</span></div>
+            <div class="big-number">3 ＋ 6 ＝ ？</div>
+            <div class="choices"><button class="choice" data-value="8">8</button><button class="choice" data-value="9">9</button><button class="choice" data-value="10">10</button></div>
+            <p class="hint"><strong>提示：</strong>往右表示加。從 3 開始往右數 6 格。</p>
+            <div class="check-row"><button class="action-btn primary check-choice">檢查答案</button></div><p class="feedback">選出答案。</p>
+          </div>
+        </section>
+
+        <section class="slide task" data-answer="4">
+          <div class="flow"><span class="now">① 看題目</span><span>② 找關鍵</span><span>③ 選答案</span><span>④ 檢查</span></div>
+          <h2 class="slide-title">練習 13：往左移動</h2>
+          <div class="content">
+            <p class="instruction">毛毛蟲從 9 往左移動 5 格，會到哪裡？</p>
+            <div class="number-line"><span class="tick">0</span><span class="tick">1</span><span class="tick">2</span><span class="tick">3</span><span class="tick">4</span><span class="tick">5</span><span class="tick">6</span><span class="tick">7</span><span class="tick">8</span><span class="tick"><b class="marker">●</b>9</span><span class="tick">10</span></div>
+            <div class="big-number">9 － 5 ＝ ？</div>
+            <div class="choices"><button class="choice" data-value="4">4</button><button class="choice" data-value="5">5</button><button class="choice" data-value="14">14</button></div>
+            <p class="hint"><strong>提示：</strong>往左表示減。從 9 開始往左數 5 格。</p>
+            <div class="check-row"><button class="action-btn primary check-choice">檢查答案</button></div><p class="feedback">選出答案。</p>
+          </div>
+        </section>
+
+        <section class="slide" data-kind="summary">
+          <h2 class="slide-title">今天學到什麼</h2>
+          <div class="content">
+            <div class="summary-checks">
+              <label><input type="checkbox"> 我會把讀法換成數字。</label>
+              <label><input type="checkbox"> 我會找出千、百、十、個位。</label>
+              <label><input type="checkbox"> 我會用 ＞、＜、＝比較。</label>
+              <label><input type="checkbox"> 我會看數線的左右方向。</label>
+            </div>
+            <div class="visual-box"><strong>簡單複習：</strong>10 個百是多少？ <span class="keyword">1000</span></div>
+            <div class="visual-box"><strong>生活應用：</strong>找一個 2000 元以內的價格。把數字讀給老師聽。</div>
+          </div>
+          <p class="hint">完成後，請老師記錄正確率和提示次數。</p>
+        </section>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="投影片導覽">
+      <button id="prevBtn" type="button">← 上一頁</button>
+      <span class="slide-count" id="slideCount">1 / 21</span>
+      <button id="nextBtn" type="button">下一頁 →</button>
+    </nav>
+  </main>
+
+  <dialog id="teacherDialog">
+    <div class="teacher-head"><h2>教師提示</h2><button class="tool-btn" id="closeTeacher" type="button">關閉</button></div>
+    <div class="teacher-body">
+      <h3>1. 原教材可能的困難</h3>
+      <ul>
+        <li>部分頁面同時放 4 題，文字和答案密集，學生不容易找到現在要做的題目。</li>
+        <li>原題出現 3020、4001、7089 等超出「2000 以內」的數，與單元範圍不一致。</li>
+        <li>原比較題把「2000」與「10 個千」並列，容易形成錯誤概念；10 個千是 10000。</li>
+        <li>答案直接顯示在投影片上，較難觀察學生是否能獨立作答。</li>
+        <li>題型切換快，缺少固定流程、完整示範與逐步褪除提示。</li>
+      </ul>
+
+      <h3>2. 調整後的教學目標</h3>
+      <ol>
+        <li>能從 3 個選項中選出正確的四位數。</li>
+        <li>能說出四位數各數字的位值。</li>
+        <li>能用 ＞、＜、＝正確比較 2000 以內的數。</li>
+        <li>能根據數線方向選出正確算式與答案。</li>
+      </ol>
+
+      <h3>3. 鷹架與逐步褪除</h3>
+      <ul>
+        <li><strong>第一層：</strong>保留完整流程、示範、位值表和完整提示。</li>
+        <li><strong>第二層：</strong>保留流程與關鍵詞，隱藏部分完整說明。</li>
+        <li><strong>第三層：</strong>保留流程、目前步驟與自我檢查，隱藏答案相關提示。</li>
+        <li><strong>第四層：</strong>只保留任務、固定流程與檢查按鈕。</li>
+        <li>學生在同一層連續 2 次達到至少 80% 正確，且不需額外口語提示，再進入下一層。</li>
+        <li>一次只褪除一種提示。若錯誤、停頓或焦慮增加，恢復上一層。</li>
+      </ul>
+
+      <h3>4. 教學時可怎麼提示</h3>
+      <ul>
+        <li>學生卡住時，先等 5～10 秒，再指向流程條的「找關鍵」。</li>
+        <li>讀數題可指向定位板，不直接念出答案。</li>
+        <li>比大小題提醒「從最高位開始比」。</li>
+        <li>數線題提醒「往右是加，往左是減」。</li>
+        <li>建議記錄：日期、任務、提示層級、正確率、額外提示次數、卡住的步驟。</li>
+      </ul>
+
+      <h3>5. 調整難度</h3>
+      <ul>
+        <li><strong>降低難度：</strong>改成 2 個選項；保留位值表；只練一種題型；教師先示範再作答。</li>
+        <li><strong>增加難度：</strong>隱藏位值表；讓學生自行輸入答案；改用不同的生活價格進行類化。</li>
+      </ul>
+    </div>
+  </dialog>
+
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const count = document.getElementById('slideCount');
+    const prev = document.getElementById('prevBtn');
+    const next = document.getElementById('nextBtn');
+    let current = 0;
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(index, slides.length - 1));
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+      count.textContent = `${current + 1} / ${slides.length}`;
+      prev.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+      slides[current].scrollTop = 0;
+      slides[current].querySelector('button, select, input')?.focus({ preventScroll: true });
+    }
+
+    function setFlow(slide, step) {
+      const parts = [...slide.querySelectorAll('.flow span')];
+      parts.forEach((part, i) => {
+        part.classList.toggle('done', i < step - 1);
+        part.classList.toggle('now', i === step - 1);
+      });
+    }
+
+    function setFeedback(slide, ok, message) {
+      const feedback = slide.querySelector('.feedback');
+      if (!feedback) return;
+      feedback.textContent = message;
+      feedback.className = `feedback ${ok ? 'ok' : 'try'}`;
+      setFlow(slide, ok ? 4 : 2);
+    }
+
+    document.addEventListener('click', (event) => {
+      const choice = event.target.closest('.choice');
+      if (choice) {
+        const slide = choice.closest('.slide');
+        slide.querySelectorAll('.choice').forEach(item => item.classList.remove('selected', 'correct', 'wrong'));
+        choice.classList.add('selected');
+        setFlow(slide, 3);
+      }
+
+      const checkChoice = event.target.closest('.check-choice');
+      if (checkChoice) {
+        const slide = checkChoice.closest('.slide');
+        const selected = slide.querySelector('.choice.selected');
+        if (!selected) return setFeedback(slide, false, '先選一個答案。');
+        const ok = selected.dataset.value === slide.dataset.answer;
+        selected.classList.add(ok ? 'correct' : 'wrong');
+        setFeedback(slide, ok, ok ? '答對了！請再看一次，確認答案。' : '再試一次。回到「找關鍵」，看看位值或方向。');
+      }
+
+      const checkSequence = event.target.closest('.check-sequence');
+      if (checkSequence) {
+        const slide = checkSequence.closest('.slide');
+        const expected = slide.dataset.answer.split('|');
+        const actual = [...slide.querySelectorAll('.seq-answer')].map(item => item.value);
+        if (actual.some(value => !value)) return setFeedback(slide, false, '請先完成每一個空格。');
+        const ok = expected.every((value, i) => value === actual[i]);
+        setFeedback(slide, ok, ok ? '答對了！規律和位值都正確。' : '再試一次。先看每一步增加或減少多少。');
+      }
+    });
+
+    document.querySelectorAll('.money-task').forEach(slide => {
+      const updateTotal = () => {
+        let total = 0;
+        slide.querySelectorAll('.money-item').forEach(item => total += Number(item.dataset.value) * Number(item.querySelector('output').value || item.querySelector('output').textContent));
+        slide.querySelector('.total').textContent = total;
+      };
+      slide.querySelectorAll('.money-item').forEach(item => {
+        const output = item.querySelector('output');
+        item.querySelector('.plus').addEventListener('click', () => { output.value = Number(output.value || output.textContent) + 1; output.textContent = output.value; updateTotal(); setFlow(slide, 3); });
+        item.querySelector('.minus').addEventListener('click', () => { output.value = Math.max(0, Number(output.value || output.textContent) - 1); output.textContent = output.value; updateTotal(); });
+      });
+      slide.querySelector('.check-money').addEventListener('click', () => {
+        const total = Number(slide.querySelector('.total').textContent);
+        setFeedback(slide, total === 1063, total === 1063 ? '答對了！1063 元剛好。' : `現在是 ${total} 元。再看一次千、百、十、個位。`);
+      });
+      slide.querySelector('.reset-money').addEventListener('click', () => {
+        slide.querySelectorAll('.money-item output').forEach(output => { output.value = 0; output.textContent = '0'; });
+        updateTotal();
+        setFeedback(slide, false, '已重新開始。');
+      });
+    });
+
+    prev.addEventListener('click', () => showSlide(current - 1));
+    next.addEventListener('click', () => showSlide(current + 1));
+    document.addEventListener('keydown', event => {
+      if (document.getElementById('teacherDialog').open) return;
+      if (['ArrowRight', 'PageDown'].includes(event.key)) showSlide(current + 1);
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) showSlide(current - 1);
+      if (event.key === 'Home') showSlide(0);
+      if (event.key === 'End') showSlide(slides.length - 1);
+    });
+
+    document.getElementById('scaffold').addEventListener('change', event => document.body.dataset.scaffold = event.target.value);
+    const teacherDialog = document.getElementById('teacherDialog');
+    document.getElementById('teacherBtn').addEventListener('click', () => teacherDialog.showModal());
+    document.getElementById('closeTeacher').addEventListener('click', () => teacherDialog.close());
+    document.getElementById('fullscreenBtn').addEventListener('click', async () => {
+      if (!document.fullscreenElement) await document.documentElement.requestFullscreen?.();
+      else await document.exitFullscreen?.();
+    });
+    showSlide(0);
+  </script>
+</body>
+</html>
