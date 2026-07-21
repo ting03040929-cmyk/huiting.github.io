@@ -62,7 +62,7 @@ function emptyComparisonBoard() {
 }
 
 function stepFlow(steps) {
-  return `<div class="compare-flow" aria-label="解題步驟">
+  return `<div class="compare-flow" style="margin-top: 1.6cqw" aria-label="解題步驟">
     ${steps.map((step, index) => `<div class="flow-step"><span>${index + 1}</span><strong>${step}</strong></div>${index < steps.length - 1 ? '<div class="flow-arrow" aria-hidden="true">→</div>' : ""}`).join("")}
   </div>`;
 }
@@ -156,16 +156,16 @@ const slides = [
   () => `<article class="slide" data-slide-number="5">
     <p class="slide-kicker">完整示範</p>
     <h2 class="question-title">1232 和 1270，哪一個大？</h2>
-    ${comparisonFlow()}
     ${comparisonView(1232, 1270, "demo1232")}
+    ${comparisonFlow()}
     ${compareControls(1232, 1270, "demo1232", "demo1232")}
   </article>`,
 
   () => `<article class="slide" data-slide-number="6">
     <p class="slide-kicker">第一層：辨認｜選出比較符號</p>
     <h2 class="question-title">481 和 487，應該填哪一個符號？</h2>
-    ${comparisonFlow()}
     ${comparisonView(481, 487, "q481", true)}
+    ${comparisonFlow()}
     ${compareControls(481, 487, "q481", "q481-step")}
     ${choiceButtons("<", "q481-answer", "feedback-q481")}
   </article>`,
@@ -173,8 +173,8 @@ const slides = [
   () => `<article class="slide" data-slide-number="7">
     <p class="slide-kicker">第二層：理解｜選出比較符號</p>
     <h2 class="question-title">1200 和 1199，應該填哪一個符號？</h2>
-    ${comparisonFlow()}
     ${comparisonView(1200, 1199, "q1200", true)}
+    ${comparisonFlow()}
     ${compareControls(1200, 1199, "q1200", "q1200-step")}
     ${choiceButtons(">", "q1200-answer", "feedback-q1200")}
   </article>`,
@@ -182,11 +182,11 @@ const slides = [
   () => `<article class="slide" data-slide-number="8">
     <p class="slide-kicker">生活例子｜比較錢的多少</p>
     <h2 class="question-title">1000 元和 910 元，哪一邊比較多？</h2>
-    ${comparisonFlow()}
     <div class="money-scene">
       <div class="money-card"><h3>左邊</h3>${placeBoard(1000, "money-left", true)}<p class="money-total">1000 元</p></div>
       <div class="money-card"><h3>右邊</h3>${placeBoard(910, "money-right", true)}<p class="money-total">910 元</p></div>
     </div>
+    ${comparisonFlow()}
     ${choiceButtons(">", "money-answer", "feedback-money")}
     <p id="feedback-money" class="feedback" role="status">1000 的千位是 1；910 的千位沒有數字。</p>
   </article>`,
@@ -194,8 +194,8 @@ const slides = [
   () => `<article class="slide" data-slide-number="9">
     <p class="slide-kicker">學校圖書館｜7 月到 12 月借閱統計</p>
     <h2 class="big-question">哪一個月借書最多？哪一個月最少？</h2>
-    ${comparisonFlow()}
     <div id="library-maxmin">${libraryTable()}</div>
+    ${comparisonFlow()}
     <div class="step-panel"><button class="action-button" type="button" data-table-reveal="maxmin">顯示比較提示</button></div>
     <div id="maxmin-answer" class="table-prompt" hidden>
       <div class="answer-card">最多：<strong>10 月</strong></div>
@@ -208,8 +208,8 @@ const slides = [
     <p class="slide-kicker">學校圖書館｜繼續看借閱統計</p>
     <h2 class="big-question">哪些月份借閱的書超過 1200 本？</h2>
     <p class="question-focus"><strong>超過 1200 本</strong>＝比 1200 本多</p>
-    ${comparisonFlow()}
     <div id="library-over">${libraryTable()}</div>
+    ${comparisonFlow()}
     <div class="step-panel"><button class="action-button" type="button" data-table-reveal="over">顯示答案</button></div>
     <p id="feedback-over" class="feedback" role="status">一次看一個月份。先比較千位，再比較百位。</p>
   </article>`,
@@ -217,8 +217,8 @@ const slides = [
   () => `<article class="slide" data-slide-number="11">
     <p class="slide-kicker">學校圖書館｜10 月的十位數字看不清楚</p>
     <h2 class="big-question">18□1：□ 填什麼時最小？填什麼時最大？</h2>
-    ${stepFlow(["先找 □ 在哪一位", "□ 在十位", "填 0 最小，填 9 最大"])}
     ${customBoard(["1","8","□","1"], "range")}
+    ${stepFlow(["先找 □ 在哪一位", "□ 在十位", "填 0 最小，填 9 最大"])}
     <div class="step-panel"><button class="action-button" type="button" data-table-reveal="range">顯示最小與最大</button></div>
     <div id="range-answer" class="range-line" hidden>
       <span class="range-value">最小 1801</span><span class="range-arrow">到</span><span class="range-value">最大 1891</span>
@@ -229,10 +229,10 @@ const slides = [
   () => `<article class="slide" data-slide-number="12">
     <p class="slide-kicker">排序示範｜由小到大</p>
     <h2 class="question-title">把 4 個數由小到大排列</h2>
-    ${comparisonFlow()}
     <div id="sort-demo-list" class="sort-board-list">
       ${[1094,1105,1232,1270].map(number => `<div class="sort-item" data-sort-demo-number="${number}"><strong>${number}</strong>${placeBoard(number, `sort-${number}`, true)}</div>`).join("")}
     </div>
+    ${comparisonFlow()}
     <div class="step-panel"><button class="action-button" type="button" data-sort-demo data-step="0">顯示第 1 個提示</button></div>
     <div id="sort-demo-order" class="sort-order">步驟 1：先看千位。</div>
   </article>`,
@@ -240,10 +240,10 @@ const slides = [
   () => `<article class="slide" data-slide-number="13">
     <p class="slide-kicker">第三層：應用｜由小到大排列</p>
     <h2 class="question-title">把 3 個數由小到大排列</h2>
-    ${comparisonFlow()}
     <div class="sort-board-list three">
       ${[1357,1094,1270].map(number => `<div class="sort-item"><strong>${number}</strong>${placeBoard(number, `practice-${number}`, true)}</div>`).join("")}
     </div>
+    ${comparisonFlow()}
     <div id="sort-practice" class="choice-row" data-order="1094,1270,1357" data-selected="">
       ${[1357,1094,1270].map(number => `<button class="number-choice" type="button" data-sort-value="${number}">${number}</button>`).join("")}
     </div>
@@ -269,8 +269,8 @@ const slides = [
   () => `<article class="slide" data-slide-number="15">
     <p class="slide-kicker">生活應用｜買比較便宜的物品</p>
     <h2 class="question-title">1290 元和 1320 元，哪一個比較便宜？</h2>
-    ${comparisonFlow()}
     ${comparisonView(1290, 1320, "price", true)}
+    ${comparisonFlow()}
     ${compareControls(1290, 1320, "price", "price-step")}
     <div class="choice-row" aria-label="選擇比較便宜的價格">
       <button class="number-choice" type="button" data-life-choice="1290" data-answer="1290">1290 元</button>
