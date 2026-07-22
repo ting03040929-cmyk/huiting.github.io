@@ -104,9 +104,19 @@ window.MATH_CURRICULUM = {
           href: "lessons/number-2000/lesson-03-compare-order/index.html"
         },
         {
+          id: "integer-number-line",
+          kind: "presentation",
+          order: 4,
+          title: "整數數線",
+          source: "04_整數數線.pptx",
+          enabled: true,
+          status: "可以上課",
+          href: "lessons/number-2000/lesson-04-integer-number-line/index.html"
+        },
+        {
           id: "student-self-study-2000",
           kind: "self-study",
-          order: 4,
+          order: 5,
           title: "積木數數定位板",
           source: "學生自學互動教材",
           enabled: true,
