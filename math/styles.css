@@ -98,6 +98,7 @@ main { max-width: 960px; margin: 0 auto; padding: 18px 28px 48px; }
 .unit-card:not(:disabled):hover, .unit-card:not(:disabled):focus-visible { border-color: #2c83aa; transform: translateY(-4px); box-shadow: 0 9px 0 #a9cfdd; }
 .unit-card.unit-orange:not(:disabled):hover, .unit-card.unit-orange:not(:disabled):focus-visible { background: #ffe5ae; }
 .unit-card.unit-blue:not(:disabled):hover, .unit-card.unit-blue:not(:disabled):focus-visible { background: #d9f0fb; }
+.unit-card.unit-purple:not(:disabled):hover, .unit-card.unit-purple:not(:disabled):focus-visible { background: #eadff5; border-color: #7d5ca6; box-shadow: 0 9px 0 #c9b3dd; }
 .unit-card:disabled { opacity: .48; cursor: not-allowed; filter: grayscale(.65); }
 .unit-icon { display: grid; place-items: center; width: 70px; height: 70px; margin: 0 auto 13px; border-radius: 20px; background: #eef3f5; font-size: 43px; font-weight: 900; }
 .unit-card strong { display: block; text-align: center; font-size: 30px; line-height: 1.4; }
