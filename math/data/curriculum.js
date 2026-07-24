@@ -145,7 +145,7 @@ window.MATH_CURRICULUM = {
       icon: "時",
       color: "purple",
       enabled: true,
-      note: "第一個活動：整點與半點互動練習",
+      note: "目前 2 份教材",
       lessons: [
         {
           id: "lesson-01-clock-mixed",
@@ -155,6 +155,16 @@ window.MATH_CURRICULUM = {
           enabled: true,
           status: "可以練習",
           href: "lessons/clock/lesson-01-clock-mixed/index.html"
+        },
+        {
+          id: "train-timetable",
+          kind: "presentation",
+          order: 2,
+          title: "火車時刻表學習",
+          source: "互動式網頁教材",
+          enabled: true,
+          status: "可以學習",
+          href: "lessons/time/lesson-01-train-timetable/index.html"
         }
       ]
     },
