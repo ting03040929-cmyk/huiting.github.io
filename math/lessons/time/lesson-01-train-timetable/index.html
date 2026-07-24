@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>火車時刻表｜同頁找答案｜嘉義出發</title>
+  <style>
+    :root{--ink:#172b4d;--muted:#5f7085;--blue:#246fce;--blue-dark:#174d94;--blue-soft:#eaf4ff;--green:#218b78;--green-soft:#e8f7f2;--orange:#d9791f;--orange-soft:#fff3e5;--red:#bd4b4b;--red-soft:#fff0f0;--line:#d7e1eb;--page:#f5f9fc;--white:#fff;--shadow:0 14px 32px rgba(36,75,112,.11)}
+    *{box-sizing:border-box}html,body{margin:0;min-width:320px;background:linear-gradient(180deg,#f2f8fd 0%,var(--page) 50%,#fff 100%);color:var(--ink);font-family:"Microsoft JhengHei","Noto Sans TC",Arial,sans-serif;line-height:1.45}
+    button{font:inherit;cursor:pointer}button:focus-visible{outline:4px solid rgba(36,111,206,.28);outline-offset:3px}[hidden]{display:none!important}
+    .app{width:min(1180px,calc(100% - 24px));margin:0 auto;padding:16px 0 28px}.topbar{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:3px solid var(--blue);padding:3px 3px 14px}.eyebrow{margin:0;color:var(--blue);font-weight:900;font-size:.96rem}.topbar h1{margin:2px 0 0;font-size:clamp(1.45rem,3.5vw,2.2rem);line-height:1.18}.top-note{margin:2px 0 0;color:var(--muted);text-align:right;font-size:.9rem}.progress{height:8px;background:#dce9f6;border-radius:99px;overflow:hidden;margin-top:13px}.progress span{display:block;height:100%;background:var(--blue);width:0;border-radius:99px;transition:width .2s ease}
+    main{padding-top:18px}.slide{display:none;animation:fade .16s ease}.slide.active{display:block}@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+    .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:14px}.flow span{padding:6px 5px;border:1px solid var(--line);border-radius:9px;background:var(--blue-soft);color:var(--blue-dark);font-size:.84rem;font-weight:900;text-align:center}.flow span.current{background:var(--blue);border-color:var(--blue);color:#fff}
+    .slide-title{text-align:center;margin:4px 0 4px;font-size:clamp(1.35rem,3vw,2rem);line-height:1.25}.slide-subtitle{text-align:center;color:var(--muted);margin:0 0 16px;font-size:1rem}
+    .work-grid{display:grid;grid-template-columns:minmax(0,1.34fr) minmax(320px,.66fr);gap:18px;align-items:start}.reference-panel,.question-panel{background:var(--white);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.reference-panel{padding:15px 15px 13px}.question-panel{padding:22px 22px 20px;min-height:365px}.panel-title{margin:0 0 4px;font-size:1.25rem;color:var(--blue-dark)}.panel-note{margin:0 0 11px;color:var(--muted);font-size:.9rem}.question-panel h3{margin:6px 0 18px;font-size:clamp(1.25rem,2.4vw,1.65rem);line-height:1.35}.hint{margin:14px 0 0;padding:11px 13px;background:var(--orange-soft);border-left:5px solid var(--orange);border-radius:8px;font-size:1rem;color:var(--ink)}
+    .table-wrap{overflow-x:auto}.timetable{width:100%;border-collapse:separate;border-spacing:0;min-width:560px;border:1px solid var(--line);border-radius:10px;overflow:hidden}.timetable th,.timetable td{padding:10px 7px;border-right:1px solid #fff;border-bottom:1px solid #fff;text-align:center;white-space:nowrap;font-size:1rem}.timetable th{background:var(--blue);color:#fff;font-size:.94rem}.timetable td{background:#fff}.timetable tbody tr:nth-child(even) td{background:#f1f4f7}.timetable td:first-child{font-weight:900}.timetable td.train-number{cursor:pointer;color:var(--blue-dark);transition:.14s ease}.timetable td.train-number:hover,.timetable td.train-number:focus{background:#d9f3eb!important;color:var(--green)}.timetable tbody tr.row-hover td{background:#fff0c7!important;color:#9a510e;font-weight:900;box-shadow:inset 0 -3px 0 var(--orange)}.timetable tbody tr.row-hover td.train-number{background:#ffe3a1!important;color:#8a4700;box-shadow:inset 4px 0 0 var(--orange),inset 0 -3px 0 var(--orange)}.timetable td.time-cell{cursor:pointer;transition:.14s ease}.timetable td.time-cell:hover,.timetable td.time-cell.selected{background:#d9f3eb!important;color:var(--green);font-weight:900;box-shadow:inset 0 0 0 3px var(--green)}.timetable td.focus-cell{background:#fff0c7!important;box-shadow:inset 0 0 0 3px var(--orange);color:#9a510e;font-weight:900}
+    .table-instruction{margin:10px 0 0;text-align:center;color:var(--muted);font-size:.9rem}.table-instruction strong{color:var(--blue-dark)}
+    .ticket-guide{margin:14px 0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--blue-soft);font-size:.92rem}.ticket-guide strong{display:block;margin-bottom:4px;color:var(--blue-dark)}.ticket-guide p{margin:3px 0}
+    .ticket-visual{min-height:300px;padding:18px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#f8fbff,#eef6ff)}.ticket-visual h3{margin:0 0 14px;color:var(--blue-dark);font-size:1.35rem}.ticket-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.ticket-card{min-height:128px;padding:13px 8px;border:2px solid var(--line);border-radius:10px;background:#fff;text-align:center}.ticket-card.highlight{border-color:var(--green);background:var(--green-soft)}.ticket-card strong{display:block;margin-bottom:7px;font-size:1.08rem;color:var(--blue-dark)}.ticket-card span{display:block;color:var(--muted);font-size:.88rem}.ticket-card.highlight strong{color:var(--green)}.age-rule{margin-top:17px;padding:15px 12px;border-radius:10px;background:#fff;border:1px solid var(--line);text-align:center}.age-rule strong{display:block;color:var(--orange);font-size:1.45rem}.age-rule span{display:block;margin-top:5px;font-size:.95rem;color:var(--muted)}
+    .options{display:grid;grid-template-columns:1fr;gap:10px}.option{min-height:55px;padding:11px 12px;border:2px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);font-size:1.15rem;font-weight:900;text-align:left;transition:.14s ease}.option:hover{border-color:var(--blue);background:var(--blue-soft)}.option.correct{border-color:var(--green);background:var(--green-soft);color:var(--green)}.option.wrong{border-color:var(--red);background:var(--red-soft);color:var(--red)}.feedback{min-height:42px;margin:15px 0 0;font-size:1.05rem;font-weight:900;color:var(--blue-dark)}.feedback.good{color:var(--green)}.feedback.bad{color:var(--red)}
+    .demo-step{display:grid;grid-template-columns:1fr 38px 1fr;gap:10px;align-items:center;margin:12px 0 18px}.demo-step strong{display:block;margin-bottom:7px;color:var(--blue);font-size:.98rem}.demo-box{padding:15px 10px;border:2px solid var(--blue);border-radius:10px;background:var(--blue-soft);text-align:center;font-size:1.6rem;font-weight:900;color:var(--blue)}.demo-box.answer{border-color:var(--green);background:var(--green-soft);color:var(--green)}.demo-arrow{font-size:1.8rem;font-weight:900;color:var(--orange);text-align:center}
+    .final-note{margin:17px 0 0;padding:12px 15px;background:var(--green-soft);border-left:5px solid var(--green);border-radius:8px;font-size:1.1rem;font-weight:900;color:var(--green)}.check-list{margin:16px 0 0;padding:15px 17px;border:1px solid var(--line);border-radius:10px;background:#fff}.check-list p{margin:6px 0;font-size:1.06rem}.source{margin:14px auto 0;color:var(--muted);font-size:.82rem;text-align:center}.source a{color:var(--blue-dark)}
+    .controls{display:flex;justify-content:center;align-items:center;gap:12px;margin:15px 0 0}.control{padding:10px 18px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--blue-dark);font-weight:900;box-shadow:0 5px 12px rgba(36,75,112,.08)}.control.primary{background:var(--blue);border-color:var(--blue);color:#fff}.control:disabled{opacity:.45;cursor:not-allowed}.page-count{min-width:80px;color:var(--muted);font-weight:900;text-align:center}
+    @media(max-width:820px){.work-grid{grid-template-columns:1fr}.question-panel{min-height:0}.top-note{display:none}.timetable{min-width:630px}}
+    @media(max-width:560px){.app{width:min(100% - 14px,1180px)}.flow{gap:3px}.flow span{font-size:.7rem;padding:6px 2px}.reference-panel,.question-panel{padding:13px}.demo-step{grid-template-columns:1fr}.demo-arrow{transform:rotate(90deg)}.controls{gap:7px}.control{padding:9px 11px;font-size:.92rem}}
+    .flow{display:none!important}
+    main > section.slide:nth-of-type(1) .slide-title,
+    main > section.slide:nth-of-type(2) .slide-title{display:none!important}
+    .ticket-visual,.ticket-card,.ticket-card.highlight,.age-rule,.ticket-guide{background:#fff!important}
+    .ticket-card.highlight{border-color:var(--line)!important}
+    .ticket-card.highlight strong{color:var(--blue-dark)!important}
+    main > section.slide:nth-of-type(8) .option,
+    main > section.slide:nth-of-type(9) .option,
+    main > section.slide:nth-of-type(10) .option{background:#fff!important}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar"><div><p class="eyebrow">特教班互動簡報</p><h1>火車時刻表｜同頁找答案｜嘉義出發</h1></div><p class="top-note">每一頁都有時刻表和問題<br>按 → 下一頁，按 ← 返回</p></header>
+    <div class="progress" aria-label="簡報進度"><span id="progressBar"></span></div>
+    <main>
+      <section class="slide active" data-step="2" data-title="示範：車次3121從嘉義幾點出發？">
+        <div class="flow"><span>1 看票種</span><span>2 看時刻</span><span class="current">3 找答案</span><span>4 檢查</span><span>完成</span></div>
+        <h2 class="slide-title">示範：表格和問題在同一頁</h2><p class="slide-subtitle">先找到車次，再往下看嘉義欄</p>
+        <div class="work-grid"><div class="reference-panel"><h3 class="panel-title">嘉義→高雄火車時刻表</h3><p class="panel-note">點一下表格中的時間，可以圈出你找到的位置。</p><div class="table-wrap timetable-host"></div><p class="table-instruction"><strong>找法：</strong>先找車次3121，再看嘉義這一欄。</p></div><div class="question-panel"><h3>車次3121從嘉義幾點出發？</h3><div class="demo-step"><div><strong>第1步 找到車次3121</strong><div class="demo-box">3121</div></div><div class="demo-arrow">→</div><div><strong>第2步 看嘉義欄</strong><div class="demo-box answer">05:08</div></div></div><p class="final-note">答案：05:08。</p><p class="hint">請把表格中的05:08點一下。</p></div></div>
+      </section>
+
+      <section class="slide" data-step="2" data-title="練習一：車次3127從嘉義幾點出發？">
+        <div class="flow"><span>1 看票種</span><span>2 看時刻</span><span class="current">3 找答案</span><span>4 檢查</span><span>完成</span></div>
+        <h2 class="slide-title">練習一：從同一頁找出答案</h2><p class="slide-subtitle">先看左邊表格，再回答右邊問題</p>
+        <div class="work-grid"><div class="reference-panel"><h3 class="panel-title">嘉義→高雄火車時刻表</h3><p class="panel-note">點一下你認為的答案。</p><div class="table-wrap timetable-host"></div><p class="table-instruction">提示：找到3127這一列，再看嘉義欄。</p></div><div class="question-panel"><h3>車次3127從嘉義幾點出發？</h3><div class="options"><button class="option" data-correct="false" data-focus="3127-cy">A　05:08</button><button class="option" data-correct="true" data-focus="3127-cy">B　05:35</button><button class="option" data-correct="false" data-focus="3127-cy">C　08:24</button></div><p class="feedback" aria-live="polite"></p><p class="hint">提示：先找3127，再看嘉義。</p></div></div>
+      </section>
+
+      <section class="slide" data-step="2" data-title="練習二：哪一班車最早？">
+        <div class="flow"><span>1 看票種</span><span>2 看時刻</span><span class="current">3 找答案</span><span>4 檢查</span><span>完成</span></div>
+        <h2 class="slide-title">練習二：比較嘉義出發時間</h2><p class="slide-subtitle">三個選項都在表格裡，請從表格找答案</p>
+        <div class="work-grid"><div class="reference-panel"><h3 class="panel-title">嘉義→高雄火車時刻表</h3><p class="panel-note">比較嘉義欄的三個時間。</p><div class="table-wrap timetable-host"></div><p class="table-instruction">提示：時間越早，代表越早出發。</p></div><div class="question-panel"><h3>哪一班車最早從嘉義出發？</h3><div class="options"><button class="option" data-correct="true" data-focus="3121-cy">A　3121（05:08）</button><button class="option" data-correct="false" data-focus="3151-cy">B　3151（08:24）</button><button class="option" data-correct="false" data-focus="3171-cy">C　3171（10:28）</button></div><p class="feedback" aria-live="polite"></p><p class="hint">提示：比較05:08、08:24、10:28。</p></div></div>
+      </section>
+
+      <section class="slide" data-step="2" data-title="練習三：車次3151從嘉義幾點出發？">
+        <div class="flow"><span>1 看票種</span><span>2 看時刻</span><span class="current">3 找答案</span><span>4 檢查</span><span>完成</span></div>
+        <h2 class="slide-title">練習三：只看嘉義出發時間</h2><p class="slide-subtitle">這一頁的問題是「從嘉義幾點出發」</p>
+        <div class="work-grid"><div class="reference-panel"><h3 class="panel-title">嘉義→高雄火車時刻表</h3><p class="panel-note">先找3151這一列，再看嘉義欄。</p><div class="table-wrap timetable-host"></div><p class="table-instruction">提示：題目問出發時間，所以看嘉義，不看水上。</p></div><div class="question-panel"><h3>車次3151從嘉義幾點出發？</h3><div class="options"><button class="option" data-correct="true" data-focus="3151-cy">A　08:24</button><button class="option" data-correct="false" data-focus="3151-sh">B　08:30</button><button class="option" data-correct="false" data-focus="3151-xy">C　08:47</button></div><p class="feedback" aria-live="polite"></p><p class="hint">提示：找到3151，再看嘉義這一欄。</p></div></div>
+      </section>
+
+      <section class="slide" data-step="2" data-title="練習四：車次3121到臺南幾點？">
+        <div class="flow"><span>1 看票種</span><span>2 看時刻</span><span class="current">3 找答案</span><span>4 檢查</span><span>完成</span></div>
+        <h2 class="slide-title">練習四：從嘉義到臺南</h2><p class="slide-subtitle">目的地不同，要看不同欄位</p>
+        <div class="work-grid"><div class="reference-panel"><h3 class="panel-title">嘉義→高雄火車時刻表</h3><p class="panel-note">找到3121這一列，再看臺南欄。</p><div class="table-wrap timetable-host"></div><p class="table-instruction">提示：看臺南，不是看高雄。</p></div><div class="question-panel"><h3>小明搭車次3121，幾點到臺南？</h3><div class="options"><button class="option" data-correct="false" data-focus="3121-xy">A　05:30</button><button class="option" data-correct="true" data-focus="3121-tn">B　06:15</button><button class="option" data-correct="false" data-focus="3121-ks">C　07:22</button></div><p class="feedback" aria-live="polite"></p><p class="hint">提示：先找3121，再看臺南欄。</p></div></div>
+      </section>
+
+      <section class="slide" data-step="2" data-title="練習五：車次3121到高雄幾點？">
+        <div class="flow"><span>1 看票種</span><span>2 看時刻</span><span class="current">3 找答案</span><span>4 檢查</span><span>完成</span></div>
+        <h2 class="slide-title">練習五：從嘉義到高雄</h2><p class="slide-subtitle">從最左邊出發，到最右邊的高雄</p>
+        <div class="work-grid"><div class="reference-panel"><h3 class="panel-title">嘉義→高雄火車時刻表</h3><p class="panel-note">找到3121這一列，再看最右邊的高雄欄。</p><div class="table-wrap timetable-host"></div><p class="table-instruction">提示：高雄在表格最右邊。</p></div><div class="question-panel"><h3>車次3121幾點到高雄？</h3><div class="options"><button class="option" data-correct="false" data-focus="3121-cy">A　05:08</button><button class="option" data-correct="false" data-focus="3121-tn">B　06:15</button><button class="option" data-correct="true" data-focus="3121-ks">C　07:22</button></div><p class="feedback" aria-live="polite"></p><p class="hint">提示：看3121和高雄交叉的位置。</p></div></div>
+      </section>
+
+      <section class="slide" data-step="2" data-title="生活應用：選一班適合的車">
+        <div class="flow"><span>1 看票種</span><span>2 看時刻</span><span class="current">3 找答案</span><span>4 檢查</span><span>完成</span></div>
+        <h2 class="slide-title">生活應用：我可以選一班車</h2><p class="slide-subtitle">先看時間條件，再回到表格找答案</p>
+        <div class="work-grid"><div class="reference-panel"><h3 class="panel-title">嘉義→高雄火車時刻表</h3><p class="panel-note">比較嘉義欄的出發時間。</p><div class="table-wrap timetable-host"></div><p class="table-instruction">提示：題目說「8點到9點之間」。</p></div><div class="question-panel"><h3>小美要在上午8點到9點之間從嘉義出發，她可以選哪一班？</h3><div class="options"><button class="option" data-correct="false" data-focus="3121-cy">A　3121（05:08）</button><button class="option" data-correct="true" data-focus="3151-cy">B　3151（08:24）</button><button class="option" data-correct="false" data-focus="3171-cy">C　3171（10:28）</button></div><p class="feedback" aria-live="polite"></p><p class="hint">提示：只有08:24在8點到9點之間。</p></div></div>
+      </section>
+
+      <section class="slide" data-step="2" data-title="票種題：愛心票">
+        <div class="flow"><span>1 看票種</span><span>2 看時刻</span><span class="current">3 找答案</span><span>4 檢查</span><span>完成</span></div>
+        <h2 class="slide-title">票種練習一：看情境選票種</h2><p class="slide-subtitle">左邊保留時刻表，右邊閱讀生活情境</p>
+        <div class="work-grid"><div class="reference-panel"><div class="ticket-visual"><h3>臺鐵票種小卡</h3><div class="ticket-cards"><div class="ticket-card"><strong>全票</strong><span>一般旅客</span><span>12歲以上</span></div><div class="ticket-card highlight"><strong>愛心票</strong><span>有身心障礙</span><span>證明的旅客</span></div><div class="ticket-card"><strong>敬老票</strong><span>年滿65歲</span><span>的旅客</span></div></div><div class="age-rule"><strong>先看身分，再選票種</strong><span>有身心障礙證明 → 可能使用愛心票</span></div></div><p class="table-instruction">請先看左邊的票種小卡，再回答右邊問題。</p></div><div class="question-panel"><h3>老師帶著有身心障礙證明的學生搭火車。學生可能使用哪一種票？</h3><div class="ticket-guide"><strong>票種小提醒</strong><p>愛心票：有身心障礙證明的旅客。</p><p>全票：一般旅客。</p><p>敬老票：年滿65歲的旅客。</p></div><div class="options"><button class="option" data-correct="false">A　全票</button><button class="option" data-correct="true">B　愛心票</button><button class="option" data-correct="false">C　敬老票</button></div><p class="feedback" aria-live="polite"></p></div></div>
+      </section>
+
+      <section class="slide" data-step="2" data-title="票種題：愛陪票">
+        <div class="flow"><span>1 看票種</span><span>2 看時刻</span><span class="current">3 找答案</span><span>4 檢查</span><span>完成</span></div>
+        <h2 class="slide-title">票種練習二：找出陪伴者的票</h2><p class="slide-subtitle">先看人物，再看適合的票種</p>
+        <div class="work-grid"><div class="reference-panel"><div class="ticket-visual"><h3>臺鐵票種小卡</h3><div class="ticket-cards"><div class="ticket-card highlight"><strong>愛陪票</strong><span>必要陪伴者</span><span>證明有註記</span></div><div class="ticket-card"><strong>孩童票</strong><span>未滿12歲</span><span>符合身高規定</span></div><div class="ticket-card"><strong>敬老票</strong><span>年滿65歲</span><span>的旅客</span></div></div><div class="age-rule"><strong>一起進出站</strong><span>必要陪伴者要和身心障礙者同行</span></div></div><p class="table-instruction">請先看左邊的票種小卡，再回答右邊問題。</p></div><div class="question-panel"><h3>必要陪伴者和身心障礙者一起進出站，可能使用哪一種票？</h3><div class="ticket-guide"><strong>票種小提醒</strong><p>愛陪票：必要陪伴者，且證明有註記。</p><p>乘車時要和身心障礙者一起進出站。</p></div><div class="options"><button class="option" data-correct="true">A　愛陪票</button><button class="option" data-correct="false">B　孩童票</button><button class="option" data-correct="false">C　敬老票</button></div><p class="feedback" aria-live="polite"></p></div></div>
+      </section>
+
+      <section class="slide" data-step="2" data-title="票種題：12歲以上">
+        <div class="flow"><span>1 看票種</span><span>2 看時刻</span><span class="current">3 找答案</span><span>4 檢查</span><span>完成</span></div>
+        <h2 class="slide-title">票種練習三：12歲要先看哪一種票？</h2><p class="slide-subtitle">年齡是判斷票種的重要線索</p>
+        <div class="work-grid"><div class="reference-panel"><div class="ticket-visual"><h3>臺鐵票種小卡</h3><div class="ticket-cards"><div class="ticket-card highlight"><strong>全票</strong><span>年滿12歲</span><span>不論身高</span></div><div class="ticket-card"><strong>孩童票</strong><span>未滿12歲</span><span>符合身高規定</span></div><div class="ticket-card"><strong>敬老票</strong><span>年滿65歲</span><span>的旅客</span></div></div><div class="age-rule"><strong>12歲是一個重要線索</strong><span>年滿12歲 → 優先確認全票</span></div></div><p class="table-instruction">請先看左邊的票種小卡，再回答右邊問題。</p></div><div class="question-panel"><h3>小安已經12歲。他買票時，應優先確認哪一種票？</h3><div class="ticket-guide"><strong>票種小提醒</strong><p>年滿12歲者，不論身高，買全票。</p><p>孩童票是未滿12歲且符合身高規定的兒童票。</p></div><div class="options"><button class="option" data-correct="true">A　全票</button><button class="option" data-correct="false">B　孩童票</button><button class="option" data-correct="false">C　敬老票</button></div><p class="feedback" aria-live="polite"></p></div></div>
+      </section>
+
+      <section class="slide" data-step="3" data-title="自己找一班車">
+        <div class="flow"><span>1 看票種</span><span>2 看時刻</span><span>3 找答案</span><span class="current">4 檢查</span><span>完成</span></div>
+        <h2 class="slide-title">自己找一班車，說出完整答案</h2><p class="slide-subtitle">表格和問題仍然在同一頁</p>
+        <div class="work-grid"><div class="reference-panel"><h3 class="panel-title">嘉義→高雄火車時刻表</h3><p class="panel-note">請自己選一個車次，點選它的嘉義時間和高雄時間。</p><div class="table-wrap timetable-host"></div><p class="table-instruction">提示：要說出「車次、從嘉義幾點出發、幾點到高雄」。</p></div><div class="question-panel"><h3>請選一班車，完成這句話：</h3><p class="final-note">車次＿＿＿，從嘉義＿＿＿出發，＿＿＿到高雄。</p><div class="check-list"><p>□ 我找到車次。</p><p>□ 我找到嘉義時間。</p><p>□ 我找到高雄時間。</p><p>□ 我檢查一次。</p></div><p class="hint">教師可請學生用手指出表格中的三個位置，再說完整句子。</p></div></div>
+      </section>
+    </main>
+    <div class="controls"><button id="prev" class="control">← 上一頁</button><span id="pageCount" class="page-count">1 / 11</span><button id="next" class="control primary">下一頁 →</button></div>
+    <p class="source">時刻表依臺鐵官網115年7月1日起「嘉義→高雄」資料製作；實際搭車前請查詢<a href="https://www.railway.gov.tw/tra-tip-web/tip/tip001/tip112/gobytime" target="_blank" rel="noopener">臺鐵最新時刻</a>。</p>
+  </div>
+  <script>
+    (() => {
+      const trains = [
+        ['3121','05:08','05:13','05:30','06:15','07:22'],
+        ['3127','05:35','05:41','05:58','06:43','07:56'],
+        ['3151','08:24','08:30','08:47','09:38','10:42'],
+        ['3161','09:19','09:25','09:42','10:36','11:51'],
+        ['3171','10:28','10:34','10:50','11:06','12:55']
+      ];
+      const headings = ['車次','嘉義','水上','新營','臺南','高雄'];
+      document.querySelectorAll('.flow').forEach(flow => flow.remove());
+      const slides = [...document.querySelectorAll('.slide')];
+      const prev = document.querySelector('#prev'), next = document.querySelector('#next');
+      const count = document.querySelector('#pageCount'), bar = document.querySelector('#progressBar');
+      let current = 0;
+      const keyFor = (row, col) => `${trains[row][0]}-${['','cy','sh','xy','tn','ks'][col]}`;
+      const tableMarkup = () => `<table class="timetable"><thead><tr>${headings.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${trains.map((row,ri) => `<tr data-row="${ri}"><td class="train-number" tabindex="0" data-row="${ri}">${row[0]}</td>${row.slice(1).map((time,ci) => `<td class="time-cell" tabindex="0" data-key="${keyFor(ri,ci+1)}">${time}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+      document.querySelectorAll('.timetable-host').forEach(host => { host.innerHTML = tableMarkup(); });
+      document.querySelectorAll('.train-number').forEach(cell => { const row = cell.closest('tr'); const setHover = () => row.classList.add('row-hover'); const clearHover = () => row.classList.remove('row-hover'); cell.addEventListener('mouseenter', setHover); cell.addEventListener('mouseleave', clearHover); cell.addEventListener('focus', setHover); cell.addEventListener('blur', clearHover); });
+      const clearFocus = slide => slide.querySelectorAll('.focus-cell').forEach(cell => cell.classList.remove('focus-cell'));
+      const selectCell = cell => { const slide = cell.closest('.slide'); clearFocus(slide); cell.classList.add('selected'); };
+      document.querySelectorAll('.time-cell').forEach(cell => { cell.addEventListener('click', () => selectCell(cell)); cell.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();selectCell(cell)} }); });
+      const show = index => { current = Math.max(0,Math.min(index,slides.length-1)); slides.forEach((s,i)=>s.classList.toggle('active',i===current)); count.textContent = `${current+1} / ${slides.length}`; bar.style.width = `${((current+1)/slides.length)*100}%`; prev.disabled=current===0; next.disabled=current===slides.length-1; window.scrollTo({top:0,behavior:'smooth'}); };
+      prev.addEventListener('click',()=>show(current-1)); next.addEventListener('click',()=>show(current+1));
+      document.addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(current+1)} if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(current-1)} if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1)});
+      slides.forEach(slide => { const feedback=slide.querySelector('.feedback'); if(!feedback)return; slide.querySelectorAll('.option').forEach(option => option.addEventListener('click',()=>{ slide.querySelectorAll('.option').forEach(item=>item.classList.remove('correct','wrong')); slide.querySelectorAll('.time-cell').forEach(item=>item.classList.remove('focus-cell')); const correct=option.dataset.correct==='true'; option.classList.add(correct?'correct':'wrong'); feedback.className=`feedback ${correct?'good':'bad'}`; feedback.textContent=correct?'答對了！請指出表格中的那一格。':'再看一次左邊的表格和提示。'; if(correct){const target=slide.querySelector(`[data-key="${option.dataset.focus}"]`);if(target){target.classList.add('focus-cell');target.scrollIntoView({block:'nearest',inline:'nearest'})}} })); });
+      show(0);
+    })();
+  </script>
+</body>
+</html>
