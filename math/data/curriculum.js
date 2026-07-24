@@ -5,13 +5,13 @@ window.MATH_CURRICULUM = {
       id: "first",
       title: "第一學期",
       description: "先認識 1000 與 2000 以內的數。",
-      unitIds: ["number-1000", "number-2000"]
+      unitIds: ["number-1000", "number-2000", "division"]
     },
     {
       id: "second",
       title: "第二學期",
       description: "把數學用在時間與生活中的練習。",
-      unitIds: ["time", "division"]
+      unitIds: ["time"]
     }
   ],
   units: [
