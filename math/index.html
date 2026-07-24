@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fffaf1">
   <title>數學學習站</title>
-  <link rel="stylesheet" href="styles.css?v=20260724-semesters-clock">
+  <link rel="stylesheet" href="styles.css?v=20260724-semesters-clock-v2">
 </head>
 <body>
   <a class="skip-link" href="#activity">跳到活動</a>
@@ -25,7 +25,25 @@
       <ol id="progressList"></ol>
     </nav>
 
-    <section class="lesson-card" id="activity" aria-live="polite"></section>
+    <section class="lesson-card" id="activity" aria-live="polite">
+      <div class="platform-fallback">
+        <p class="eyebrow">數學學習站</p>
+        <h1>數學學習站</h1>
+        <p class="instruction">請選擇學期，再選擇數學單元。</p>
+        <div class="fallback-semesters">
+          <section aria-labelledby="fallback-first-title">
+            <h2 id="fallback-first-title">第一學期</h2>
+            <a href="index.html#unit=number-1000">1000 以內的數</a>
+            <a href="index.html#unit=number-2000">2000 以內的數</a>
+          </section>
+          <section aria-labelledby="fallback-second-title">
+            <h2 id="fallback-second-title">第二學期</h2>
+            <a href="index.html#unit=time">時間的運用</a>
+            <a href="index.html#unit=division">除法</a>
+          </section>
+        </div>
+      </div>
+    </section>
 
     <footer class="lesson-actions">
       <button class="secondary-button" id="hintBtn" type="button">💡 給我提示</button>
@@ -34,7 +52,7 @@
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="assertive"></div>
-  <script src="data/curriculum.js?v=20260724-semesters-clock"></script>
-  <script src="app.js?v=20260724-semesters-clock"></script>
+  <script src="data/curriculum.js?v=20260724-semesters-clock-v2"></script>
+  <script src="app.js?v=20260724-semesters-clock-v2"></script>
 </body>
 </html>
