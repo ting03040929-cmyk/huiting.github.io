@@ -270,8 +270,13 @@
       display: block;
       width: 100%;
       aspect-ratio: 1;
-      object-fit: contain;
       background: #ffffff;
+    }
+
+    .clock-image svg {
+      display: block;
+      width: 100%;
+      height: 100%;
     }
 
     .hint-row {
@@ -490,7 +495,7 @@
           </div>
 
           <div class="clock-stage">
-            <img id="clockImage" class="clock-image" src="" alt="鐘面">
+            <div id="clockImage" class="clock-image" role="img" aria-label="鐘面"></div>
           </div>
 
           <div class="hint-row">
@@ -595,6 +600,42 @@
       return imageFolder + encodeURIComponent(fileName);
     }
 
+    function renderClock(container, hour, kind) {
+      const isHalf = kind === "half";
+      const minuteAngle = isHalf ? 180 : 0;
+      const hourAngle = (hour % 12) * 30 + (isHalf ? 15 : 0);
+      const point = (angle, length) => {
+        const radians = angle * Math.PI / 180;
+        return {
+          x: 150 + length * Math.sin(radians),
+          y: 150 - length * Math.cos(radians)
+        };
+      };
+      const minutePoint = point(minuteAngle, 101);
+      const hourPoint = point(hourAngle, 68);
+      const ticks = Array.from({ length: 12 }, (_, index) => (
+        `<line x1="150" y1="25" x2="150" y2="39" stroke="#17324d" stroke-width="4" stroke-linecap="round" transform="rotate(${index * 30} 150 150)" />`
+      )).join("");
+      const numbers = Array.from({ length: 12 }, (_, index) => {
+        const value = index === 0 ? 12 : index;
+        const angle = index * 30 * Math.PI / 180 - Math.PI / 2;
+        const x = 150 + 91 * Math.cos(angle);
+        const y = 150 + 91 * Math.sin(angle) + 7;
+        return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" font-size="21" font-weight="800" fill="#17324d">${value}</text>`;
+      }).join("");
+
+      container.innerHTML = `
+        <svg viewBox="0 0 300 300" role="img" aria-label="鐘面">
+          <title>鐘面</title>
+          <circle cx="150" cy="150" r="130" fill="#ffffff" stroke="#17324d" stroke-width="5" />
+          ${ticks}
+          ${numbers}
+          <line x1="150" y1="150" x2="${hourPoint.x.toFixed(1)}" y2="${hourPoint.y.toFixed(1)}" stroke="#bd4b4b" stroke-width="11" stroke-linecap="round" />
+          <line x1="150" y1="150" x2="${minutePoint.x.toFixed(1)}" y2="${minutePoint.y.toFixed(1)}" stroke="#246fce" stroke-width="8" stroke-linecap="round" />
+          <circle cx="150" cy="150" r="10" fill="#17324d" />
+        </svg>`;
+    }
+
     function shuffled(items) {
       const copy = [...items];
       for (let index = copy.length - 1; index > 0; index -= 1) {
@@ -651,8 +692,8 @@
       progressFill.style.width = `${(state.index / state.questions.length) * 100}%`;
       questionNumber.textContent = `第 ${state.index + 1} 題`;
       questionPrompt.textContent = mode.prompt;
-      clockImage.src = assetPath(question.file);
-      clockImage.alt = `鐘面：${question.label}`;
+      renderClock(clockImage, question.hour, question.kind);
+      clockImage.setAttribute("aria-label", `鐘面：${question.label}`);
       hintText.textContent = mode.hint;
       hintText.hidden = true;
       hintButton.setAttribute("aria-expanded", "false");
